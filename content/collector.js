@@ -727,11 +727,19 @@ async function captureScreenshotViaBackground() {
         }
 
         console.log("📨 Screenshot response received");
+        console.log("   Response type:", typeof response);
+        console.log("   Response keys:", response ? Object.keys(response) : "null");
+        console.log("   Response.success:", response?.success);
+        console.log("   Response.dataUrl exists:", !!response?.dataUrl);
+        console.log("   Response.dataUrl type:", typeof response?.dataUrl);
+        console.log("   Response.dataUrl length:", response?.dataUrl?.length);
+
         if (response && response.dataUrl) {
           console.log("✅ Screenshot dataUrl present, length:", response.dataUrl.length);
           resolve(response.dataUrl);
         } else {
-          console.error("❌ Screenshot response missing dataUrl:", response);
+          console.error("❌ Screenshot response missing dataUrl");
+          console.error("   Full response:", JSON.stringify(response));
           resolve(null);
         }
       }
