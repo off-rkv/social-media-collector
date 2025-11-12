@@ -564,6 +564,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       augmentedCount: message.data.augmentedCount || 0,
       totalCount: message.data.samplesCollected || 0,
     });
+    sendResponse({ received: true });
+    return true;
   }
 
   if (message.action === "COLLECTION_COMPLETE") {
@@ -575,9 +577,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     alert(
       `🎉 Collection complete!\n\nCollected ${message.data.totalSamples} samples from ${message.data.platform}`
     );
+    sendResponse({ received: true });
+    return true;
   }
 
-  sendResponse({ received: true });
+  // Don't respond to messages not meant for popup
+  return false;
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
