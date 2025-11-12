@@ -35,9 +35,9 @@ let augmentedCount = 0;
 let unchangedScrollCount = 0;
 
 // Targets
-const TARGET_PURE = 700;
-const TARGET_AUGMENTED = 300;
-const TARGET_TOTAL = 1000;
+const TARGET_PURE = 7000;
+const TARGET_AUGMENTED = 3000;
+const TARGET_TOTAL = 10000;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SECTION 1: MESSAGE LISTENER (from popup via service worker)
