@@ -224,126 +224,125 @@ async function collectionLoop() {
       console.log(`📦 Found ${tweetContainers.length} tweets`);
 
       // ═══════════════════════════════════════════════════════════════════════
-      // STEP 2: Find BEST tweet in zone
+      // STEP 2: Find ALL tweets in zone (not just one!)
       // ═══════════════════════════════════════════════════════════════════════
-      let targetContainer = null;
-      
+      const targetContainers = [];
+
       for (const container of tweetContainers) {
         const rect = container.getBoundingClientRect();
         const containerMiddle = rect.top + (rect.height / 2);
-        
-        // Top half must be in zone
-        if (rect.top >= collectionZone.top && 
-            containerMiddle <= collectionZone.bottom &&
-            rect.top < collectionZone.bottom - 100) {
-          targetContainer = container;
-          console.log(`✅ Tweet in zone (top: ${Math.round(rect.top)})`);
-          break;
+
+        // Any part of tweet overlaps with zone
+        const overlapsZone =
+          rect.bottom > collectionZone.top &&
+          rect.top < collectionZone.bottom &&
+          rect.right > collectionZone.left &&
+          rect.left < collectionZone.right;
+
+        if (overlapsZone) {
+          targetContainers.push(container);
+          console.log(`✅ Tweet in zone (top: ${Math.round(rect.top)}, bottom: ${Math.round(rect.bottom)})`);
         }
       }
-      
-      if (!targetContainer) {
-        console.log("⚠️ No tweet in zone, scrolling...");
+
+      if (targetContainers.length === 0) {
+        console.log("⚠️ No tweets in zone, scrolling...");
         window.CollectorHelpers.scroll(collectionSettings.scrollDirection, 35);
         await window.CollectorHelpers.sleep(200);
         continue;
       }
 
+      console.log(`🎯 Processing ${targetContainers.length} tweet(s) in zone`);
+
       // ═══════════════════════════════════════════════════════════════════════
-      // STEP 3: Find ALL elements WITHIN container
+      // STEP 3: Find ALL elements in ALL tweets in zone
       // ═══════════════════════════════════════════════════════════════════════
       const foundElements = [];
-      
-      // Add container itself first
-      if (collectionConfig.tweet_container) {
-        if (window.CollectorHelpers.isElementInZone(targetContainer, collectionZone)) {
-          foundElements.push({
-            element: targetContainer,
-            type: 'tweet_container',
-            classId: collectionConfig.tweet_container.classId
-          });
-          console.log('✅ Container added (classId: 0)');
-        }
-      }
-      
-      // Find all other elements
-      for (const [elementType, elementConfig] of Object.entries(collectionConfig)) {
-        if (elementType === 'tweet_container') continue;
 
-        const selector = elementConfig.selector;
-        const fallbackSelectors = elementConfig.fallbackSelectors || [];
-
-        console.log(`🔍 Looking for ${elementType}...`);
-
-        // Try primary
-        let elements = targetContainer.querySelectorAll(selector);
-        console.log(`   Primary selector found: ${elements.length}`);
-
-        // Try fallbacks if needed
-        if (elements.length === 0 && fallbackSelectors.length > 0) {
-          console.log(`   Trying ${fallbackSelectors.length} fallback selectors...`);
-          for (const fallback of fallbackSelectors) {
-            elements = targetContainer.querySelectorAll(fallback);
-            if (elements.length > 0) {
-              console.log(`✅ ${elementType} via fallback (${elements.length} found): ${fallback.substring(0, 40)}...`);
-              break;
-            }
+      // Process each tweet container in zone
+      for (const targetContainer of targetContainers) {
+        // Add container itself first
+        if (collectionConfig.tweet_container) {
+          if (window.CollectorHelpers.isElementInZone(targetContainer, collectionZone)) {
+            foundElements.push({
+              element: targetContainer,
+              type: 'tweet_container',
+              classId: collectionConfig.tweet_container.classId
+            });
+            console.log('✅ Container added (classId: 0)');
           }
         }
 
-        if (elements.length === 0) {
-          console.log(`   ❌ ${elementType}: None found`);
-        }
+        // Find all other elements within this tweet
+        for (const [elementType, elementConfig] of Object.entries(collectionConfig)) {
+          if (elementType === 'tweet_container') continue;
 
-        // Add elements to list
-        for (const elem of elements) {
-          // ═══ SPECIAL HANDLING for profile pictures ═══
-          // Profile pics might be partially outside zone, so be lenient
-          const isProfilePic = elementType === 'profile_picture';
+          const selector = elementConfig.selector;
+          const fallbackSelectors = elementConfig.fallbackSelectors || [];
 
-          // Check visibility first
-          const isVisible = window.CollectorHelpers.isElementVisible(elem);
-          if (!isVisible) {
+          // Try primary
+          let elements = targetContainer.querySelectorAll(selector);
+
+          // Try fallbacks if needed
+          if (elements.length === 0 && fallbackSelectors.length > 0) {
+            for (const fallback of fallbackSelectors) {
+              elements = targetContainer.querySelectorAll(fallback);
+              if (elements.length > 0) {
+                break;
+              }
+            }
+          }
+
+          // Add elements to list
+          for (const elem of elements) {
+            // ═══ SPECIAL HANDLING for profile pictures ═══
+            // Profile pics might be partially outside zone, so be lenient
+            const isProfilePic = elementType === 'profile_picture';
+
+            // Check visibility first
+            const isVisible = window.CollectorHelpers.isElementVisible(elem);
+            if (!isVisible) {
+              if (isProfilePic) {
+                const rect = elem.getBoundingClientRect();
+                console.log(`⚠️ ${elementType} not visible - rect:`, {
+                  width: rect.width,
+                  height: rect.height,
+                  top: rect.top,
+                  left: rect.left
+                });
+              }
+              continue;
+            }
+
+            // For profile pics, only check if it overlaps with zone (not fully inside)
             if (isProfilePic) {
               const rect = elem.getBoundingClientRect();
-              console.log(`⚠️ ${elementType} not visible - rect:`, {
-                width: rect.width,
-                height: rect.height,
-                top: rect.top,
-                left: rect.left
-              });
-            }
-            continue;
-          }
+              const overlapsZone =
+                rect.bottom > collectionZone.top &&
+                rect.top < collectionZone.bottom &&
+                rect.right > collectionZone.left &&
+                rect.left < collectionZone.right;
 
-          // For profile pics, only check if it overlaps with zone (not fully inside)
-          if (isProfilePic) {
-            const rect = elem.getBoundingClientRect();
-            const overlapsZone =
-              rect.bottom > collectionZone.top &&
-              rect.top < collectionZone.bottom &&
-              rect.right > collectionZone.left &&
-              rect.left < collectionZone.right;
-
-            if (overlapsZone) {
-              foundElements.push({
-                element: elem,
-                type: elementType,
-                classId: elementConfig.classId
-              });
-              console.log(`✅ ${elementType} (classId: ${elementConfig.classId}) [overlap]`);
+              if (overlapsZone) {
+                foundElements.push({
+                  element: elem,
+                  type: elementType,
+                  classId: elementConfig.classId
+                });
+                console.log(`✅ ${elementType} (classId: ${elementConfig.classId}) [overlap]`);
+              } else {
+                console.log(`⚠️ ${elementType} outside zone`);
+              }
             } else {
-              console.log(`⚠️ ${elementType} outside zone`);
-            }
-          } else {
-            // For other elements, check if fully in zone
-            if (window.CollectorHelpers.isElementInZone(elem, collectionZone)) {
-              foundElements.push({
-                element: elem,
-                type: elementType,
-                classId: elementConfig.classId
-              });
-              console.log(`✅ ${elementType} (classId: ${elementConfig.classId})`);
+              // For other elements, check if fully in zone
+              if (window.CollectorHelpers.isElementInZone(elem, collectionZone)) {
+                foundElements.push({
+                  element: elem,
+                  type: elementType,
+                  classId: elementConfig.classId
+                });
+                console.log(`✅ ${elementType} (classId: ${elementConfig.classId})`);
+              }
             }
           }
         }
