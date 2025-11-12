@@ -269,35 +269,72 @@ async function collectionLoop() {
       // Find all other elements
       for (const [elementType, elementConfig] of Object.entries(collectionConfig)) {
         if (elementType === 'tweet_container') continue;
-        
+
         const selector = elementConfig.selector;
         const fallbackSelectors = elementConfig.fallbackSelectors || [];
-        
+
+        console.log(`🔍 Looking for ${elementType}...`);
+
         // Try primary
         let elements = targetContainer.querySelectorAll(selector);
-        
+        console.log(`   Primary selector found: ${elements.length}`);
+
         // Try fallbacks if needed
-        if (elements.length === 0) {
+        if (elements.length === 0 && fallbackSelectors.length > 0) {
+          console.log(`   Trying ${fallbackSelectors.length} fallback selectors...`);
           for (const fallback of fallbackSelectors) {
             elements = targetContainer.querySelectorAll(fallback);
             if (elements.length > 0) {
-              console.log(`✅ ${elementType} via fallback`);
+              console.log(`✅ ${elementType} via fallback (${elements.length} found): ${fallback.substring(0, 40)}...`);
               break;
             }
           }
         }
-        
+
+        if (elements.length === 0) {
+          console.log(`   ❌ ${elementType}: None found`);
+        }
+
         // Add elements to list
         for (const elem of elements) {
-          // Check if in zone and visible
-          if (window.CollectorHelpers.isElementInZone(elem, collectionZone) &&
-              window.CollectorHelpers.isElementVisible(elem)) {
-            foundElements.push({
-              element: elem,
-              type: elementType,
-              classId: elementConfig.classId
-            });
-            console.log(`✅ ${elementType} (classId: ${elementConfig.classId})`);
+          // ═══ SPECIAL HANDLING for profile pictures ═══
+          // Profile pics might be partially outside zone, so be lenient
+          const isProfilePic = elementType === 'profile_picture';
+
+          // Check visibility first
+          if (!window.CollectorHelpers.isElementVisible(elem)) {
+            continue;
+          }
+
+          // For profile pics, only check if it overlaps with zone (not fully inside)
+          if (isProfilePic) {
+            const rect = elem.getBoundingClientRect();
+            const overlapsZone =
+              rect.bottom > collectionZone.top &&
+              rect.top < collectionZone.bottom &&
+              rect.right > collectionZone.left &&
+              rect.left < collectionZone.right;
+
+            if (overlapsZone) {
+              foundElements.push({
+                element: elem,
+                type: elementType,
+                classId: elementConfig.classId
+              });
+              console.log(`✅ ${elementType} (classId: ${elementConfig.classId}) [overlap]`);
+            } else {
+              console.log(`⚠️ ${elementType} outside zone`);
+            }
+          } else {
+            // For other elements, check if fully in zone
+            if (window.CollectorHelpers.isElementInZone(elem, collectionZone)) {
+              foundElements.push({
+                element: elem,
+                type: elementType,
+                classId: elementConfig.classId
+              });
+              console.log(`✅ ${elementType} (classId: ${elementConfig.classId})`);
+            }
           }
         }
       }
@@ -407,10 +444,9 @@ async function collectionLoop() {
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 10: Save files
       // ═══════════════════════════════════════════════════════════════════════
-      samplesCollected++;
       const baseFilename = window.CollectorHelpers.generateFilename(
         currentPlatform,
-        samplesCollected
+        samplesCollected + 1 // Use next number for filename
       );
 
       const imageFilename = baseFilename + ".jpg";
@@ -425,10 +461,16 @@ async function collectionLoop() {
       if (!downloadResult || !downloadResult.success) {
         console.error("❌ File download FAILED!");
         console.error("   Result:", downloadResult);
-        // Continue anyway - don't let download errors stop collection
-      } else {
-        console.log("✅ Files downloaded successfully!");
+        console.error("   Skipping this sample and moving to next tweet...");
+
+        // ═══ DON'T increment counter on download failure ═══
+        window.CollectorHelpers.scroll(collectionSettings.scrollDirection, 35);
+        await window.CollectorHelpers.sleep(500);
+        continue;
       }
+
+      // ═══ SUCCESS: Now increment counters ═══
+      samplesCollected++;
 
       if (pureCount < TARGET_PURE) {
         pureCount++;
@@ -436,6 +478,7 @@ async function collectionLoop() {
         augmentedCount++;
       }
 
+      console.log("✅ Files downloaded successfully!");
       console.log("📊 Current progress:");
       console.log("   Samples:", samplesCollected);
       console.log("   Pure:", pureCount);
@@ -662,14 +705,24 @@ function findByRoleAndLabel(elementType) {
 
 async function captureScreenshotViaBackground() {
   return new Promise((resolve) => {
+    console.log("📤 Sending CAPTURE_SCREENSHOT message to background...");
     chrome.runtime.sendMessage(
       {
         action: "CAPTURE_SCREENSHOT",
       },
       (response) => {
+        if (chrome.runtime.lastError) {
+          console.error("❌ Screenshot message error:", chrome.runtime.lastError);
+          resolve(null);
+          return;
+        }
+
+        console.log("📨 Screenshot response received");
         if (response && response.dataUrl) {
+          console.log("✅ Screenshot dataUrl present, length:", response.dataUrl.length);
           resolve(response.dataUrl);
         } else {
+          console.error("❌ Screenshot response missing dataUrl:", response);
           resolve(null);
         }
       }
@@ -688,6 +741,7 @@ async function downloadFiles(
   labelFilename
 ) {
   return new Promise((resolve) => {
+    console.log("📤 Sending DOWNLOAD_FILES message to background...");
     chrome.runtime.sendMessage(
       {
         action: "DOWNLOAD_FILES",
@@ -697,6 +751,13 @@ async function downloadFiles(
         labelFilename: labelFilename,
       },
       (response) => {
+        if (chrome.runtime.lastError) {
+          console.error("❌ Download error:", chrome.runtime.lastError);
+          resolve({ success: false, error: chrome.runtime.lastError.message });
+          return;
+        }
+
+        console.log("📨 Download response:", response);
         resolve(response);
       }
     );

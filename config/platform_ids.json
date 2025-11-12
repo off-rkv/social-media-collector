@@ -7,11 +7,12 @@
       "description": "Full tweet container"
     },
     "profile_picture": {
-      "selector": "[data-testid='Tweet-User-Avatar'] img",
+      "selector": "article a[role='link'] img[alt]",
       "fallbackSelectors": [
-        "article a[href*='photo'] img",
-        "article img[src*='profile']",
-        "article [data-testid='UserAvatar'] img"
+        "[data-testid='Tweet-User-Avatar'] img",
+        "article img[src*='profile_images']",
+        "article div[data-testid='Tweet-User-Avatar'] img",
+        "article a[href*='/photo'] img:first-of-type"
       ],
       "classId": 8,
       "description": "User profile picture"
