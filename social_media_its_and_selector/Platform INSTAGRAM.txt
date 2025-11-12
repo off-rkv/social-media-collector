@@ -1,0 +1,257 @@
+INSTAGRAM STATIC SIDEBAR ELEMENTS
+
+Goal: Provide a stable list of Instagram sidebar UI components that the extension can detect using predictable selectors (primarily aria-label). These elements have fixed positions in the viewport and do not move on scroll. The extension will extract bounding boxes for these components.
+
+STATIC NAVIGATION ELEMENTS (LEFT SIDEBAR)
+
+Each item below includes:
+
+Component Name
+
+Detection Selector
+
+Clickable Target Rule
+
+Purpose / Behavior
+
+1. Instagram Logo
+
+Selector: svg[aria-label="Instagram"]
+
+Clickable: closest <a>
+
+Use: Points to homepage navigation.
+
+2. Home
+
+Selector: svg[aria-label="Home"]
+
+Clickable: closest <a>
+
+Use: Primary feed.
+
+3. Search
+
+Selector: svg[aria-label="Search"]
+
+Clickable: closest <a>
+
+Use: Opens the search panel.
+
+4. Explore
+
+Selector: svg[aria-label="Explore"]
+
+Clickable: closest <a>
+
+Use: Explore tab.
+
+5. Reels
+
+Selector: svg[aria-label="Reels"]
+
+Clickable: closest <a>
+
+Use: Reels section.
+
+6. Messages
+
+Selector: svg[aria-label="Messages"]
+
+Clickable: closest <a>
+
+Use: Direct messaging inbox.
+
+7. Notifications
+
+Selector: svg[aria-label="Notifications"]
+
+Clickable: closest <a>
+
+Use: Notification center.
+
+8. New Post / Create
+
+Selector: svg[aria-label="New post"]
+
+Clickable: closest <a>
+
+Use: Opens create-post modal.
+
+9. Profile
+
+Selector: img[alt*="profile picture"]
+
+Clickable: closest <a>
+
+Use: Opens the logged-in user’s profile.
+
+10. Settings (More)
+
+Selector: svg[aria-label="Settings"]
+
+Clickable: closest <a>
+
+Use: Opens the “More” menu.
+
+11. Also From Meta
+
+Selector: svg[aria-label="Also from Meta"]
+
+Clickable: closest <a>
+
+Use: Opens Meta links panel.
+
+##################################################################################################################################
+
+Profile Picture
+img[alt$="'s profile picture"]
+
+Username
+a[href^="/USERNAME/"]
+span._ap3a
+
+Timestamp
+time[datetime]
+
+Follow button
+div[role="button"]:contains("Follow")
+
+More options
+svg[aria-label="More options"]
+
+Reels audio
+a[href*="/reels/audio/"]
+
+video panel of Instagram post
+role="presentation"
+
+✅ 1. LIKE BUTTON
+
+Identifier: aria-label="Like"
+
+Icon Type: Heart outline SVG
+
+Role: role="button"
+
+Position: First in action row (left-most)
+
+Purpose: Like the post
+
+✅ 2. COMMENT BUTTON
+
+Identifier: aria-label="Comment"
+
+Icon Type: Speech bubble SVG
+
+Role: role="button"
+
+Position: Second in action row
+
+Purpose: Open comment input section
+
+✅ 3. SHARE BUTTON
+
+Identifier: aria-label="Share"
+
+Icon Type: Paper plane SVG
+
+Role: role="button"
+
+Position: Third in action row
+
+Notes: Has overlay <div role="none"> for animation
+
+Purpose: Share post
+
+✅ 4. ACTION BAR CONTAINER
+
+Main Container Classes:
+x6s0dn4 x78zum5
+
+Purpose: Groups Like + Comment + Share
+
+Layout: Horizontal row under media
+
+LIKE_BUTTON:
+    role: button
+    aria-label: Like
+    icon: heart-outline-svg
+
+COMMENT_BUTTON:
+    role: button
+    aria-label: Comment
+    icon: comment-bubble-svg
+
+SHARE_BUTTON:
+    role: button
+    aria-label: Share
+    icon: paper-plane-svg
+
+SAVE_BUTTON:
+    role: button
+    aria-label: Save
+    icon: bookmark-svg
+
+##############################
+LIKE_COUNT
+##############################
+
+LIKE_COUNT_TEXT:
+    text: <numeric-like-count> (e.g., "132,306 likes")
+    link: /p/{post_id}/liked_by/
+
+##############################
+USER_INFO_AND_CAPTION
+##############################
+
+POST_USER_NAME:
+    type: username
+    href: /{username}/
+    example: _.khushi.thakkar._
+
+POST_CAPTION:
+    type: caption_text
+    text: <caption_content>
+
+CAPTION_EXPAND_BUTTON:
+    text: more
+    role: button
+
+##############################
+COMMENT_SUMMARY_SECTION
+##############################
+
+VIEW_ALL_COMMENTS_BUTTON:
+    text: "View all <X> comments"
+    link: /p/{post_id}/comments/
+    type: open_comments_thread
+
+##############################
+COMMENT_INPUT_BAR
+##############################
+
+COMMENT_EMOJI_BUTTON:
+    aria-label: Emoji
+    role: button
+    icon: emoji-smile-svg
+
+COMMENT_TEXTAREA:
+    aria-label: Add a comment…
+    placeholder: Add a comment…
+    type: textarea
+
+COMMENT_POST_BUTTON:
+    type: dynamic_button
+    appears_when: textarea_has_text
+    label: Post (not included in given HTML but required in dataset)
+
+MEDIA_ITEM_WRAPPER:
+    class: _aagw
+    count: variable (1 = single post, >1 = carousel)
+    purpose: wrap each image/video inside the post
+    visual_role: main media box
+    content:
+        - img tag OR
+        - video tag OR
+        - canvas placeholder for loading

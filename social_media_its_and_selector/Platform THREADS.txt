@@ -1,0 +1,426 @@
+THREADS — NEW POST COMPOSER
+
+Meaning Data (Notepad Style)
+
+1. Profile Avatar (Clickable)
+
+type: avatar
+label: profile_picture
+shape: circle
+size: 36px
+role: link
+href: /@off.rkv
+cluster: composer_left
+
+Behavior
+
+Opens user profile
+
+Always first element left
+
+2. Post Input Trigger (“What’s new?”)
+
+type: composer_input_button
+label: composer_placeholder
+text: "What's new?"
+role: button
+cluster: composer_center
+behavior: opens full text editor
+
+Visual Meaning
+
+Looks like a text field but is actually a button
+
+Inline placeholder text
+
+Clickable rectangular area
+
+Sits right to the avatar
+
+3. POST Button
+
+type: submit_post_button
+label: Post
+role: button
+text: "Post"
+cluster: composer_right
+state: active
+shape: pill_button
+color: high_contrast
+
+Behavior
+
+Submits the new thread
+
+Right-most element
+
+Small rectangular capsule styling
+
+4. Composer Container
+
+type: composer_container
+role: presentation
+cluster: composer
+contains: avatar + input + post_button
+purpose: layout only
+ignore_for_YOLO: yes
+
+
+THREADS — FULL POST MEANING DATA
+
+(Notepad Style, YOLO-friendly, Extension-friendly)
+
+I’m grouping by UI component.
+
+1. PROFILE REGION
+1.1 Avatar
+
+type: avatar_button
+role: button
+shape: circle
+size: 36px
+text: none
+cluster: post_header_left
+
+Detection hints:
+
+always <img>
+
+alt = “<username>'s profile picture”
+
+inside a button or pressable container
+
+1.2 Username
+
+type: username_link
+text: chesterbinalla
+role: link
+cluster: post_header
+font: bold
+position: right_of_avatar
+
+1.3 Verified Badge
+
+type: verified_badge
+icon_type: check/star burst
+size: ~12px
+text: none
+role: decorative
+cluster: post_header
+
+1.4 Follow Button
+
+type: follow_button
+role: button
+text: none (icon-only)
+icon: plus sign
+cluster: post_header_right
+
+Reality check:
+NO direct text.
+Only the <title>Follow inside the SVG.
+
+So your extension must look for:
+
+role=button
+
+svg title="Follow"
+
+icon shape = plus inside a box
+
+2. FEDIVERSE ICON
+
+(type: fediverse_indicator)
+role: button
+text: none
+icon: rotating ring
+cluster: post_header_right
+
+Detection anchor:
+aria-label="Post is shared to Fediverse"
+
+3. TIMESTAMP
+
+type: timestamp_link
+text: “4h”
+role: link
+cluster: post_header
+children_text: yes
+parent_text: no
+
+Extension anchor: <time> tag.
+
+4. POST BODY (TEXT)
+
+type: post_text
+text_present: YES
+multi-line: yes
+cluster: post_body
+
+(This is fine for YOLO to label as content block if you want; not clickable.)
+
+5. MEDIA BLOCK (IMAGE OR VIDEO)
+
+type: media_attachment
+shape: rectangular
+clickable: yes
+role: link (wrapped in <a>)
+cluster: post_media
+
+Contains <picture> → <img>.
+YOLO label: media_block.
+
+6. ACTION ROW (LIKE / REPLY / REPOST / SHARE)
+
+Below is gold — this is what your automation needs.
+
+6.1 LIKE Button
+
+type: like_button
+role: button
+icon: heart_outline
+text: number count (nested)
+text_value: 12
+cluster: action_row
+text_direct_on_button: NO
+text_inside_child: YES
+
+Mapping keys for extension:
+
+svg title="Like"
+
+aria-label="Like"
+
+tiny number inside nested span
+
+6.2 REPLY Button
+
+type: reply_button
+role: button
+icon: curved reply arrow
+text: none
+cluster: action_row
+
+Detection anchor: SVG title="Reply".
+
+6.3 REPOST Button
+
+type: repost_button
+role: button
+icon: two arrows loop
+text: none
+cluster: action_row
+
+Detection anchor: SVG title="Repost".
+
+6.4 SHARE Button
+
+type: share_button
+role: button
+icon: diagonal send arrow
+text: number count inside nested span
+text_value: 5
+cluster: action_row
+
+Detection anchor: SVG title="Share".
+
+7. MARKUP BUTTON
+
+type: markup_button
+role: button
+icon: scribble/pen shape
+text: none
+cluster: post_header_right
+
+Anchor: SVG title="Markup".
+
+8. MORE MENU (3 dots)
+
+type: more_options_button
+role: button
+icon: three horizontal dots
+text: none
+cluster: post_header_right
+
+Anchor: SVG title="More".
+
+9. ENTIRE POST CONTAINER
+
+type: post_container
+role: pressable
+cluster: root
+ignore_for_YOLO: yes
+(because it’s structural only)
+
+NOW THE IMPORTANT PART
+WHICH ELEMENTS HAVE TEXT AND WHICH DO NOT?
+Element	Has direct text?	Has nested text?	Meaning
+Avatar	no	no	image-only
+Username	yes	yes	clickable text
+Verified badge	no	no	icon-only
+Follow button	no	svg title only	icon-only
+Fediverse button	no	svg title only	icon-only
+Timestamp	no	yes	text inside <time>
+Post text	yes	yes	main content
+Media	no	no	image
+Like	no	count nested	icon + number
+Reply	no	no	icon-only
+Repost	no	no	icon-only
+Share	no	count nested	icon + number
+Markup	no	no	icon-only
+More (3 dots)	no	no	icon-only
+
+So yes — MOST Threads buttons have zero text.
+That’s the platform design.
+
+WHAT YOUR EXTENSION MUST USE INSTEAD OF TEXT
+
+When there is no text, extension should rely on:
+
+role="button"
+
+SVG title=""
+
+aria-label
+
+cluster position
+
+icon shape
+
+size and geometry patterns
+
+interaction areas around the SVG
+
+That’s enough for 100% BBX mapping.
+
+
+THREADS — BOTTOM NAVIGATION BAR
+
+Meaning Data (Notepad Style)
+
+1. HOME
+
+type: nav_home_button
+role: link
+href: "/"
+icon: home_outline
+text: none
+svg_title: "Home"
+cluster: bottom_nav
+clickable_area: square_around_svg
+
+Detection anchors:
+
+aria-label="Home"
+
+<title>Home</title> inside SVG
+
+2. SEARCH
+
+type: nav_search_button
+role: link
+href: "/search"
+icon: magnifying_glass
+text: none
+svg_title: "Search"
+cluster: bottom_nav
+clickable_area: square
+
+Detection anchors:
+
+svg title="Search"
+
+stroke + magnifier circle
+
+3. CREATE
+
+type: nav_create_button
+role: button
+icon: plus_sign
+text: none
+svg_title: "Create"
+cluster: bottom_nav
+clickable_area: square
+
+Detection anchors:
+
+plus icon
+
+svg title="Create"
+
+4. NOTIFICATIONS
+
+type: nav_notifications_button
+role: link
+href: "/activity"
+icon: heart/badge style (Threads uses “heart-drop” icon)
+text: none
+svg_title: "Notifications"
+cluster: bottom_nav
+
+Detection anchors:
+
+<title>Notifications</title>
+
+5. PROFILE
+
+type: nav_profile_button
+role: link
+href: "/@off.rkv"
+icon: user_circle_outline
+text: none
+svg_title: "Profile"
+cluster: bottom_nav
+
+Detection anchors:
+
+svg title="Profile"
+
+outline head + shoulders icon
+
+SUMMARY — DO THESE HAVE TEXT?
+Element	Has direct text?	Has nested text?
+Home	no	svg title only
+Search	no	svg title only
+Create	no	svg title only
+Notifications	no	svg title only
+Profile	no	svg title only
+
+Threads navigation bar = 100% icon-only.
+
+WHAT YOLO SHOULD LEARN
+
+Use these YOLO classes:
+
+nav_home_button
+
+nav_search_button
+
+nav_create_button
+
+nav_notifications_button
+
+nav_profile_button
+
+That’s your full nav-bar dataset.
+
+WHAT EXTENSION SHOULD USE TO FIND BBX
+
+Because there is NO text:
+
+Your extension must match by:
+
+role="button" OR role="link"
+
+svg <title> content
+
+href (if link)
+
+stable position (always bottom bar)
+
+icon shape
+
+Example:
+Find element where SVG title="Home" → getBoundingClientRect().
+
+That’s the correct workflow.

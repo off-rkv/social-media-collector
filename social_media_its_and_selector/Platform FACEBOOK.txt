@@ -1,0 +1,401 @@
+FACEBOOK LEFT-SIDEBAR MENU
+
+Meaning Data (Notepad Style)
+(Use this as label source for YOLO training)
+
+1. Profile Button
+
+type: menu_item
+label: Ratnesh Verma
+icon_type: circular_image
+role: link
+cluster: left_sidebar
+
+2. Meta AI
+
+type: menu_item
+label: Meta AI
+icon_type: image_36px
+role: link
+cluster: left_sidebar
+
+3. Friends
+
+type: menu_item
+label: Friends
+icon_type: sprite_36px
+role: link
+cluster: left_sidebar
+
+4. Memories
+
+type: menu_item
+label: Memories
+icon_type: sprite_36px
+role: link
+cluster: left_sidebar
+
+5. Saved
+
+type: menu_item
+label: Saved
+icon_type: sprite_36px
+role: link
+cluster: left_sidebar
+
+6. Groups
+
+type: menu_item
+label: Groups
+icon_type: sprite_36px
+role: link
+cluster: left_sidebar
+
+7. Video
+
+type: menu_item
+label: Video
+icon_type: sprite_36px
+role: link
+cluster: left_sidebar
+
+8. Marketplace
+
+type: menu_item
+label: Marketplace
+icon_type: sprite_36px
+role: link
+cluster: left_sidebar
+
+9. Feeds
+
+type: menu_item
+label: Feeds
+icon_type: image_36px
+role: link
+cluster: left_sidebar
+
+10. Events
+
+type: menu_item
+label: Events
+icon_type: sprite_36px
+role: link
+cluster: left_sidebar
+
+11. Ads Manager
+
+type: menu_item
+label: Ads Manager
+icon_type: sprite_36px
+role: link
+cluster: left_sidebar
+
+12. See More (Dropdown Trigger)
+
+type: menu_button
+label: See more
+icon_type: chevron_down
+role: button
+cluster: left_sidebar
+
+1. Profile Avatar (Clickable)
+
+type: avatar
+label: profile_picture
+shape: circle
+size: approx_40px
+role: link
+cluster: post_header_left
+
+2. Page Name (Clickable)
+
+type: page_title
+label: Oggy and the cockroaches
+role: link
+text_position: right_of_avatar
+font: medium_bold
+cluster: post_header
+
+3. Verified Badge (Icon)
+
+type: verified_badge
+label: verified_mark
+shape: badge_star
+size: small_12px
+position: right_of_page_name
+cluster: post_header
+
+4. Follow Button (Clickable)
+
+type: action_button
+label: Follow
+background: filled_or_outline (theme-dependent)
+text_color: high_contrast
+shape: rounded_rect
+role: button
+cluster: post_header_right
+
+5. Time Indicator
+
+type: timestamp
+label: relative_time (e.g., 3d, 5h)
+role: link
+style: subtle
+cluster: post_header
+
+6. Privacy Icon (Public/Friends Icon)
+
+type: privacy_indicator
+label: public_or_friends
+icon_shape: globe / people
+size: tiny_12px
+cluster: post_header
+
+7. Post Menu Button (Three Dots)
+
+type: menu_button
+label: post_actions_menu
+icon_shape: three_vertical_dots
+size: 20px
+role: button
+cluster: post_header_right
+
+8. Hide Post Button (Close Icon)
+
+type: close_button
+label: hide_post
+icon_shape: X
+size: approx_20px
+role: link
+cluster: post_header_right
+
+FACEBOOK POST CAPTION
+
+Meaning Data (Notepad Style)
+
+1. Emoji
+
+type: inline_emoji
+label: cyclone_emoji
+size: tiny_16px
+role: decorative
+cluster: post_caption
+
+(Your extension won’t need BBX unless you want to detect emojis — optional.)
+
+2. Caption Text
+
+type: caption_text
+label: Now there are two Oggys
+style: multi_line
+cluster: post_caption
+behavior: collapsible
+
+3. “See more” Button (Clickable)
+
+type: expand_caption_button
+label: See more
+role: button
+shape: inline_text_button
+position: end_of_caption
+cluster: post_caption
+behavior: expands_hidden_text
+text_color: accent_or_primary
+
+video post->
+<div class="x1ey2m1c x9f619 xtijo5x x1o0tod x10l6tqk x13vifvy x1ypdohk" role="presentation"></div>
+
+1. Reactions Cluster (Like / Haha / Love / etc.)
+
+This is the long strip with small reaction emoji icons.
+
+1.1 Reaction Icon (Like)
+
+type: reaction_icon
+reaction_type: like
+icon_shape: thumbs_up
+size: ~18px
+role: button
+aria_label: Like: 125K people
+cluster: post_reactions_left
+
+1.2 Reaction Icon (Haha)
+
+type: reaction_icon
+reaction_type: haha
+icon_shape: laughing_face
+size: ~18px
+role: button
+aria_label: Haha: 18K people
+cluster: post_reactions_left
+
+1.3 Reaction Total Count (“All reactions: 151K”)
+
+type: reaction_total
+label: 151K
+role: button
+text_position: right_of_reaction_icons
+cluster: post_reactions
+
+2. Comments Button (“831 comments”)
+
+type: engagement_button
+label: 831 comments
+role: button
+shape: text_link
+cluster: post_engagement_center
+behavior: opens_comments_section
+
+3. Shares Button (“2K shares”)
+
+type: engagement_button
+label: 2K shares
+role: button
+shape: text_link
+cluster: post_engagement_center
+behavior: opens_share_list
+
+4. Reaction Toolbar Container (The Toolbar Wrapper)
+
+type: reactions_toolbar
+role: toolbar
+content: reaction_icons + total_count
+cluster: post_reactions
+
+5. Empty Layout Divs
+
+These appear all over here:
+
+type: layout_spacer
+
+clickable: false
+
+role: none
+
+ignore_in_training: yes
+
+cluster: layout
+
+These are meaningless.
+Your YOLO model should NOT label them.
+
+1. LIKE BUTTON
+Visual & Structure
+
+type: post_action_button
+label: Like
+icon_shape: thumbs_outline
+icon_size: 20px
+text: “Like”
+role: button
+cluster: post_action_row
+position: left_column
+
+Behavior
+
+triggers reaction picker on long hover
+
+toggles between “Like” / “Liked” states
+
+clickable area is a rectangular block with icon + text
+
+always first button in the row
+
+2. REACT BUTTON (Long-Press / Emoji Picker Trigger)
+Visual
+
+type: reaction_popup_trigger
+label: React
+icon_shape: small_dropdown_like_icon
+role: button
+cluster: post_action_row
+position: aligned_with_like_button
+
+Behavior
+
+Opens the full reaction popup (Like, Love, Care, Haha, Wow, Sad, Angry)
+
+This is NOT always visible as text; may appear only as icon
+
+(YOLO may treat this as a sub-button of Like, optional to train.)
+
+3. COMMENT BUTTON
+Visual
+
+type: post_action_button
+label: Comment
+icon_shape: speech_bubble
+icon_size: 20px
+text: “Comment”
+role: button
+cluster: post_action_row
+position: center_column
+
+Behavior
+
+Opens comment input box
+
+Always middle button
+
+Rectangular clickable area with icon + text
+
+4. SHARE BUTTON
+Visual
+
+type: post_action_button
+label: Share
+icon_shape: arrow_curve / forward_arrow
+icon_size: 20px
+text: “Share”
+role: button
+cluster: post_action_row
+position: right_column
+
+Behavior
+
+Opens share sheet
+
+Always last in the row
+
+5. ACTION ROW (Container)
+Visual
+
+type: action_bar_container
+role: none / group
+content: Like + Comment + Share buttons
+cluster: post_action_row
+shape: full-width horizontal strip
+divider_top: yes
+divider_bottom: yes
+
+Behavior
+
+Non-clickable
+
+Used only for layout
+
+(Don’t train YOLO on this container; just understand cluster grouping.)
+
+6. All Reaction Icons (Above the Buttons)
+Visual
+
+type: mini_reaction_icon
+reaction_type: like / haha / etc.
+icon_size: 18px
+role: button
+cluster: post_reactions_block
+
+Already labeled previously.
+Do NOT confuse with the Like button inside action row.
+
+7. Engagement Metrics Under Reactions
+Elements
+
+reaction_total
+
+comments_count
+
+shares_count
+
+(Already labeled earlier — skip YOLO on the containers; only label the buttons.)
