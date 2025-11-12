@@ -199,70 +199,82 @@
   },
   "instagram": {
     "instagram_post_container": {
-      "selector": "article[role='presentation']",
-      "fallbackSelectors": ["div[class*='_aagw']"],
+      "selector": "article:not([role])",
+      "fallbackSelectors": ["article"],
       "classId": 31,
       "description": "Instagram: Full post container"
     },
     "instagram_profile_picture": {
       "selector": "img[alt*=\"'s profile picture\"]",
-      "fallbackSelectors": ["canvas._aarh"],
+      "fallbackSelectors": ["header img", "img[alt*='profile']"],
       "classId": 32,
       "description": "Instagram: Profile picture (circular)"
     },
     "instagram_username": {
-      "selector": "span._ap3a",
-      "fallbackSelectors": ["a[href^='/'][href$='/']"],
+      "selector": "a",
+      "fallbackSelectors": ["header a", "a[href^='/']"],
       "classId": 33,
       "description": "Instagram: Username text"
     },
+    "instagram_verified_badge": {
+      "selector": "svg[aria-label='Verified']",
+      "fallbackSelectors": ["svg[aria-label*='Verified']"],
+      "classId": 34,
+      "description": "Instagram: Verified badge"
+    },
     "instagram_timestamp": {
       "selector": "time[datetime]",
-      "fallbackSelectors": ["a time"],
-      "classId": 34,
+      "fallbackSelectors": ["time", "a time"],
+      "classId": 35,
       "description": "Instagram: Post timestamp"
     },
     "instagram_post_text": {
-      "selector": "span._ap3a._aaco._aacu._aacx._aad6._aade",
-      "fallbackSelectors": ["div[class*='_a9zs'] span"],
-      "classId": 35,
+      "selector": "h1",
+      "fallbackSelectors": ["span[dir='auto']", "div[style*='text'] span"],
+      "classId": 36,
       "description": "Instagram: Post caption text"
+    },
+    "instagram_post_image": {
+      "selector": "img[alt*='Photo by']",
+      "fallbackSelectors": ["img[alt*='Image']", "img[srcset]"],
+      "classId": 37,
+      "description": "Instagram: Post image/photo"
     },
     "instagram_like_button": {
       "selector": "svg[aria-label='Like']",
-      "fallbackSelectors": ["button svg[aria-label='Like']"],
-      "classId": 36,
+      "fallbackSelectors": ["svg[aria-label*='like' i]"],
+      "classId": 38,
       "description": "Instagram: Like button (heart outline)"
     },
     "instagram_comment_button": {
       "selector": "svg[aria-label='Comment']",
-      "fallbackSelectors": ["button svg[aria-label='Comment']"],
-      "classId": 37,
+      "fallbackSelectors": ["svg[aria-label*='comment' i]"],
+      "classId": 39,
       "description": "Instagram: Comment button (speech bubble)"
     },
     "instagram_share_button": {
       "selector": "svg[aria-label='Share']",
-      "fallbackSelectors": ["button svg[aria-label='Share']"],
-      "classId": 38,
+      "fallbackSelectors": ["svg[aria-label*='share' i]"],
+      "classId": 40,
       "description": "Instagram: Share button (paper plane)"
     },
     "instagram_save_button": {
       "selector": "svg[aria-label='Save']",
-      "fallbackSelectors": ["button svg[aria-label='Save']"],
-      "classId": 39,
+      "fallbackSelectors": ["svg[aria-label*='save' i]"],
+      "classId": 41,
       "description": "Instagram: Save button (bookmark)"
     },
-    "instagram_like_count": {
-      "selector": "a[href*='/liked_by/'] span",
-      "fallbackSelectors": ["section button span", "section a span"],
-      "classId": 40,
-      "description": "Instagram: Like count text"
+    "instagram_more_options": {
+      "selector": "svg[aria-label='More options']",
+      "fallbackSelectors": ["svg[aria-label*='More']"],
+      "classId": 42,
+      "description": "Instagram: More options menu (three dots)"
     },
-    "instagram_view_comments": {
-      "selector": "a[href*='/comments/']",
-      "fallbackSelectors": ["button[role='button'] span[dir='auto']"],
-      "classId": 41,
-      "description": "Instagram: View all comments button"
+    "instagram_like_count": {
+      "selector": "span",
+      "fallbackSelectors": ["section span", "button span"],
+      "classId": 43,
+      "description": "Instagram: Like count text"
     }
   },
   "threads": {
