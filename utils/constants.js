@@ -101,6 +101,9 @@ if (typeof window !== "undefined") {
     FILENAME_RULES,
     VALIDATION_RULES,
   };
+
+  console.log("✅ constants.js loaded successfully");
+  console.log("📦 CONSTANTS available:", typeof window.CONSTANTS);
 }
 
 // For Node.js (Python scripts might use this)

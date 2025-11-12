@@ -117,10 +117,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleStartCollection(message, sender, sendResponse) {
   try {
-    console.log("▶️ Starting collection...");
-    console.log("Platform:", message.platform);
-    console.log("Zone:", message.zone);
-    console.log("Config:", message.config);
+    console.log("▶️ Service Worker: Starting collection...");
+    console.log("📋 Platform:", message.platform);
+    console.log("📋 Zone:", message.zone);
+    console.log("📋 Config:", message.config);
+    console.log("📋 Settings:", message.settings);
 
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -131,7 +132,8 @@ async function handleStartCollection(message, sender, sendResponse) {
     }
 
     const tab = tabs[0];
-    console.log("📍 Target tab:", tab.url);
+    console.log("📍 Target tab ID:", tab.id);
+    console.log("📍 Target tab URL:", tab.url);
 
     const url = tab.url.toLowerCase();
     const platform = message.platform.toLowerCase();
@@ -141,12 +143,17 @@ async function handleStartCollection(message, sender, sendResponse) {
       !(platform === "twitter" && url.includes("x.com"))
     ) {
       console.error("❌ Tab URL does not match platform");
+      console.error("   Expected:", platform);
+      console.error("   Got:", url);
       sendResponse({
         success: false,
         error: `Please navigate to ${platform}.com first`,
       });
       return;
     }
+
+    console.log("✅ Platform validation passed");
+    console.log("📤 Forwarding START_COLLECTION to content script (tab " + tab.id + ")...");
 
     chrome.tabs.sendMessage(
       tab.id,
@@ -163,13 +170,16 @@ async function handleStartCollection(message, sender, sendResponse) {
             "❌ Error sending to content script:",
             chrome.runtime.lastError
           );
+          console.error("   This usually means content script is not loaded.");
+          console.error("   Try refreshing the page (F5) and try again.");
           sendResponse({
             success: false,
             error:
-              "Could not communicate with page. Please refresh and try again.",
+              "Could not communicate with page. Content script not loaded. Please refresh the page (F5) and try again.",
           });
         } else {
           console.log("✅ Message forwarded to collector.js");
+          console.log("📨 Response from collector:", response);
           sendResponse(response);
         }
       }

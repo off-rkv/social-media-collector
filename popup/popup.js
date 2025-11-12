@@ -19,12 +19,16 @@
 
 let isCollecting = false;
 let currentPlatform = "twitter";
+
+// ═══ DEFAULT ZONE VALUES ═══
+// These will be saved to storage on first load
 let currentZone = {
-  top: 160,
+  top: 40,
   left: 380,
-  bottom: 750,
-  right: 1020,
+  bottom: 770,
+  right: 1030,
 };
+// ═══ END DEFAULTS ═══
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // DOM ELEMENTS
@@ -80,6 +84,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function loadSavedSettings() {
   try {
+    console.log("📥 Loading saved settings...");
+
     // Load from Chrome storage
     const result = await chrome.storage.local.get([
       "zone",
@@ -88,26 +94,45 @@ async function loadSavedSettings() {
       "scrollDirection",
     ]);
 
-    // Apply zone coordinates (or use defaults)
+    // ═══ ZONE PERSISTENCE FIX ═══
+    // Apply zone coordinates (or use and SAVE defaults)
     if (result.zone) {
       currentZone = result.zone;
-      elements.zoneTop.value = result.zone.top;
-      elements.zoneLeft.value = result.zone.left;
-      elements.zoneBottom.value = result.zone.bottom;
-      elements.zoneRight.value = result.zone.right;
       console.log("✅ Loaded saved zone:", result.zone);
+    } else {
+      // No saved zone - save the default values
+      console.log("💾 No saved zone found, saving defaults:", currentZone);
+      await chrome.storage.local.set({ zone: currentZone });
     }
+
+    // Update UI with current zone (saved or default)
+    elements.zoneTop.value = currentZone.top;
+    elements.zoneLeft.value = currentZone.left;
+    elements.zoneBottom.value = currentZone.bottom;
+    elements.zoneRight.value = currentZone.right;
+    console.log("✅ Zone UI updated:", currentZone);
+    // ═══ END FIX ═══
 
     // Apply platform
     if (result.platform) {
       currentPlatform = result.platform;
       elements.platformSelect.value = result.platform;
       console.log("✅ Loaded saved platform:", result.platform);
+    } else {
+      // Save default platform
+      await chrome.storage.local.set({ platform: currentPlatform });
+      console.log("💾 Saved default platform:", currentPlatform);
     }
 
     // Apply highlight toggle
     if (result.highlightEnabled !== undefined) {
       elements.highlightToggle.checked = result.highlightEnabled;
+      console.log("✅ Loaded highlight setting:", result.highlightEnabled);
+    } else {
+      // Save default
+      await chrome.storage.local.set({ highlightEnabled: true });
+      elements.highlightToggle.checked = true;
+      console.log("💾 Saved default highlight: true");
     }
 
     // Apply scroll direction
@@ -117,6 +142,12 @@ async function loadSavedSettings() {
       } else {
         elements.scrollDown.checked = true;
       }
+      console.log("✅ Loaded scroll direction:", result.scrollDirection);
+    } else {
+      // Save default
+      await chrome.storage.local.set({ scrollDirection: "down" });
+      elements.scrollDown.checked = true;
+      console.log("💾 Saved default scroll direction: down");
     }
   } catch (error) {
     console.error("❌ Error loading settings:", error);
@@ -241,9 +272,21 @@ elements.platformSelect.addEventListener("change", async () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 elements.startBtn.addEventListener("click", async () => {
-  console.log("▶️ START clicked");
+  console.log("▶️ START button clicked");
+  console.log("📋 Current zone:", currentZone);
+  console.log("📋 Current platform:", currentPlatform);
 
   try {
+    // ═══ RESET UI STATE ═══
+    // Reset progress display to 0
+    updateProgressDisplay({
+      pureCount: 0,
+      augmentedCount: 0,
+      totalCount: 0,
+    });
+    console.log("✅ Progress display reset to 0");
+    // ═══ END RESET ═══
+
     // Get current settings
     const settings = {
       zone: currentZone,
@@ -252,8 +295,11 @@ elements.startBtn.addEventListener("click", async () => {
       scrollDirection: elements.scrollDown.checked ? "down" : "up",
     };
 
+    console.log("📋 Settings:", settings);
+
     // Save settings
     await chrome.storage.local.set(settings);
+    console.log("✅ Settings saved to storage");
 
     // Get active tab
     const [tab] = await chrome.tabs.query({
@@ -261,7 +307,10 @@ elements.startBtn.addEventListener("click", async () => {
       currentWindow: true,
     });
 
+    console.log("📍 Active tab:", tab ? tab.url : "NONE");
+
     if (!tab) {
+      console.error("❌ No active tab found");
       alert(
         "❌ No active tab found. Please navigate to the social media site first."
       );
@@ -318,16 +367,21 @@ elements.startBtn.addEventListener("click", async () => {
     }
 
     // Load config for this platform
+    console.log("📥 Loading platform config for:", currentPlatform);
     const config = await loadPlatformConfig(currentPlatform);
 
     if (!config) {
+      console.error("❌ No config found for platform:", currentPlatform);
       alert(
         `❌ No configuration found for ${currentPlatform}.\n\nPlease add test IDs to config/platform_ids.json`
       );
       return;
     }
 
+    console.log("✅ Config loaded:", config);
+
     // Send START message to service worker
+    console.log("📤 Sending START_COLLECTION message to service worker...");
     chrome.runtime.sendMessage(
       {
         action: "START_COLLECTION",
@@ -341,12 +395,16 @@ elements.startBtn.addEventListener("click", async () => {
       },
       (response) => {
         if (chrome.runtime.lastError) {
-          console.error("❌ Error:", chrome.runtime.lastError);
+          console.error("❌ Runtime error:", chrome.runtime.lastError);
           alert(
-            "❌ Failed to start collection. Please refresh the page and try again."
+            "❌ Failed to communicate with extension.\n\n" +
+            "Error: " + chrome.runtime.lastError.message +
+            "\n\nPlease refresh the page and try again."
           );
           return;
         }
+
+        console.log("📨 Response from service worker:", response);
 
         if (response && response.success) {
           // Update UI
@@ -355,9 +413,12 @@ elements.startBtn.addEventListener("click", async () => {
           elements.startBtn.disabled = true;
           elements.stopBtn.disabled = false;
 
-          console.log("✅ Collection started successfully");
+          console.log("✅ Collection started successfully!");
+          console.log("🎯 Check the page console (F12) for collection progress");
         } else {
-          alert("❌ Failed to start: " + (response?.error || "Unknown error"));
+          const errorMsg = response?.error || "Unknown error - check service worker logs";
+          console.error("❌ Start failed:", errorMsg);
+          alert("❌ Failed to start: " + errorMsg);
         }
       }
     );
@@ -372,28 +433,40 @@ elements.startBtn.addEventListener("click", async () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 elements.stopBtn.addEventListener("click", async () => {
-  console.log("⏹️ STOP clicked");
+  console.log("⏹️ STOP button clicked");
 
   try {
     // Send STOP message to service worker
+    console.log("📤 Sending STOP_COLLECTION message...");
     chrome.runtime.sendMessage(
       {
         action: "STOP_COLLECTION",
       },
       (response) => {
         if (chrome.runtime.lastError) {
-          console.error("❌ Error:", chrome.runtime.lastError);
+          console.error("❌ Runtime error:", chrome.runtime.lastError);
           return;
         }
 
+        console.log("📨 Stop response:", response);
+
         if (response && response.success) {
-          // Update UI
+          // ═══ RESET UI STATE COMPLETELY ═══
           isCollecting = false;
           updateStatus("idle");
           elements.startBtn.disabled = false;
           elements.stopBtn.disabled = true;
 
-          console.log("✅ Collection stopped");
+          // Reset progress to 0
+          updateProgressDisplay({
+            pureCount: 0,
+            augmentedCount: 0,
+            totalCount: 0,
+          });
+
+          console.log("✅ Collection stopped and UI reset to 0");
+          console.log("🔄 Ready for new collection");
+          // ═══ END RESET ═══
         }
       }
     );

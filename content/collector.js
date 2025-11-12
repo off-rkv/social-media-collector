@@ -44,11 +44,17 @@ const TARGET_TOTAL = 1000;
 // ═══════════════════════════════════════════════════════════════════════════════
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("📨 collector.js received message:", message.action);
+
   // ─────────────────────────────────────────────────────────────────────────────
   // START COLLECTION
   // ─────────────────────────────────────────────────────────────────────────────
   if (message.action === "START_COLLECTION") {
     console.log("📨 Received START_COLLECTION message");
+    console.log("📋 Platform:", message.platform);
+    console.log("📋 Zone:", message.zone);
+    console.log("📋 Config:", message.config);
+    console.log("📋 Settings:", message.settings);
 
     // Store configuration
     collectionConfig = message.config;
@@ -56,13 +62,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     collectionZone = message.zone;
     currentPlatform = message.platform;
 
+    console.log("✅ Configuration stored");
+
     // Start collection
+    console.log("🚀 Calling startCollection()...");
     startCollection()
       .then(() => {
+        console.log("✅ startCollection() completed successfully");
         sendResponse({ success: true });
       })
       .catch((error) => {
-        console.error("❌ Collection error:", error);
+        console.error("❌ startCollection() error:", error);
         sendResponse({ success: false, error: error.message });
       });
 
@@ -121,22 +131,46 @@ async function startCollection() {
   console.log("Platform:", currentPlatform);
   console.log("Zone:", collectionZone);
   console.log("Config:", collectionConfig);
+  console.log("Settings:", collectionSettings);
 
-  // ═══ ADD THIS: Clean up old visuals ═══
+  // ═══ RESET STATE on start ═══
+  samplesCollected = 0;
+  pureCount = 0;
+  augmentedCount = 0;
+  unchangedScrollCount = 0;
+  console.log("✅ Counters reset to 0");
+  // ═══ END RESET ═══
+
+  // ═══ Clean up old visuals ═══
   if (window.VisualFeedback) {
+    console.log("🧹 Cleaning up old visuals...");
     window.VisualFeedback.cleanupVisuals();
   }
   await window.CollectorHelpers.sleep(100);
-  // ═══ END ADD ═══
+  // ═══ END CLEANUP ═══
 
   // Show zone border
   if (collectionZone && window.VisualFeedback) {
-    console.log("📍 Attempting to show zone border...");
+    console.log("📍 Showing zone border...");
     window.VisualFeedback.showZoneBorder(collectionZone);
-    console.log("✅ Zone border command sent");
+    console.log("✅ Zone border shown");
+  } else {
+    console.error("❌ Missing zone or VisualFeedback!");
   }
 
-  // ... rest of function
+  // ═══ CRITICAL FIX: Start the collection loop! ═══
+  isCollecting = true;
+  console.log("✅ isCollecting set to TRUE");
+
+  // Save initial state
+  await saveState();
+  console.log("✅ Initial state saved");
+
+  // Start the collection loop
+  console.log("🚀 Starting collection loop...");
+  collectionLoop();
+  console.log("✅ Collection loop started!");
+  // ═══ END FIX ═══
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -749,7 +783,11 @@ async function completeCollection() {
 // SECTION 10: INITIALIZATION
 // ═══════════════════════════════════════════════════════════════════════════════
 
-console.log("✅ Collector.js loaded and ready");
+console.log("✅ collector.js loaded successfully");
+console.log("📦 Dependencies check:");
+console.log("  - CollectorHelpers:", typeof window.CollectorHelpers);
+console.log("  - VisualFeedback:", typeof window.VisualFeedback);
+console.log("🎯 Collector ready to receive START_COLLECTION message");
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // END OF COLLECTOR.JS
