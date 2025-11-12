@@ -1,12 +1,12 @@
 {
   "twitter": {
-    "tweet_container": {
+    "twitter_tweet_container": {
       "selector": "[data-testid='tweet']",
       "fallbackSelectors": ["article[role='article']"],
       "classId": 0,
       "description": "Full tweet container"
     },
-    "profile_picture": {
+    "twitter_profile_picture": {
       "selector": "a[role='link'] img[alt]",
       "fallbackSelectors": [
         "[data-testid='Tweet-User-Avatar'] img",
@@ -14,106 +14,106 @@
         "div[data-testid='Tweet-User-Avatar'] img",
         "a[href*='/photo'] img:first-of-type"
       ],
-      "classId": 8,
+      "classId": 1,
       "description": "User profile picture"
     },
-    "username": {
+    "twitter_username": {
       "selector": "[data-testid='User-Name'] span",
       "fallbackSelectors": ["[dir='ltr'] > span"],
-      "classId": 6,
+      "classId": 2,
       "description": "Username text"
     },
-    "user_id": {
+    "twitter_user_id": {
       "selector": "[data-testid='User-Name'] a[href*='/']",
       "fallbackSelectors": [],
-      "classId": 7,
+      "classId": 3,
       "description": "User ID / handle"
     },
-    "like_button": {
+    "twitter_like_button": {
       "selector": "[data-testid='like']",
       "fallbackSelectors": ["button[aria-label*='Like']"],
-      "classId": 1,
+      "classId": 4,
       "description": "Like button"
     },
-    "comment_button": {
+    "twitter_comment_button": {
       "selector": "[data-testid='reply']",
       "fallbackSelectors": ["button[aria-label*='Reply']"],
-      "classId": 2,
+      "classId": 5,
       "description": "Reply button"
     },
-    "repost_button": {
+    "twitter_repost_button": {
       "selector": "[data-testid='retweet']",
       "fallbackSelectors": ["button[aria-label*='Repost']"],
-      "classId": 3,
+      "classId": 6,
       "description": "Retweet button"
     },
-    "share_button": {
+    "twitter_share_button": {
       "selector": "button[aria-label='Share post']",
       "fallbackSelectors": ["[aria-label*='Share']"],
-      "classId": 4,
+      "classId": 7,
       "description": "Share button"
     },
-    "bookmark_button": {
+    "twitter_bookmark_button": {
       "selector": "[data-testid='bookmark']",
       "fallbackSelectors": ["button[aria-label*='Bookmark']"],
-      "classId": 5,
+      "classId": 8,
       "description": "Bookmark button"
     },
-    "view_count": {
+    "twitter_view_count": {
       "selector": "a[href*='/analytics'] span",
       "fallbackSelectors": [
         "[aria-label*='views'] span",
         "a[href$='/analytics'] span"
       ],
-      "classId": 20,
+      "classId": 9,
       "description": "View count number"
     },
-    "like_count": {
+    "twitter_like_count": {
       "selector": "[data-testid='like'] span",
       "fallbackSelectors": [],
-      "classId": 35,
+      "classId": 10,
       "description": "Like count number"
     },
-    "comment_count": {
+    "twitter_comment_count": {
       "selector": "[data-testid='reply'] span",
       "fallbackSelectors": [],
-      "classId": 36,
+      "classId": 11,
       "description": "Comment/reply count"
     },
-    "repost_count": {
+    "twitter_repost_count": {
       "selector": "[data-testid='retweet'] span",
       "fallbackSelectors": [],
-      "classId": 37,
+      "classId": 12,
       "description": "Repost count"
     },
-    "post_text": {
+    "twitter_post_text": {
       "selector": "[data-testid='tweetText']",
       "fallbackSelectors": ["[lang]"],
-      "classId": 9,
+      "classId": 13,
       "description": "Tweet text content"
     },
-    "post_image": {
+    "twitter_post_image": {
       "selector": "[data-testid='tweetPhoto'] img",
       "fallbackSelectors": ["img[alt='Image']"],
-      "classId": 10,
+      "classId": 14,
       "description": "Tweet image"
     },
-    "post_video": {
+    "twitter_post_video": {
       "selector": "[data-testid='videoPlayer']",
       "fallbackSelectors": ["[data-testid='videoComponent']", "video"],
-      "classId": 11,
+      "classId": 15,
       "description": "Tweet video player"
     },
-    "timestamp": {
+    "twitter_timestamp": {
       "selector": "time",
       "fallbackSelectors": [],
-      "classId": 12,
+      "classId": 16,
       "description": "Tweet timestamp"
     },
-    "verified_badge": {
+    "twitter_verified_badge": {
       "selector": "[data-testid='icon-verified']",
       "fallbackSelectors": ["svg[aria-label*='Verified']"],
-      "classId": 13,
+      "classId": 17,
       "description": "Verified checkmark badge"
     }
   }

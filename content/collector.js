@@ -262,12 +262,12 @@ async function collectionLoop() {
       // Process each tweet container in zone
       for (const targetContainer of targetContainers) {
         // Add container itself first
-        if (collectionConfig.tweet_container) {
+        if (collectionConfig.twitter_tweet_container) {
           if (window.CollectorHelpers.isElementInZone(targetContainer, collectionZone)) {
             foundElements.push({
               element: targetContainer,
-              type: 'tweet_container',
-              classId: collectionConfig.tweet_container.classId
+              type: 'twitter_tweet_container',
+              classId: collectionConfig.twitter_tweet_container.classId
             });
             console.log('✅ Container added (classId: 0)');
           }
@@ -275,7 +275,7 @@ async function collectionLoop() {
 
         // Find all other elements within this tweet
         for (const [elementType, elementConfig] of Object.entries(collectionConfig)) {
-          if (elementType === 'tweet_container') continue;
+          if (elementType === 'twitter_tweet_container') continue;
 
           const selector = elementConfig.selector;
           const fallbackSelectors = elementConfig.fallbackSelectors || [];
@@ -297,7 +297,7 @@ async function collectionLoop() {
           for (const elem of elements) {
             // ═══ SPECIAL HANDLING for profile pictures ═══
             // Profile pics might be partially outside zone, so be lenient
-            const isProfilePic = elementType === 'profile_picture';
+            const isProfilePic = elementType === 'twitter_profile_picture';
 
             // Skip visibility check for profile pics - they have their own overlap check
             if (!isProfilePic) {
