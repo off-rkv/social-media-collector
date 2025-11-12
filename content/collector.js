@@ -299,24 +299,24 @@ async function collectionLoop() {
             // Profile pics might be partially outside zone, so be lenient
             const isProfilePic = elementType === 'profile_picture';
 
-            // Check visibility first
-            const isVisible = window.CollectorHelpers.isElementVisible(elem);
-            if (!isVisible) {
-              if (isProfilePic) {
-                const rect = elem.getBoundingClientRect();
-                console.log(`⚠️ ${elementType} not visible - rect:`, {
-                  width: rect.width,
-                  height: rect.height,
-                  top: rect.top,
-                  left: rect.left
-                });
+            // Skip visibility check for profile pics - they have their own overlap check
+            if (!isProfilePic) {
+              const isVisible = window.CollectorHelpers.isElementVisible(elem);
+              if (!isVisible) {
+                continue;
               }
-              continue;
             }
 
             // For profile pics, only check if it overlaps with zone (not fully inside)
             if (isProfilePic) {
               const rect = elem.getBoundingClientRect();
+
+              // Basic dimension check
+              if (rect.width === 0 || rect.height === 0) {
+                console.log(`⚠️ ${elementType} has zero dimensions`);
+                continue;
+              }
+
               const overlapsZone =
                 rect.bottom > collectionZone.top &&
                 rect.top < collectionZone.bottom &&
@@ -331,7 +331,7 @@ async function collectionLoop() {
                 });
                 console.log(`✅ ${elementType} (classId: ${elementConfig.classId}) [overlap]`);
               } else {
-                console.log(`⚠️ ${elementType} outside zone`);
+                console.log(`⚠️ ${elementType} outside zone (left: ${Math.round(rect.left)}, zone.left: ${collectionZone.left})`);
               }
             } else {
               // For other elements, check if fully in zone
