@@ -144,7 +144,7 @@
     },
     "facebook_timestamp": {
       "selector": "a[aria-label*='ago'] span",
-      "fallbackSelectors": ["span:contains('h'), span:contains('d'), span:contains('m')"],
+      "fallbackSelectors": ["a[href*='/posts/'] span[dir='auto']"],
       "classId": 22,
       "description": "Facebook: Time indicator (3d, 5h, etc.)"
     },
@@ -156,19 +156,19 @@
     },
     "facebook_like_button": {
       "selector": "[aria-label='Like']",
-      "fallbackSelectors": ["div[role='button']:has(svg[aria-label*='Like'])"],
+      "fallbackSelectors": ["div[role='button'] svg[aria-label*='Like']"],
       "classId": 24,
       "description": "Facebook: Like button with thumbs up icon"
     },
     "facebook_comment_button": {
       "selector": "[aria-label='Comment']",
-      "fallbackSelectors": ["div[role='button']:has(svg[aria-label*='Comment'])"],
+      "fallbackSelectors": ["div[role='button'] svg[aria-label*='Comment']"],
       "classId": 25,
       "description": "Facebook: Comment button"
     },
     "facebook_share_button": {
       "selector": "[aria-label='Share']",
-      "fallbackSelectors": ["div[role='button']:has(svg[aria-label*='Share'])"],
+      "fallbackSelectors": ["div[role='button'] svg[aria-label*='Share']"],
       "classId": 26,
       "description": "Facebook: Share button"
     },
@@ -180,19 +180,19 @@
     },
     "facebook_reaction_count": {
       "selector": "span[aria-label*='All reactions:']",
-      "fallbackSelectors": ["span:contains('K')"],
+      "fallbackSelectors": ["div[role='button'] span[dir='auto']"],
       "classId": 28,
       "description": "Facebook: Total reaction count (151K)"
     },
     "facebook_comment_count": {
-      "selector": "span:contains('comments')",
-      "fallbackSelectors": ["span:contains('comment')"],
+      "selector": "span[role='button']",
+      "fallbackSelectors": ["a[href*='/posts/'] span"],
       "classId": 29,
       "description": "Facebook: Comment count text"
     },
     "facebook_share_count": {
-      "selector": "span:contains('shares')",
-      "fallbackSelectors": ["span:contains('share')"],
+      "selector": "span[aria-label*='share']",
+      "fallbackSelectors": ["div[role='button'] span[dir='auto']"],
       "classId": 30,
       "description": "Facebook: Share count text"
     }
@@ -254,13 +254,13 @@
     },
     "instagram_like_count": {
       "selector": "a[href*='/liked_by/'] span",
-      "fallbackSelectors": ["section span:contains('likes')"],
+      "fallbackSelectors": ["section button span", "section a span"],
       "classId": 40,
       "description": "Instagram: Like count text"
     },
     "instagram_view_comments": {
       "selector": "a[href*='/comments/']",
-      "fallbackSelectors": ["button:contains('View all')"],
+      "fallbackSelectors": ["button[role='button'] span[dir='auto']"],
       "classId": 41,
       "description": "Instagram: View all comments button"
     }
@@ -286,7 +286,7 @@
     },
     "threads_verified_badge": {
       "selector": "svg[aria-label='Verified']",
-      "fallbackSelectors": ["svg title:contains('Verified')"],
+      "fallbackSelectors": ["svg[title='Verified']"],
       "classId": 45,
       "description": "Threads: Verified badge (check/star)"
     },
@@ -327,8 +327,8 @@
       "description": "Threads: Share button (send arrow)"
     },
     "threads_like_count": {
-      "selector": "span:contains('like')",
-      "fallbackSelectors": ["div[role='button'] span"],
+      "selector": "div[role='button'] span[dir='auto']",
+      "fallbackSelectors": ["button span"],
       "classId": 52,
       "description": "Threads: Like count number"
     }
