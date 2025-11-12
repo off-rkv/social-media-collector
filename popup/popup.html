@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Media Data Collector</title>
+  <style>
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* BASIC RESET & LAYOUT */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Screen reader only - visually hidden but accessible */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+    
+    body {
+      width: 450px;
+      min-width: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+                   Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-size: 13px;
+      color: #333;
+      background: #f5f5f5;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* HEADER */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .header {
+      background: linear-gradient(135deg, red 10%, blue 80%);
+      color: white;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* MAIN CONTAINER */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .container {
+      padding: 16px;
+      background: white;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* SECTION STYLING */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ff0000;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .section-title::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: #667eea;
+      border-radius: 2px;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* ZONE COORDINATES */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .zone-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .input-group label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #666;
+    }
+    
+    .input-group input[type="number"] {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    
+    .input-group input[type="number"]:focus {
+      outline: none;
+      border-color: #002fff;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .zone-status {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #e8f5e9;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #2e7d32;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .zone-status::before {
+      content: '✓';
+      font-weight: bold;
+      font-size: 13px;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* TOGGLE SWITCH */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    .toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #ff2f00;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* RADIO BUTTONS (SCROLL DIRECTION) */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .radio-group {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .radio-option {
+      flex: 1;
+      position: relative;
+    }
+    
+    .radio-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+    }
+    
+    .radio-option label {
+      display: block;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: #333;
+      transition: all 0.2s;
+    }
+    
+    .radio-option input[type="radio"]:checked + label {
+      background: #0835ff;
+      color: white;
+      border-color: #ffffff;
+    }
+    
+    .radio-option label:hover {
+      border-color: #ff0000;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* PLATFORM DROPDOWN */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .platform-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 13px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .platform-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* PROGRESS DISPLAY */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    .stat {
+      text-align: center;
+      flex: 1;
+    }
+    
+    .stat-label {
+      font-size: 10px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+    }
+    
+    .stat-value.pure {
+      color: #2e7d32;
+    }
+    
+    .stat-value.aug {
+      color: #f57c00;
+    }
+    
+    .stat-value.total {
+      color: #667eea;
+    }
+    
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    
+    .progress-text {
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      font-weight: 500;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* BUTTONS */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-start {
+      background: linear-gradient(135deg, #002fff 0%, #00ddf6 100%);
+      color: white;
+    }
+    
+    .btn-start:hover {
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-stop {
+      background: #f44336;
+      color: white;
+    }
+    
+    .btn-stop:hover {
+      background: #d32f2f;
+      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* STATUS INDICATOR */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .status {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    
+    .status.idle {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .status.collecting {
+      background: #e8f5e9;
+      color: #2e7d32;
+      animation: pulse 2s infinite;
+    }
+    
+    .status.paused {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- HEADER -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="header">
+    <h1>🎯 Social Media Data Collector</h1>
+  </div>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- MAIN CONTAINER -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="container">
+    
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 1: CAPTURE ZONE -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="section-title">📐 Capture Zone (CSS Pixels)</div>
+      
+      <div class="zone-grid">
+        <div class="input-group">
+          <label for="zoneTop">Top</label>
+          <input type="number" id="zoneTop" value="60" min="0" step="10">
+        </div>
+        
+        <div class="input-group">
+          <label for="zoneLeft">Left</label>
+          <input type="number" id="zoneLeft" value="0" min="0" step="10">
+        </div>
+        
+        <div class="input-group">
+          <label for="zoneBottom">Bottom</label>
+          <input type="number" id="zoneBottom" value="900" min="0" step="10">
+        </div>
+        
+        <div class="input-group">
+          <label for="zoneRight">Right</label>
+          <input type="number" id="zoneRight" value="1920" min="0" step="10">
+        </div>
+      </div>
+      
+      <div class="zone-status" id="zoneStatus">
+        Zone border visible on page
+      </div>
+    </div>
+    
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 2: VISUAL FEEDBACK -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="section-title">👁️ Visual Feedback</div>
+      
+      <div class="toggle-container">
+        <label class="toggle-label" for="highlightToggle">
+          Show Element Highlights (500ms)
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="highlightToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 3: SCROLL DIRECTION -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="section-title">📜 Scroll Direction</div>
+      
+      <div class="radio-group">
+        <div class="radio-option">
+          <input type="radio" id="scrollDown" name="scrollDirection" value="down" checked>
+          <label for="scrollDown">⬇️ Down<br><small style="font-size:10px;">Twitter/Insta/FB</small></label>
+        </div>
+        
+        <div class="radio-option">
+          <input type="radio" id="scrollUp" name="scrollDirection" value="up">
+          <label for="scrollUp">⬆️ Up<br><small style="font-size:10px;">WhatsApp</small></label>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 4: PLATFORM SELECTION -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="section-title">🌐 Platform</div>
+
+      <label for="platformSelect" class="sr-only">Select social media platform</label>
+      <select class="platform-select" id="platformSelect" aria-label="Select social media platform">
+        <option value="twitter">Twitter / X</option>
+        <option value="instagram">Instagram</option>
+        <option value="facebook">Facebook</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="linkedin">LinkedIn</option>
+        <option value="reddit">Reddit</option>
+        <option value="discord">Discord</option>
+        <option value="threads">Threads</option>
+        <option value="youtube">YouTube</option>
+        <option value="snapchat">Snapchat</option>
+      </select>
+    </div>
+    
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 5: STATUS -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="status idle" id="statusIndicator">
+        ⚪ Idle - Ready to collect
+      </div>
+    </div>
+    
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 6: PROGRESS -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="section-title">📊 Progress</div>
+      
+      <div class="progress-stats">
+        <div class="stat">
+          <div class="stat-label">Pure</div>
+          <div class="stat-value pure" id="pureCount">0</div>
+        </div>
+        
+        <div class="stat">
+          <div class="stat-label">Aug</div>
+          <div class="stat-value aug" id="augCount">0</div>
+        </div>
+        
+        <div class="stat">
+          <div class="stat-label">Total</div>
+          <div class="stat-value total" id="totalCount">0</div>
+        </div>
+      </div>
+      
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      
+      <div class="progress-text" id="progressText">
+        0 / 1000 samples (0.0%)
+      </div>
+    </div>
+    
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 7: CONTROLS -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="button-group">
+        <button class="btn btn-start" id="startBtn">
+          ▶ START
+        </button>
+        
+        <button class="btn btn-stop" id="stopBtn" disabled>
+          ⏹ STOP
+        </button>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- LOAD POPUP JAVASCRIPT -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <script src="popup.js"></script>
+  
+</body>
+</html>

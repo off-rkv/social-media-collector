@@ -1,0 +1,97 @@
+{
+  "twitter": {
+    "tweet_container": {
+      "selector": "[data-testid='tweet']",
+      "fallbackSelectors": ["article[role='article']"],
+      "classId": -1,
+      "description": "Full tweet container - use for visibility check"
+    },
+    "profile_picture": {
+      "selector": "[data-testid='Tweet-User-Avatar'] img",
+      "fallbackSelectors": ["article img[alt*='profile']"],
+      "classId": 7,
+      "description": "User profile picture"
+    },
+    "username": {
+      "selector": "[data-testid='User-Name'] span",
+      "fallbackSelectors": ["article [dir='ltr'] > span"],
+      "classId": 5,
+      "description": "Username text"
+    },
+    "user_id": {
+      "selector": "[data-testid='User-Name'] a[href*='/']",
+      "fallbackSelectors": [],
+      "classId": 6,
+      "description": "User ID / handle"
+    },
+    "like_button": {
+      "selector": "[data-testid='like']",
+      "fallbackSelectors": ["button[aria-label*='Like']"],
+      "classId": 0,
+      "description": "Like button"
+    },
+    "comment_button": {
+      "selector": "[data-testid='reply']",
+      "fallbackSelectors": ["button[aria-label*='Reply']"],
+      "classId": 1,
+      "description": "Reply button"
+    },
+    "repost_button": {
+      "selector": "[data-testid='retweet']",
+      "fallbackSelectors": ["button[aria-label*='Repost']"],
+      "classId": 2,
+      "description": "Retweet button"
+    },
+    "share_button": {
+      "selector": "button[aria-label='Share post']",
+      "fallbackSelectors": ["[aria-label*='Share']"],
+      "classId": 3,
+      "description": "Share button"
+    },
+    "bookmark_button": {
+      "selector": "[data-testid='bookmark']",
+      "fallbackSelectors": ["button[aria-label*='Bookmark']"],
+      "classId": 4,
+      "description": "Bookmark button"
+    },
+    "view_count": {
+      "selector": "a[href*='/analytics'] span",
+      "fallbackSelectors": [
+        "[aria-label*='views'] span",
+        "a[href$='/analytics'] span"
+      ],
+      "classId": 20,
+      "description": "View count number"
+    },
+    "like_count": {
+      "selector": "[data-testid='like'] span",
+      "fallbackSelectors": [],
+      "classId": 35,
+      "description": "Like count number"
+    },
+    "comment_count": {
+      "selector": "[data-testid='reply'] span",
+      "fallbackSelectors": [],
+      "classId": 36,
+      "description": "Comment/reply count"
+    },
+    "repost_count": {
+      "selector": "[data-testid='retweet'] span",
+      "fallbackSelectors": [],
+      "classId": 37,
+      "description": "Repost count"
+    },
+    "post_text": {
+      "selector": "[data-testid='tweetText']",
+      "fallbackSelectors": ["article [lang]"],
+      "classId": 8,
+      "description": "Tweet text content"
+    },
+    "post_image": {
+      "selector": "[data-testid='tweetPhoto'] img",
+      "fallbackSelectors": ["article img[alt='Image']"],
+      "classId": 9,
+      "description": "Tweet image"
+    }
+  }
+}

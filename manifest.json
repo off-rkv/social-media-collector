@@ -1,0 +1,76 @@
+{
+  "manifest_version": 3,
+  "name": "Social Media Data Collector",
+  "version": "1.0.0",
+  "description": "Collect UI elements from social media platforms for YOLO training",
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "storage",
+    "scripting",
+    "tabs",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://twitter.com/*",
+    "https://x.com/*",
+    "https://www.instagram.com/*",
+    "https://www.facebook.com/*",
+    "https://web.whatsapp.com/*",
+    "https://www.linkedin.com/*",
+    "https://www.reddit.com/*",
+    "https://discord.com/*",
+    "https://www.threads.net/*",
+    "https://www.youtube.com/*",
+    "https://www.snapchat.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Social Media Data Collector"
+  },
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://twitter.com/*",
+        "https://x.com/*",
+        "https://www.instagram.com/*",
+        "https://www.facebook.com/*",
+        "https://web.whatsapp.com/*",
+        "https://www.linkedin.com/*",
+        "https://www.reddit.com/*",
+        "https://discord.com/*",
+        "https://www.threads.net/*",
+        "https://www.youtube.com/*",
+        "https://www.snapchat.com/*"
+      ],
+      "js": [
+        "utils/constants.js",
+        "content/helpers.js",
+        "content/visual.js",
+        "content/collector.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["config/platform_ids.json"],
+      "matches": [
+        "https://twitter.com/*",
+        "https://x.com/*",
+        "https://www.instagram.com/*",
+        "https://www.facebook.com/*",
+        "https://web.whatsapp.com/*",
+        "https://www.linkedin.com/*",
+        "https://www.reddit.com/*",
+        "https://discord.com/*",
+        "https://www.threads.net/*",
+        "https://www.youtube.com/*",
+        "https://www.snapchat.com/*"
+      ]
+    }
+  ]
+}
