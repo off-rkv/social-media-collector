@@ -275,73 +275,79 @@
       "fallbackSelectors": ["section span", "button span"],
       "classId": 43,
       "description": "Instagram: Like count text"
+    },
+    "instagram_post_video": {
+      "selector": "video",
+      "fallbackSelectors": ["video[playsinline]", "div[role='button'] video"],
+      "classId": 44,
+      "description": "Instagram: Post video player"
     }
   },
   "threads": {
     "threads_post_container": {
       "selector": "div[role='article']",
       "fallbackSelectors": ["div[class*='x1n2onr6']"],
-      "classId": 42,
+      "classId": 45,
       "description": "Threads: Full post container"
     },
     "threads_profile_picture": {
       "selector": "img[alt*=\"'s profile picture\"]",
       "fallbackSelectors": ["button img[alt*='profile']"],
-      "classId": 43,
+      "classId": 46,
       "description": "Threads: Profile avatar (36px circle)"
     },
     "threads_username": {
       "selector": "a[href^='/@'] span",
       "fallbackSelectors": ["div[role='button'] span"],
-      "classId": 44,
+      "classId": 47,
       "description": "Threads: Username text (bold)"
     },
     "threads_verified_badge": {
       "selector": "svg[aria-label='Verified']",
       "fallbackSelectors": ["svg[title='Verified']"],
-      "classId": 45,
+      "classId": 48,
       "description": "Threads: Verified badge (check/star)"
     },
     "threads_timestamp": {
       "selector": "time",
       "fallbackSelectors": ["a time"],
-      "classId": 46,
+      "classId": 49,
       "description": "Threads: Post timestamp (4h, 3d, etc.)"
     },
     "threads_post_text": {
       "selector": "div[dir='auto'][style*='text-align']",
       "fallbackSelectors": ["div[class*='x1iorvi4'] span"],
-      "classId": 47,
+      "classId": 50,
       "description": "Threads: Post text content"
     },
     "threads_like_button": {
       "selector": "svg[title='Like']",
       "fallbackSelectors": ["button[aria-label='Like']"],
-      "classId": 48,
+      "classId": 51,
       "description": "Threads: Like button (heart outline)"
     },
     "threads_reply_button": {
       "selector": "svg[title='Reply']",
       "fallbackSelectors": ["button svg[aria-label='Reply']"],
-      "classId": 49,
+      "classId": 52,
       "description": "Threads: Reply button (curved arrow)"
     },
     "threads_repost_button": {
       "selector": "svg[title='Repost']",
       "fallbackSelectors": ["button svg[aria-label='Repost']"],
-      "classId": 50,
+      "classId": 53,
       "description": "Threads: Repost button (loop arrows)"
     },
     "threads_share_button": {
       "selector": "svg[title='Share']",
       "fallbackSelectors": ["button svg[aria-label='Share']"],
-      "classId": 51,
+      "classId": 54,
       "description": "Threads: Share button (send arrow)"
     },
     "threads_like_count": {
       "selector": "div[role='button'] span[dir='auto']",
       "fallbackSelectors": ["button span"],
-      "classId": 52,
+      "classId": 55,
       "description": "Threads: Like count number"
     }
   }
