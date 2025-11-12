@@ -7,19 +7,19 @@
       "description": "Full tweet container"
     },
     "profile_picture": {
-      "selector": "article a[role='link'] img[alt]",
+      "selector": "a[role='link'] img[alt]",
       "fallbackSelectors": [
         "[data-testid='Tweet-User-Avatar'] img",
-        "article img[src*='profile_images']",
-        "article div[data-testid='Tweet-User-Avatar'] img",
-        "article a[href*='/photo'] img:first-of-type"
+        "img[src*='profile_images']",
+        "div[data-testid='Tweet-User-Avatar'] img",
+        "a[href*='/photo'] img:first-of-type"
       ],
       "classId": 8,
       "description": "User profile picture"
     },
     "username": {
       "selector": "[data-testid='User-Name'] span",
-      "fallbackSelectors": ["article [dir='ltr'] > span"],
+      "fallbackSelectors": ["[dir='ltr'] > span"],
       "classId": 6,
       "description": "Username text"
     },
@@ -88,13 +88,13 @@
     },
     "post_text": {
       "selector": "[data-testid='tweetText']",
-      "fallbackSelectors": ["article [lang]"],
+      "fallbackSelectors": ["[lang]"],
       "classId": 9,
       "description": "Tweet text content"
     },
     "post_image": {
       "selector": "[data-testid='tweetPhoto'] img",
-      "fallbackSelectors": ["article img[alt='Image']"],
+      "fallbackSelectors": ["img[alt='Image']"],
       "classId": 10,
       "description": "Tweet image"
     },
@@ -106,7 +106,7 @@
     },
     "timestamp": {
       "selector": "time",
-      "fallbackSelectors": ["article time"],
+      "fallbackSelectors": [],
       "classId": 12,
       "description": "Tweet timestamp"
     },
