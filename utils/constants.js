@@ -21,9 +21,9 @@ const DEFAULT_SETTINGS = {
   defaultBrowserId: "b1", // Default browser ID for filename
 
   // Collection targets
-  targetSamplesPure: 700, // Target for pure (non-augmented) samples
-  targetSamplesAugmented: 300, // Target for augmented samples
-  targetSamplesTotal: 1000, // Total per platform
+  targetSamplesPure: 7000, // Target for pure (non-augmented) samples
+  targetSamplesAugmented: 3000, // Target for augmented samples
+  targetSamplesTotal: 10000, // Total per platform
 
   // Augmentation (will be configured later)
   augmentationFilters: ["brightness(1.2)", "contrast(1.15)", "saturate(1.1)"],

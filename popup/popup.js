@@ -540,7 +540,7 @@ function updateProgressDisplay(data) {
   elements.totalCount.textContent = totalCount;
 
   // Update progress bar
-  const target = 1000; // Target samples per platform
+  const target = 10000; // Target samples per platform
   const percentage = (totalCount / target) * 100;
 
   elements.progressBar.style.width = Math.min(percentage, 100) + "%";
