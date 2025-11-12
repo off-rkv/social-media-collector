@@ -144,12 +144,12 @@ function isElementVisible(element) {
       return false;
     }
 
-    // Check if element is in viewport
-    const isInViewport =
-      rect.top >= 0 &&
-      rect.left >= 0 &&
-      rect.bottom <= window.innerHeight &&
-      rect.right <= window.innerWidth;
+    // Check if element is partially in viewport (more lenient)
+    const hasAnyViewportOverlap =
+      rect.bottom > 0 &&
+      rect.right > 0 &&
+      rect.top < window.innerHeight &&
+      rect.left < window.innerWidth;
 
     // Check if element is not hidden
     const styles = window.getComputedStyle(element);
@@ -158,7 +158,7 @@ function isElementVisible(element) {
       styles.visibility !== "hidden" &&
       styles.opacity !== "0";
 
-    return isInViewport && isVisible;
+    return hasAnyViewportOverlap && isVisible;
   } catch (error) {
     return false;
   }
