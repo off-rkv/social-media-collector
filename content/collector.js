@@ -346,24 +346,29 @@ async function collectionLoop() {
       // STEP 5: Show highlights (if enabled)
       // ═══════════════════════════════════════════════════════════════════════
       if (collectionSettings.highlightEnabled && window.VisualFeedback) {
+        console.log("💚 Showing highlights on", highlightElements.length, "elements");
         window.VisualFeedback.showMultipleHighlights(highlightElements, 500);
-        
+
         // WAIT for highlights to disappear
         await window.CollectorHelpers.sleep(600);
+        console.log("✅ Highlights finished");
       }
 
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 6: HIDE zone border before screenshot
       // ═══════════════════════════════════════════════════════════════════════
+      console.log("📸 Preparing to capture screenshot...");
       if (window.VisualFeedback) {
         window.VisualFeedback.hideZoneBorder();
+        console.log("✅ Zone border hidden");
       }
-      
+
       await window.CollectorHelpers.sleep(100);
 
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 7: Capture screenshot
       // ═══════════════════════════════════════════════════════════════════════
+      console.log("📸 Calling captureScreenshotViaBackground()...");
       const screenshot = await captureScreenshotViaBackground();
 
       // ═══════════════════════════════════════════════════════════════════════
@@ -371,21 +376,33 @@ async function collectionLoop() {
       // ═══════════════════════════════════════════════════════════════════════
       if (window.VisualFeedback) {
         window.VisualFeedback.showZoneBorder(collectionZone);
+        console.log("✅ Zone border restored");
       }
 
       if (!screenshot) {
-        console.error("❌ Screenshot failed");
-        await window.CollectorHelpers.sleep(200);
+        console.error("❌ Screenshot capture FAILED!");
+        console.error("   This usually means background service worker error");
+        console.error("   Scrolling to next tweet and retrying...");
+
+        // ═══ CRITICAL: SCROLL even on error! ═══
+        window.CollectorHelpers.scroll(collectionSettings.scrollDirection, 35);
+        await window.CollectorHelpers.sleep(500);
         continue;
       }
 
-      console.log("✅ Screenshot captured");
+      console.log("✅ Screenshot captured successfully!");
+      console.log("   Screenshot size:", screenshot.length, "characters");
 
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 9: Generate annotation file
       // ═══════════════════════════════════════════════════════════════════════
+      console.log("📝 Generating YOLO annotations...");
       const annotationText = window.CollectorHelpers.generateAnnotation(annotations);
+      console.log("✅ Annotation text generated:");
+      console.log(annotationText);
+
       const annotationDataUrl = await window.CollectorHelpers.annotationToDataUrl(annotationText);
+      console.log("✅ Annotation converted to data URL");
 
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 10: Save files
@@ -399,7 +416,19 @@ async function collectionLoop() {
       const imageFilename = baseFilename + ".jpg";
       const labelFilename = baseFilename + ".txt";
 
-      await downloadFiles(screenshot, annotationDataUrl, imageFilename, labelFilename);
+      console.log("💾 Downloading files:");
+      console.log("   Image:", imageFilename);
+      console.log("   Label:", labelFilename);
+
+      const downloadResult = await downloadFiles(screenshot, annotationDataUrl, imageFilename, labelFilename);
+
+      if (!downloadResult || !downloadResult.success) {
+        console.error("❌ File download FAILED!");
+        console.error("   Result:", downloadResult);
+        // Continue anyway - don't let download errors stop collection
+      } else {
+        console.log("✅ Files downloaded successfully!");
+      }
 
       if (pureCount < TARGET_PURE) {
         pureCount++;
@@ -407,17 +436,28 @@ async function collectionLoop() {
         augmentedCount++;
       }
 
+      console.log("📊 Current progress:");
+      console.log("   Samples:", samplesCollected);
+      console.log("   Pure:", pureCount);
+      console.log("   Augmented:", augmentedCount);
+
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 11: Update progress
       // ═══════════════════════════════════════════════════════════════════════
+      console.log("📤 Sending progress update to popup...");
       await updateProgress();
       await saveState();
+      console.log("✅ Progress saved");
 
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 12: Scroll to next tweet
       // ═══════════════════════════════════════════════════════════════════════
-      window.CollectorHelpers.scroll(collectionSettings.scrollDirection, 35);
+      console.log("📜 Scrolling to next tweet...");
+      const scrollResult = window.CollectorHelpers.scroll(collectionSettings.scrollDirection, 35);
+      console.log("✅ Scrolled:", scrollResult.scrolled ? "YES" : "NO", "- Position:", scrollResult.position);
+
       await window.CollectorHelpers.sleep(200);
+      console.log("✅ Sample #" + samplesCollected + " complete! Moving to next...\n");
       
     } catch (error) {
       console.error("❌ Loop error:", error);
