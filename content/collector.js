@@ -202,37 +202,65 @@ async function collectionLoop() {
   while (isCollecting && samplesCollected < TARGET_TOTAL) {
     try {
       // ═══════════════════════════════════════════════════════════════════════
-      // STEP 1: Find TWEET CONTAINERS
+      // STEP 1: Find POST CONTAINERS (platform-aware)
       // ═══════════════════════════════════════════════════════════════════════
-      const tweetContainers = document.querySelectorAll('[data-testid="tweet"]');
-      
-      if (tweetContainers.length === 0) {
+
+      // Get container key based on platform
+      const containerKey = `${currentPlatform}_${currentPlatform === 'twitter' ? 'tweet' : 'post'}_container`;
+      const containerConfig = collectionConfig[containerKey];
+
+      if (!containerConfig) {
+        console.error(`❌ No container config for platform: ${currentPlatform}`);
+        console.error(`   Expected key: ${containerKey}`);
+        console.error(`   Available keys:`, Object.keys(collectionConfig));
+        await completeCollection();
+        break;
+      }
+
+      console.log(`🔍 Looking for ${containerKey} using selector: ${containerConfig.selector}`);
+
+      // Try primary selector
+      let postContainers = document.querySelectorAll(containerConfig.selector);
+
+      // Try fallback selectors if needed
+      if (postContainers.length === 0 && containerConfig.fallbackSelectors) {
+        for (const fallbackSelector of containerConfig.fallbackSelectors) {
+          console.log(`   Trying fallback: ${fallbackSelector}`);
+          postContainers = document.querySelectorAll(fallbackSelector);
+          if (postContainers.length > 0) {
+            console.log(`   ✅ Found ${postContainers.length} containers using fallback`);
+            break;
+          }
+        }
+      }
+
+      if (postContainers.length === 0) {
         emptyLoopCount++;
-        console.log(`⚠️ No tweets found (${emptyLoopCount}/${MAX_EMPTY_LOOPS})`);
-        
+        console.log(`⚠️ No posts found (${emptyLoopCount}/${MAX_EMPTY_LOOPS})`);
+
         if (emptyLoopCount >= MAX_EMPTY_LOOPS) {
-          console.error("❌ No tweets after max attempts");
+          console.error("❌ No posts after max attempts");
           await completeCollection();
           break;
         }
-        
+
         window.CollectorHelpers.scroll(collectionSettings.scrollDirection, 35);
         await window.CollectorHelpers.sleep(1000);
         continue;
       }
 
-      console.log(`📦 Found ${tweetContainers.length} tweets`);
+      console.log(`📦 Found ${postContainers.length} posts on page`);
 
       // ═══════════════════════════════════════════════════════════════════════
-      // STEP 2: Find ALL tweets in zone (not just one!)
+      // STEP 2: Find ALL posts in zone (not just one!)
       // ═══════════════════════════════════════════════════════════════════════
       const targetContainers = [];
 
-      for (const container of tweetContainers) {
+      for (const container of postContainers) {
         const rect = container.getBoundingClientRect();
         const containerMiddle = rect.top + (rect.height / 2);
 
-        // Any part of tweet overlaps with zone
+        // Any part of post overlaps with zone
         const overlapsZone =
           rect.bottom > collectionZone.top &&
           rect.top < collectionZone.bottom &&
@@ -241,41 +269,42 @@ async function collectionLoop() {
 
         if (overlapsZone) {
           targetContainers.push(container);
-          console.log(`✅ Tweet in zone (top: ${Math.round(rect.top)}, bottom: ${Math.round(rect.bottom)})`);
+          console.log(`✅ Post in zone (top: ${Math.round(rect.top)}, bottom: ${Math.round(rect.bottom)})`);
         }
       }
 
       if (targetContainers.length === 0) {
-        console.log("⚠️ No tweets in zone, scrolling...");
+        console.log("⚠️ No posts in zone, scrolling...");
         window.CollectorHelpers.scroll(collectionSettings.scrollDirection, 35);
         await window.CollectorHelpers.sleep(200);
         continue;
       }
 
-      console.log(`🎯 Processing ${targetContainers.length} tweet(s) in zone`);
+      console.log(`🎯 Processing ${targetContainers.length} post(s) in zone`);
 
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 3: Find ALL elements in ALL tweets in zone
       // ═══════════════════════════════════════════════════════════════════════
       const foundElements = [];
 
-      // Process each tweet container in zone
+      // Process each post container in zone
       for (const targetContainer of targetContainers) {
         // Add container itself first
-        if (collectionConfig.twitter_tweet_container) {
+        if (containerConfig) {
           if (window.CollectorHelpers.isElementInZone(targetContainer, collectionZone)) {
             foundElements.push({
               element: targetContainer,
-              type: 'twitter_tweet_container',
-              classId: collectionConfig.twitter_tweet_container.classId
+              type: containerKey,
+              classId: containerConfig.classId
             });
-            console.log('✅ Container added (classId: 0)');
+            console.log(`✅ Container added (type: ${containerKey}, classId: ${containerConfig.classId})`);
           }
         }
 
-        // Find all other elements within this tweet
+        // Find all other elements within this post
         for (const [elementType, elementConfig] of Object.entries(collectionConfig)) {
-          if (elementType === 'twitter_tweet_container') continue;
+          // Skip the container itself (already added above)
+          if (elementType === containerKey) continue;
 
           const selector = elementConfig.selector;
           const fallbackSelectors = elementConfig.fallbackSelectors || [];
@@ -297,7 +326,7 @@ async function collectionLoop() {
           for (const elem of elements) {
             // ═══ SPECIAL HANDLING for profile pictures ═══
             // Profile pics might be partially outside zone, so be lenient
-            const isProfilePic = elementType === 'twitter_profile_picture';
+            const isProfilePic = elementType.includes('profile_picture');
 
             // Skip visibility check for profile pics - they have their own overlap check
             if (!isProfilePic) {
@@ -349,7 +378,7 @@ async function collectionLoop() {
       }
 
       if (foundElements.length === 0) {
-        console.log("⚠️ No elements in tweet");
+        console.log("⚠️ No elements in post");
         window.CollectorHelpers.scroll(collectionSettings.scrollDirection, 35);
         await window.CollectorHelpers.sleep(200);
         continue;
