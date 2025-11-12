@@ -430,41 +430,54 @@ async function handleCollectionComplete(message, sender, sendResponse) {
   }
 }
 
-async function handleCaptureScreenshot(message, sender, sendResponse) {
-  try {
-    console.log("📸 Capturing screenshot...");
-    console.log("📋 Sender:", sender);
-    console.log("📋 Sender tab:", sender.tab);
+function handleCaptureScreenshot(message, sender, sendResponse) {
+  console.log("📸 Capturing screenshot...");
+  console.log("📋 Sender:", sender);
+  console.log("📋 Sender tab:", sender.tab);
 
-    const tab = sender.tab;
+  const tab = sender.tab;
 
-    if (!tab || !tab.id) {
-      console.error("❌ No tab ID found");
-      console.error("   Sender:", sender);
-      sendResponse({ success: false, error: "No tab ID" });
-      return;
-    }
+  if (!tab || !tab.id) {
+    console.error("❌ No tab ID found");
+    console.error("   Sender:", sender);
+    sendResponse({ success: false, error: "No tab ID" });
+    return;
+  }
 
-    console.log("📸 Calling chrome.tabs.captureVisibleTab...");
-    console.log("   Window ID:", tab.windowId);
+  console.log("📸 Calling chrome.tabs.captureVisibleTab...");
+  console.log("   Window ID:", tab.windowId);
 
-    const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, {
+  // Use promise-based approach instead of async/await with sendResponse
+  chrome.tabs
+    .captureVisibleTab(tab.windowId, {
       format: "jpeg",
       quality: 90,
+    })
+    .then((dataUrl) => {
+      console.log("✅ Screenshot captured!");
+      console.log("   DataUrl length:", dataUrl ? dataUrl.length : 0);
+      console.log(
+        "   DataUrl preview:",
+        dataUrl ? dataUrl.substring(0, 50) + "..." : "NULL"
+      );
+      console.log("   DataUrl type:", typeof dataUrl);
+
+      const response = { success: true, dataUrl: dataUrl };
+      console.log("📤 Sending response object:", {
+        success: response.success,
+        hasDataUrl: !!response.dataUrl,
+        dataUrlLength: response.dataUrl ? response.dataUrl.length : 0,
+      });
+
+      sendResponse(response);
+      console.log("✅ sendResponse() called with dataUrl");
+    })
+    .catch((error) => {
+      console.error("❌ Error capturing screenshot:", error);
+      console.error("   Error message:", error.message);
+      console.error("   Error stack:", error.stack);
+      sendResponse({ success: false, error: error.message });
     });
-
-    console.log("✅ Screenshot captured!");
-    console.log("   DataUrl length:", dataUrl ? dataUrl.length : 0);
-    console.log("   DataUrl preview:", dataUrl ? dataUrl.substring(0, 50) + "..." : "NULL");
-
-    sendResponse({ success: true, dataUrl: dataUrl });
-    console.log("✅ Response sent with dataUrl");
-  } catch (error) {
-    console.error("❌ Error capturing screenshot:", error);
-    console.error("   Error message:", error.message);
-    console.error("   Error stack:", error.stack);
-    sendResponse({ success: false, error: error.message });
-  }
 }
 
 async function handleGetState(message, sender, sendResponse) {
