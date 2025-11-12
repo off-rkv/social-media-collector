@@ -302,7 +302,17 @@ async function collectionLoop() {
           const isProfilePic = elementType === 'profile_picture';
 
           // Check visibility first
-          if (!window.CollectorHelpers.isElementVisible(elem)) {
+          const isVisible = window.CollectorHelpers.isElementVisible(elem);
+          if (!isVisible) {
+            if (isProfilePic) {
+              const rect = elem.getBoundingClientRect();
+              console.log(`⚠️ ${elementType} not visible - rect:`, {
+                width: rect.width,
+                height: rect.height,
+                top: rect.top,
+                left: rect.left
+              });
+            }
             continue;
           }
 
