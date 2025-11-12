@@ -437,6 +437,31 @@ async function collectionLoop() {
       }
 
       console.log("✅ Screenshot captured successfully!");
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // VERIFY: Check screenshot dimensions match normalization
+      // ═══════════════════════════════════════════════════════════════════════
+      const img = new Image();
+      await new Promise((resolve) => {
+        img.onload = () => {
+          const dpr = window.devicePixelRatio || 1.0;
+          const expectedWidth = window.innerWidth * dpr;
+          const expectedHeight = window.innerHeight * dpr;
+
+          console.log("📐 Screenshot dimensions verification:");
+          console.log(`   Expected: ${expectedWidth} x ${expectedHeight}`);
+          console.log(`   Actual: ${img.width} x ${img.height}`);
+
+          if (Math.abs(img.width - expectedWidth) > 1 || Math.abs(img.height - expectedHeight) > 1) {
+            console.warn("⚠️ DIMENSION MISMATCH! YOLO labels may be inaccurate!");
+            console.warn(`   Difference: ${img.width - expectedWidth} x ${img.height - expectedHeight} pixels`);
+          } else {
+            console.log("✅ Dimensions match (within 1px tolerance)");
+          }
+          resolve();
+        };
+        img.src = screenshot;
+      });
       console.log("   Screenshot size:", screenshot.length, "characters");
 
       // ═══════════════════════════════════════════════════════════════════════
