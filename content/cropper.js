@@ -29,6 +29,7 @@ let croppedElements = []; // Store cropped elements for batch processing
 let platformIds = {}; // Store loaded platform IDs
 let nextClassId = 56; // Start from 56 (current max is 55)
 let isClassificationModalOpen = false; // Prevent multiple modals from opening
+let modalClosedTimestamp = 0; // Track when modal was closed to prevent immediate re-trigger
 
 // Progress tracking
 let totalElementCount = 0;
@@ -404,6 +405,13 @@ function manualCropArea(start, end) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 async function captureElementScreenshot(cropData) {
+  // Prevent capturing immediately after modal closes (500ms cooldown)
+  const timeSinceModalClosed = Date.now() - modalClosedTimestamp;
+  if (timeSinceModalClosed < 500) {
+    console.log("⏳ Ignoring capture - modal just closed");
+    return;
+  }
+
   console.log("📸 Capturing element screenshot...");
 
   try {
@@ -456,6 +464,13 @@ async function captureElementScreenshot(cropData) {
 }
 
 async function captureAreaScreenshot(cropData) {
+  // Prevent capturing immediately after modal closes (500ms cooldown)
+  const timeSinceModalClosed = Date.now() - modalClosedTimestamp;
+  if (timeSinceModalClosed < 500) {
+    console.log("⏳ Ignoring capture - modal just closed");
+    return;
+  }
+
   console.log("📸 Capturing manual crop area...");
 
   try {
@@ -865,6 +880,17 @@ async function promptForElementInfo() {
       e.stopPropagation();
     });
 
+    // Make input fields explicitly focusable
+    nameInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      nameInput.focus();
+    });
+
+    descriptionInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      descriptionInput.focus();
+    });
+
     // Focus name input
     nameInput.focus();
 
@@ -874,6 +900,7 @@ async function promptForElementInfo() {
         console.log("🚫 Modal closed by background click");
         modal.remove();
         isClassificationModalOpen = false;
+        modalClosedTimestamp = Date.now();
         resolve(null);
       }
     });
@@ -893,6 +920,7 @@ async function promptForElementInfo() {
 
       modal.remove();
       isClassificationModalOpen = false;
+      modalClosedTimestamp = Date.now();
       resolve({
         name: name,
         description: description,
@@ -910,6 +938,7 @@ async function promptForElementInfo() {
 
       modal.remove();
       isClassificationModalOpen = false;
+      modalClosedTimestamp = Date.now();
       resolve(null);
     };
 
