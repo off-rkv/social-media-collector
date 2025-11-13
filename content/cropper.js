@@ -787,6 +787,8 @@ async function promptForElementInfo() {
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
+            cursor: text;
+            pointer-events: auto;
           "
         />
       </div>
@@ -806,6 +808,8 @@ async function promptForElementInfo() {
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
+            cursor: text;
+            pointer-events: auto;
           "
         />
       </div>
@@ -827,6 +831,7 @@ async function promptForElementInfo() {
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
+            pointer-events: auto;
           "
         >Cancel</button>
         <button
@@ -841,6 +846,7 @@ async function promptForElementInfo() {
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
+            pointer-events: auto;
           "
         >Confirm</button>
       </div>
@@ -873,7 +879,10 @@ async function promptForElementInfo() {
     });
 
     // Handle confirm
-    confirmBtn.onclick = () => {
+    confirmBtn.onclick = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
       const name = nameInput.value.trim();
       const description = descriptionInput.value.trim();
 
@@ -895,7 +904,10 @@ async function promptForElementInfo() {
     };
 
     // Handle cancel
-    cancelBtn.onclick = () => {
+    cancelBtn.onclick = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
       modal.remove();
       isClassificationModalOpen = false;
       resolve(null);
