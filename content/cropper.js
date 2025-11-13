@@ -96,20 +96,9 @@ function createCropperUI() {
     <div style="font-weight: bold; margin-bottom: 8px; color: #333;">
       🎯 Element Cropper
     </div>
-    <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+    <div style="font-size: 12px; color: #666; margin-bottom: 12px;">
       Cropped: <span id="cropped-count">0</span>/3
     </div>
-    <button id="crop-done-btn" style="
-      width: 100%;
-      padding: 8px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      margin-bottom: 4px;
-    ">Process Batch</button>
     <button id="crop-clear-btn" style="
       width: 100%;
       padding: 8px;
@@ -134,14 +123,14 @@ function createCropperUI() {
     <div style="margin-top: 8px; font-size: 11px; color: #999;">
       • Hover to highlight<br>
       • Click to auto-crop<br>
-      • Drag to manual crop
+      • Drag to manual crop<br>
+      • Use popup to generate batch
     </div>
   `;
 
   document.body.appendChild(cropperUI);
 
   // Add event listeners
-  document.getElementById('crop-done-btn').addEventListener('click', processBatch);
   document.getElementById('crop-clear-btn').addEventListener('click', clearCroppedElements);
   document.getElementById('crop-exit-btn').addEventListener('click', deactivateCropper);
 }
@@ -507,6 +496,13 @@ function cropImageFromScreenshot(dataUrl, bbox) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function addCroppedElement(cropData) {
+  // Check if already have 3 elements
+  if (croppedElements.length >= 3) {
+    console.log("⚠️ Already have 3 elements. Use 'Generate Batch' in popup or 'Clear All' to start over.");
+    alert("Already have 3 elements!\n\nUse 'Generate Batch' button in popup to create images,\nor click 'Clear All' to start over.");
+    return;
+  }
+
   croppedElements.push(cropData);
   totalElementCount++;
 
@@ -521,10 +517,32 @@ function addCroppedElement(cropData) {
   // Visual feedback
   showCropSuccess(cropData.bbox);
 
-  // Auto-process when batch is full
-  if (croppedElements.length >= 3) {
-    console.log("📦 Batch full! Processing...");
-    setTimeout(() => processBatch(), 500);
+  // Notify when batch is ready (but don't auto-process)
+  if (croppedElements.length === 3) {
+    console.log("✅ Batch ready! Use 'Generate Batch' button in popup to create synthetic images.");
+    // Optional: Show a visual notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #4CAF50;
+      color: white;
+      padding: 20px 40px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 10000000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      animation: fadeInOut 3s ease-in-out;
+    `;
+    notification.textContent = '✅ 3 elements ready! Open popup to generate batch.';
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
   }
 }
 
@@ -649,6 +667,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleGenerateBatchWithVariations(message.config, sendResponse);
     return true; // Keep channel open for async response
   }
+
+  if (message.action === "GET_CROPPER_STATE") {
+    sendResponse({
+      success: true,
+      isActive: cropperActive,
+      elementCount: croppedElements.length,
+      totalElementCount: totalElementCount,
+      totalBatchCount: totalBatchCount,
+      totalImageCount: totalImageCount
+    });
+    return true;
+  }
 });
 
 async function handleGenerateBatchWithVariations(config, sendResponse) {
@@ -726,12 +756,19 @@ if (document.readyState === 'loading') {
   initCropper();
 }
 
-// Add CSS animation for success indicator
+// Add CSS animations
 const style = document.createElement('style');
 style.textContent = `
   @keyframes pulse {
     0% { opacity: 1; transform: scale(1); }
     100% { opacity: 0; transform: scale(1.1); }
+  }
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
   }
 `;
 document.head.appendChild(style);

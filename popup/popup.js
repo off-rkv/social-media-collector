@@ -106,6 +106,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load saved progress
   await loadProgress();
 
+  // Check cropper state
+  await checkCropperState();
+
   // Setup tab switching
   setupTabSwitching();
 
@@ -117,6 +120,63 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   console.log("✅ Popup initialized");
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CHECK CROPPER STATE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function checkCropperState() {
+  try {
+    // Get active tab
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+
+    if (!tab) {
+      return;
+    }
+
+    // Query cropper state
+    chrome.tabs.sendMessage(
+      tab.id,
+      { action: "GET_CROPPER_STATE" },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          // Content script not loaded or cropper not initialized
+          console.log("Cropper not initialized on this page");
+          return;
+        }
+
+        if (response && response.success) {
+          console.log("📊 Cropper state:", response);
+
+          // Update UI based on state
+          if (response.isActive) {
+            updateCropperStatus("active");
+            elements.activateCropperBtn.disabled = true;
+            elements.deactivateCropperBtn.disabled = false;
+          } else {
+            updateCropperStatus("inactive");
+            elements.activateCropperBtn.disabled = false;
+            elements.deactivateCropperBtn.disabled = true;
+          }
+
+          // Update progress
+          if (response.totalElementCount > 0) {
+            updateCropperProgress({
+              elementCount: response.totalElementCount,
+              batchCount: response.totalBatchCount,
+              imageCount: response.totalImageCount
+            });
+          }
+        }
+      }
+    );
+  } catch (error) {
+    console.log("Error checking cropper state:", error);
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TAB SWITCHING
