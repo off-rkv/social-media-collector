@@ -28,6 +28,7 @@ let dragEnd = null;
 let croppedElements = []; // Store cropped elements for batch processing
 let platformIds = {}; // Store loaded platform IDs
 let nextClassId = 56; // Start from 56 (current max is 55)
+let isClassificationModalOpen = false; // Prevent multiple modals from opening
 
 // Progress tracking
 let totalElementCount = 0;
@@ -723,6 +724,14 @@ async function loadPlatformIds() {
 }
 
 async function promptForElementInfo() {
+  // Prevent multiple modals from opening simultaneously
+  if (isClassificationModalOpen) {
+    console.log("⚠️ Classification modal already open, ignoring request");
+    return null;
+  }
+
+  isClassificationModalOpen = true;
+
   return new Promise((resolve) => {
     // Create modal dialog
     const modal = document.createElement('div');
@@ -842,6 +851,16 @@ async function promptForElementInfo() {
     // Focus name input
     nameInput.focus();
 
+    // Handle background click to close modal
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        console.log("🚫 Modal closed by background click");
+        modal.remove();
+        isClassificationModalOpen = false;
+        resolve(null);
+      }
+    });
+
     // Handle confirm
     confirmBtn.onclick = () => {
       const name = nameInput.value.trim();
@@ -853,6 +872,7 @@ async function promptForElementInfo() {
       }
 
       modal.remove();
+      isClassificationModalOpen = false;
       resolve({
         name: name,
         description: description,
@@ -866,6 +886,7 @@ async function promptForElementInfo() {
     // Handle cancel
     cancelBtn.onclick = () => {
       modal.remove();
+      isClassificationModalOpen = false;
       resolve(null);
     };
 
