@@ -1043,17 +1043,20 @@ function updateCropperProgress(data) {
   elements.cropperBatchCount.textContent = batchCount;
   elements.cropperImageCount.textContent = imageCount;
 
-  // Enable/disable Generate Batch button based on element count
-  const currentBatchCount = elementCount % 3;
-  if (currentBatchCount === 0 && elementCount > 0) {
-    // Has complete batch (3 elements)
+  // Enable/disable Generate Batch button based on element count (3-10 elements allowed)
+  if (elementCount >= 3 && elementCount <= 10) {
+    // Has enough elements (3-10)
     elements.generateBatchBtn.disabled = false;
-    elements.generateBatchBtn.textContent = "🚀 Generate Batch (3 elements ready)";
-  } else if (currentBatchCount > 0) {
-    // Has partial batch
-    const remaining = 3 - currentBatchCount;
+    elements.generateBatchBtn.textContent = `🚀 Generate Batch (${elementCount} elements ready)`;
+  } else if (elementCount > 0 && elementCount < 3) {
+    // Has partial batch (need more)
+    const remaining = 3 - elementCount;
     elements.generateBatchBtn.disabled = true;
     elements.generateBatchBtn.textContent = `🚀 Generate Batch (need ${remaining} more)`;
+  } else if (elementCount > 10) {
+    // Too many elements
+    elements.generateBatchBtn.disabled = true;
+    elements.generateBatchBtn.textContent = `⚠️ Max 10 elements (clear ${elementCount - 10} first)`;
   } else {
     // No elements
     elements.generateBatchBtn.disabled = true;
@@ -1062,11 +1065,13 @@ function updateCropperProgress(data) {
 
   if (elementCount === 0) {
     elements.cropperProgressText.textContent = "Ready to crop elements";
-  } else if (elementCount % 3 === 0) {
-    elements.cropperProgressText.textContent = `Batch complete! ${imageCount} synthetic images created`;
+  } else if (elementCount >= 3 && elementCount <= 10) {
+    elements.cropperProgressText.textContent = `${elementCount} elements ready - click Generate Batch!`;
+  } else if (elementCount < 3) {
+    const remaining = 3 - elementCount;
+    elements.cropperProgressText.textContent = `${remaining} more element${remaining > 1 ? 's' : ''} needed (min 3)`;
   } else {
-    const remaining = 3 - (elementCount % 3);
-    elements.cropperProgressText.textContent = `${remaining} more element${remaining > 1 ? 's' : ''} needed for next batch`;
+    elements.cropperProgressText.textContent = `${elementCount} elements (max 10 - clear some first)`;
   }
 
   console.log("📊 Cropper progress updated:", data);
