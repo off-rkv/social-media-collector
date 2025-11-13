@@ -110,6 +110,18 @@ function createCropperUI() {
     <div style="font-size: 12px; color: #666; margin-bottom: 12px;">
       Cropped: <span id="cropped-count">0</span>/${MAX_ELEMENTS_PER_BATCH}
     </div>
+    <button id="crop-pause-btn" style="
+      width: 100%;
+      padding: 8px;
+      background: #FF9800;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    ">⏸️ Pause Selection</button>
     <button id="crop-clear-btn" style="
       width: 100%;
       padding: 8px;
@@ -142,6 +154,7 @@ function createCropperUI() {
   document.body.appendChild(cropperUI);
 
   // Add event listeners
+  document.getElementById('crop-pause-btn').addEventListener('click', toggleCropperPause);
   document.getElementById('crop-clear-btn').addEventListener('click', clearCroppedElements);
   document.getElementById('crop-exit-btn').addEventListener('click', deactivateCropper);
 }
@@ -205,12 +218,38 @@ function resetCropperProgress() {
   console.log("🔄 Cropper progress reset");
 }
 
+function toggleCropperPause() {
+  cropperPaused = !cropperPaused;
+
+  const pauseBtn = document.getElementById('crop-pause-btn');
+
+  if (cropperPaused) {
+    // Paused - disable selection
+    pauseBtn.style.background = '#4CAF50';
+    pauseBtn.innerHTML = '▶️ Resume Selection';
+
+    // Hide highlight box
+    if (highlightBox) {
+      highlightBox.style.display = 'none';
+    }
+    hoveredElement = null;
+
+    console.log("⏸️ Cropper paused - selection disabled");
+  } else {
+    // Resumed - enable selection
+    pauseBtn.style.background = '#FF9800';
+    pauseBtn.innerHTML = '⏸️ Pause Selection';
+
+    console.log("▶️ Cropper resumed - selection enabled");
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // SECTION 3: MOUSE EVENT HANDLERS
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function handleMouseMove(e) {
-  if (!cropperActive) return;
+  if (!cropperActive || cropperPaused) return;
 
   // During drag, update selection box
   if (isDragging && dragStart) {
@@ -227,7 +266,7 @@ function handleMouseMove(e) {
 }
 
 function handleMouseDown(e) {
-  if (!cropperActive) return;
+  if (!cropperActive || cropperPaused) return;
 
   // Ignore clicks on cropper UI
   if (e.target.closest('#cropper-ui-panel')) return;
@@ -243,7 +282,7 @@ function handleMouseDown(e) {
 }
 
 function handleMouseUp(e) {
-  if (!cropperActive || !isDragging) return;
+  if (!cropperActive || cropperPaused || !isDragging) return;
 
   e.preventDefault();
   e.stopPropagation();
@@ -279,11 +318,21 @@ function handleClick(e) {
     return;
   }
 
-  // Prevent normal click behavior
-  if (!e.target.closest('#cropper-ui-panel')) {
+  // Allow clicks on cropper UI panel (buttons always work)
+  if (e.target.closest('#cropper-ui-panel')) {
+    return;
+  }
+
+  // If paused, block all other clicks
+  if (cropperPaused) {
     e.preventDefault();
     e.stopPropagation();
+    return;
   }
+
+  // Prevent normal click behavior
+  e.preventDefault();
+  e.stopPropagation();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
