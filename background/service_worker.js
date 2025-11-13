@@ -100,6 +100,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleCaptureScreenshot(message, sender, sendResponse);
       return true;
 
+    case "PROCESS_CROP_BATCH":
+      handleProcessCropBatch(message, sender, sendResponse);
+      return true;
+
     case "GET_CURRENT_STATE":
       handleGetState(message, sender, sendResponse);
       return true;
@@ -489,6 +493,82 @@ async function handleGetState(message, sender, sendResponse) {
     });
   } catch (error) {
     console.error("❌ Error in handleGetState:", error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HANDLE CROP BATCH PROCESSING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function handleProcessCropBatch(message, sender, sendResponse) {
+  console.log("📦 Processing crop batch...");
+  console.log(`   Elements: ${message.elements?.length || 0}`);
+  console.log(`   Batch size: ${message.batchSize || 3}`);
+
+  try {
+    // Import batch processor (load script dynamically)
+    await importScripts('background/batch_processor.js');
+
+    // Process the batch
+    const result = await self.BatchProcessor.processCropBatch(
+      message.elements,
+      {
+        batchSize: message.batchSize || 3,
+        canvasSize: message.canvasSize || self.BatchProcessor.CANVAS_SIZES[0],
+        backgroundColor: message.backgroundColor || '#000000',
+        augment: message.augment !== false
+      }
+    );
+
+    if (!result || !result.success) {
+      console.error("❌ Batch processing failed");
+      sendResponse({ success: false, error: "Processing failed" });
+      return;
+    }
+
+    console.log(`✅ Batch processed: ${result.imagesCreated} images created`);
+
+    // Download the generated images and labels
+    let downloadedCount = 0;
+
+    for (const item of result.results) {
+      try {
+        // Download image
+        await chrome.downloads.download({
+          url: item.imageDataUrl,
+          filename: `synthetic_data/${item.filename}.jpg`,
+          saveAs: false
+        });
+
+        // Download label
+        const labelBlob = new Blob([item.labelText], { type: 'text/plain' });
+        const labelDataUrl = URL.createObjectURL(labelBlob);
+
+        await chrome.downloads.download({
+          url: labelDataUrl,
+          filename: `synthetic_data/${item.filename}.txt`,
+          saveAs: false
+        });
+
+        downloadedCount++;
+        console.log(`   ✅ Downloaded: ${item.filename}`);
+
+      } catch (error) {
+        console.error(`   ❌ Download failed for ${item.filename}:`, error);
+      }
+    }
+
+    console.log(`✅ Downloaded ${downloadedCount}/${result.imagesCreated} synthetic images`);
+
+    sendResponse({
+      success: true,
+      imagesCreated: result.imagesCreated,
+      downloaded: downloadedCount
+    });
+
+  } catch (error) {
+    console.error("❌ Error processing crop batch:", error);
     sendResponse({ success: false, error: error.message });
   }
 }

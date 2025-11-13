@@ -50,7 +50,8 @@
         "utils/constants.js",
         "content/helpers.js",
         "content/visual.js",
-        "content/collector.js"
+        "content/collector.js",
+        "content/cropper.js"
       ],
       "run_at": "document_idle"
     }
