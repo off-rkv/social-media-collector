@@ -26,6 +26,8 @@ let isDragging = false;
 let dragStart = null;
 let dragEnd = null;
 let croppedElements = []; // Store cropped elements for batch processing
+let platformIds = {}; // Store loaded platform IDs
+let nextClassId = 56; // Start from 56 (current max is 55)
 
 // Progress tracking
 let totalElementCount = 0;
@@ -73,6 +75,9 @@ function initCropper() {
 
   // Create cropper UI panel
   createCropperUI();
+
+  // Load platform IDs
+  loadPlatformIds();
 
   console.log("✅ Element Cropper initialized");
 }
@@ -418,6 +423,24 @@ async function captureElementScreenshot(cropData) {
     cropData.image = croppedImage;
     cropData.fullScreenshot = response.dataUrl;
 
+    // Prompt user for element classification
+    const elementInfo = await promptForElementInfo();
+
+    if (!elementInfo) {
+      console.log("⚠️ Element classification cancelled");
+      return;
+    }
+
+    // Add classification info to crop data
+    cropData.classId = elementInfo.classId;
+    cropData.elementName = elementInfo.name;
+    cropData.elementDescription = elementInfo.description;
+
+    console.log(`🏷️ Element classified: ${elementInfo.name} (class ${elementInfo.classId})`);
+
+    // Save new element type to platform IDs
+    saveNewElementType(elementInfo);
+
     // Add to batch
     addCroppedElement(cropData);
 
@@ -449,6 +472,24 @@ async function captureAreaScreenshot(cropData) {
 
     cropData.image = croppedImage;
     cropData.fullScreenshot = response.dataUrl;
+
+    // Prompt user for element classification
+    const elementInfo = await promptForElementInfo();
+
+    if (!elementInfo) {
+      console.log("⚠️ Element classification cancelled");
+      return;
+    }
+
+    // Add classification info to crop data
+    cropData.classId = elementInfo.classId;
+    cropData.elementName = elementInfo.name;
+    cropData.elementDescription = elementInfo.description;
+
+    console.log(`🏷️ Element classified: ${elementInfo.name} (class ${elementInfo.classId})`);
+
+    // Save new element type to platform IDs
+    saveNewElementType(elementInfo);
 
     addCroppedElement(cropData);
 
@@ -651,7 +692,210 @@ async function processBatch() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 10: MESSAGE LISTENER
+// SECTION 10: ELEMENT CLASSIFICATION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function loadPlatformIds() {
+  try {
+    // Request platform IDs from service worker
+    chrome.runtime.sendMessage({ action: 'GET_PLATFORM_IDS' }, (response) => {
+      if (response && response.success) {
+        platformIds = response.data;
+
+        // Find the highest class ID to determine nextClassId
+        let maxClassId = 55; // Current known max
+        for (const platform in platformIds) {
+          for (const elementKey in platformIds[platform]) {
+            const classId = platformIds[platform][elementKey].classId;
+            if (classId > maxClassId) {
+              maxClassId = classId;
+            }
+          }
+        }
+        nextClassId = maxClassId + 1;
+
+        console.log(`📋 Loaded platform IDs. Next class ID: ${nextClassId}`);
+      }
+    });
+  } catch (error) {
+    console.error("❌ Error loading platform IDs:", error);
+  }
+}
+
+async function promptForElementInfo() {
+  return new Promise((resolve) => {
+    // Create modal dialog
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 10000001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+
+    const dialog = document.createElement('div');
+    dialog.style.cssText = `
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      min-width: 400px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    `;
+
+    dialog.innerHTML = `
+      <div style="font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #333;">
+        🏷️ Classify This Element
+      </div>
+      <div style="font-size: 13px; color: #666; margin-bottom: 16px;">
+        Help us identify what you just selected for better YOLO training labels.
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #333;">
+          Element Name (e.g., twitter_follow_button)
+        </label>
+        <input
+          id="element-name-input"
+          type="text"
+          placeholder="platform_element_type"
+          style="
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+          "
+        />
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #333;">
+          Description (e.g., Twitter: Follow button)
+        </label>
+        <input
+          id="element-description-input"
+          type="text"
+          placeholder="Platform: Description of the element"
+          style="
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+          "
+        />
+      </div>
+
+      <div style="font-size: 12px; color: #999; margin-bottom: 16px; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+        <strong>Class ID:</strong> ${nextClassId} (auto-assigned)
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button
+          id="element-cancel-btn"
+          style="
+            flex: 1;
+            padding: 10px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+          "
+        >Cancel</button>
+        <button
+          id="element-confirm-btn"
+          style="
+            flex: 1;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+          "
+        >Confirm</button>
+      </div>
+    `;
+
+    modal.appendChild(dialog);
+    document.body.appendChild(modal);
+
+    const nameInput = dialog.querySelector('#element-name-input');
+    const descriptionInput = dialog.querySelector('#element-description-input');
+    const confirmBtn = dialog.querySelector('#element-confirm-btn');
+    const cancelBtn = dialog.querySelector('#element-cancel-btn');
+
+    // Focus name input
+    nameInput.focus();
+
+    // Handle confirm
+    confirmBtn.onclick = () => {
+      const name = nameInput.value.trim();
+      const description = descriptionInput.value.trim();
+
+      if (!name || !description) {
+        alert("Please provide both name and description!");
+        return;
+      }
+
+      modal.remove();
+      resolve({
+        name: name,
+        description: description,
+        classId: nextClassId
+      });
+
+      // Increment for next element
+      nextClassId++;
+    };
+
+    // Handle cancel
+    cancelBtn.onclick = () => {
+      modal.remove();
+      resolve(null);
+    };
+
+    // Handle Enter key
+    nameInput.onkeydown = descriptionInput.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        confirmBtn.click();
+      } else if (e.key === 'Escape') {
+        cancelBtn.click();
+      }
+    };
+  });
+}
+
+function saveNewElementType(elementInfo) {
+  // Send to service worker to save to platform_ids.json
+  chrome.runtime.sendMessage({
+    action: 'SAVE_ELEMENT_TYPE',
+    data: elementInfo
+  }, (response) => {
+    if (response && response.success) {
+      console.log(`✅ Element type saved: ${elementInfo.name}`);
+    } else {
+      console.error(`❌ Failed to save element type: ${response?.error}`);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECTION 11: MESSAGE LISTENER
 // ═══════════════════════════════════════════════════════════════════════════════
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

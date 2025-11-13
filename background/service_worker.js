@@ -115,6 +115,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleGetState(message, sender, sendResponse);
       return true;
 
+    case "GET_PLATFORM_IDS":
+      handleGetPlatformIds(message, sender, sendResponse);
+      return true;
+
+    case "SAVE_ELEMENT_TYPE":
+      handleSaveElementType(message, sender, sendResponse);
+      return true;
+
     case "PING":
       sendResponse({ status: "alive" });
       return false;
@@ -696,6 +704,91 @@ async function handleProcessBatchWithVariations(message, sender, sendResponse) {
     console.error("❌ Error generating batch with variations:", error);
     sendResponse({ success: false, error: error.message });
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ELEMENT CLASSIFICATION HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function handleGetPlatformIds(message, sender, sendResponse) {
+  try {
+    // Load platform_ids.json
+    const response = await fetch(chrome.runtime.getURL('config/platform_ids.json'));
+    const platformIds = await response.json();
+
+    sendResponse({
+      success: true,
+      data: platformIds
+    });
+  } catch (error) {
+    console.error("❌ Error loading platform IDs:", error);
+    sendResponse({
+      success: false,
+      error: error.message
+    });
+  }
+}
+
+async function handleSaveElementType(message, sender, sendResponse) {
+  try {
+    const { name, description, classId } = message.data;
+
+    console.log(`💾 Saving new element type: ${name} (class ${classId})`);
+
+    // Note: In Manifest V3, we cannot directly write to files from the service worker
+    // We need to save this to chrome.storage and provide a way for users to export
+    // For now, we'll save to chrome.storage.local
+
+    // Get current platform (detect from URL or use default)
+    const platform = detectPlatformFromUrl(sender.tab?.url) || 'custom';
+
+    // Load existing custom elements from storage
+    const result = await chrome.storage.local.get('customElementTypes');
+    const customElements = result.customElementTypes || {};
+
+    // Initialize platform if it doesn't exist
+    if (!customElements[platform]) {
+      customElements[platform] = {};
+    }
+
+    // Add new element type
+    customElements[platform][name] = {
+      classId: classId,
+      description: description,
+      selector: null, // User didn't provide selector
+      fallbackSelectors: [],
+      timestamp: Date.now(),
+      url: sender.tab?.url
+    };
+
+    // Save back to storage
+    await chrome.storage.local.set({ customElementTypes: customElements });
+
+    console.log(`✅ Element type saved to storage: ${platform}.${name}`);
+
+    sendResponse({
+      success: true,
+      message: `Element type saved: ${name}`
+    });
+
+  } catch (error) {
+    console.error("❌ Error saving element type:", error);
+    sendResponse({
+      success: false,
+      error: error.message
+    });
+  }
+}
+
+function detectPlatformFromUrl(url) {
+  if (!url) return null;
+
+  if (url.includes('twitter.com') || url.includes('x.com')) return 'twitter';
+  if (url.includes('facebook.com')) return 'facebook';
+  if (url.includes('instagram.com')) return 'instagram';
+  if (url.includes('threads.net')) return 'threads';
+
+  return 'custom';
 }
 
 console.log("🟢 Service worker loaded and active");
