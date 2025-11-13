@@ -91,6 +91,15 @@ const elements = {
   estimatedImages: document.getElementById("estimatedImages"),
   estimateBreakdown: document.getElementById("estimateBreakdown"),
   generateBatchBtn: document.getElementById("generateBatchBtn"),
+
+  // Generation progress
+  generationProgressSection: document.getElementById("generationProgressSection"),
+  generationPhaseText: document.getElementById("generationPhaseText"),
+  generationProgressBar: document.getElementById("generationProgressBar"),
+  generationProgressText: document.getElementById("generationProgressText"),
+  gen_phase_generate: document.getElementById("gen_phase_generate"),
+  gen_phase_download: document.getElementById("gen_phase_download"),
+  gen_phase_complete: document.getElementById("gen_phase_complete"),
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -117,6 +126,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Setup generation settings
   setupGenerationSettings();
+
+  // Setup message listener for progress updates
+  setupProgressListener();
 
   console.log("✅ Popup initialized");
 });
@@ -1038,6 +1050,95 @@ function updateCropperProgress(data) {
   }
 
   console.log("📊 Cropper progress updated:", data);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GENERATION PROGRESS (Real-time updates)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function setupProgressListener() {
+  // Listen for messages from content script and service worker
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'BATCH_PROGRESS_UPDATE') {
+      updateGenerationProgress(message.data);
+    }
+  });
+  console.log("📊 Progress listener setup");
+}
+
+function updateGenerationProgress(data) {
+  const { phase, current, total, message: statusMessage } = data;
+
+  // Show progress section if hidden
+  if (elements.generationProgressSection.style.display === 'none') {
+    showGenerationProgress();
+  }
+
+  // Update progress bar
+  const percentage = total > 0 ? (current / total) * 100 : 0;
+  elements.generationProgressBar.style.width = `${percentage}%`;
+
+  // Update counters
+  elements.generationProgressText.textContent = `${current.toLocaleString()} / ${total.toLocaleString()}`;
+
+  // Update status message
+  if (statusMessage) {
+    elements.generationPhaseText.textContent = statusMessage;
+  }
+
+  // Update phase indicators
+  if (phase === 'generating') {
+    elements.gen_phase_generate.style.opacity = '1';
+    elements.gen_phase_generate.innerHTML = '<span style="display: inline-block; width: 18px;">⚡</span> Generating images...';
+    elements.gen_phase_download.style.opacity = '0.3';
+    elements.gen_phase_complete.style.opacity = '0.3';
+  } else if (phase === 'downloading') {
+    elements.gen_phase_generate.style.opacity = '0.5';
+    elements.gen_phase_generate.innerHTML = '<span style="display: inline-block; width: 18px;">✅</span> Generated images';
+    elements.gen_phase_download.style.opacity = '1';
+    elements.gen_phase_download.innerHTML = '<span style="display: inline-block; width: 18px;">⬇️</span> Downloading files...';
+    elements.gen_phase_complete.style.opacity = '0.3';
+  } else if (phase === 'complete') {
+    elements.gen_phase_generate.style.opacity = '0.5';
+    elements.gen_phase_generate.innerHTML = '<span style="display: inline-block; width: 18px;">✅</span> Generated images';
+    elements.gen_phase_download.style.opacity = '0.5';
+    elements.gen_phase_download.innerHTML = '<span style="display: inline-block; width: 18px;">✅</span> Downloaded files';
+    elements.gen_phase_complete.style.opacity = '1';
+    elements.gen_phase_complete.innerHTML = '<span style="display: inline-block; width: 18px;">✅</span> Complete!';
+
+    // Hide progress section after 3 seconds
+    setTimeout(() => {
+      hideGenerationProgress();
+    }, 3000);
+  }
+
+  console.log(`📊 Progress updated: ${phase} - ${current}/${total}`);
+}
+
+function showGenerationProgress() {
+  elements.generationProgressSection.style.display = 'block';
+  // Disable generate button while generating
+  elements.generateBatchBtn.disabled = true;
+  elements.generateBatchBtn.textContent = '⚡ Generating...';
+  console.log("📊 Showing generation progress");
+}
+
+function hideGenerationProgress() {
+  elements.generationProgressSection.style.display = 'none';
+  // Reset progress UI
+  elements.generationProgressBar.style.width = '0%';
+  elements.generationProgressText.textContent = '0 / 0';
+  elements.generationPhaseText.textContent = 'Preparing batch...';
+  elements.gen_phase_generate.style.opacity = '0.3';
+  elements.gen_phase_generate.innerHTML = '<span style="display: inline-block; width: 18px;">⏳</span> Generating images...';
+  elements.gen_phase_download.style.opacity = '0.3';
+  elements.gen_phase_download.innerHTML = '<span style="display: inline-block; width: 18px;">⏳</span> Downloading files...';
+  elements.gen_phase_complete.style.opacity = '0.3';
+  elements.gen_phase_complete.innerHTML = '<span style="display: inline-block; width: 18px;">⏳</span> Complete!';
+  // Re-enable generate button
+  elements.generateBatchBtn.disabled = false;
+  elements.generateBatchBtn.textContent = '🚀 Generate Batch';
+  console.log("📊 Hiding generation progress");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

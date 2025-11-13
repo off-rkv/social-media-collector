@@ -1016,7 +1016,42 @@
     </div>
 
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-    <!-- SECTION 6: INSTRUCTIONS -->
+    <!-- SECTION 6: GENERATION PROGRESS (Hidden by default) -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section" id="generationProgressSection" style="display: none;">
+      <div class="section-title">⚡ Generation in Progress</div>
+
+      <!-- Phase Status -->
+      <div style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 12px;" id="generationPhaseText">
+        Preparing batch...
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="generationProgressBar"></div>
+      </div>
+
+      <!-- Progress Count -->
+      <div class="progress-text" id="generationProgressText">
+        0 / 0
+      </div>
+
+      <!-- Phase Indicators -->
+      <div style="margin-top: 16px; padding: 12px; background: #f8f9fa; border-radius: 6px; font-size: 11px;">
+        <div id="gen_phase_generate" style="margin-bottom: 6px; opacity: 0.3;">
+          <span style="display: inline-block; width: 18px;">⏳</span> Generating images...
+        </div>
+        <div id="gen_phase_download" style="margin-bottom: 6px; opacity: 0.3;">
+          <span style="display: inline-block; width: 18px;">⏳</span> Downloading files...
+        </div>
+        <div id="gen_phase_complete" style="opacity: 0.3;">
+          <span style="display: inline-block; width: 18px;">⏳</span> Complete!
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 7: INSTRUCTIONS -->
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <div class="section">
       <div class="section-title">📖 Instructions</div>

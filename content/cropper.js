@@ -700,10 +700,8 @@ async function handleGenerateBatchWithVariations(config, sendResponse) {
   }
 
   try {
-    // Show loading UI
-    showLoadingUI();
-
     // Send to backend for grid-based generation
+    // Progress will be shown in popup UI
     chrome.runtime.sendMessage(
       {
         action: 'PROCESS_BATCH_WITH_VARIATIONS',
@@ -711,11 +709,6 @@ async function handleGenerateBatchWithVariations(config, sendResponse) {
         config: config
       },
       (response) => {
-        // Hide loading UI after a short delay to show completion
-        setTimeout(() => {
-          hideLoadingUI();
-        }, 2000);
-
         if (response && response.success) {
           console.log(`✅ Generated ${response.imagesCreated} images!`);
 

@@ -577,6 +577,22 @@ async function handleProcessCropBatch(message, sender, sendResponse) {
   }
 }
 
+// Helper function to send progress updates to both tab and popup
+function sendProgressUpdate(tabId, data) {
+  const progressMessage = {
+    action: 'BATCH_PROGRESS_UPDATE',
+    data: data
+  };
+
+  // Send to tab (content script)
+  if (tabId) {
+    chrome.tabs.sendMessage(tabId, progressMessage).catch(() => {});
+  }
+
+  // Send to popup
+  chrome.runtime.sendMessage(progressMessage).catch(() => {}); // Ignore if popup not open
+}
+
 async function handleProcessBatchWithVariations(message, sender, sendResponse) {
   console.log("🚀 Processing batch with variations...");
   console.log(`   Elements: ${message.elements?.length || 0}`);
@@ -586,17 +602,12 @@ async function handleProcessBatchWithVariations(message, sender, sendResponse) {
 
   try {
     // Send initial progress update
-    if (tabId) {
-      chrome.tabs.sendMessage(tabId, {
-        action: 'BATCH_PROGRESS_UPDATE',
-        data: {
-          phase: 'generating',
-          current: 0,
-          total: 0,
-          message: 'Starting batch generation...'
-        }
-      }).catch(() => {}); // Ignore errors if content script not ready
-    }
+    sendProgressUpdate(tabId, {
+      phase: 'generating',
+      current: 0,
+      total: 0,
+      message: 'Starting batch generation...'
+    });
 
     // Process the batch with variations
     const result = await self.BatchProcessor.processCropBatchWithVariations(
@@ -614,17 +625,12 @@ async function handleProcessBatchWithVariations(message, sender, sendResponse) {
     console.log(`✅ Generated ${result.imagesCreated} images`);
 
     // Send progress: generation complete, starting downloads
-    if (tabId) {
-      chrome.tabs.sendMessage(tabId, {
-        action: 'BATCH_PROGRESS_UPDATE',
-        data: {
-          phase: 'downloading',
-          current: 0,
-          total: result.results.length,
-          message: `Generated ${result.imagesCreated} images. Starting downloads...`
-        }
-      }).catch(() => {});
-    }
+    sendProgressUpdate(tabId, {
+      phase: 'downloading',
+      current: 0,
+      total: result.results.length,
+      message: `Generated ${result.imagesCreated} images. Starting downloads...`
+    });
 
     // Download all generated images and labels
     let downloadedCount = 0;
@@ -656,17 +662,12 @@ async function handleProcessBatchWithVariations(message, sender, sendResponse) {
         // Send progress update every 10 images or every 100 images (whichever is appropriate)
         const updateInterval = totalImages > 1000 ? 100 : totalImages > 100 ? 10 : 1;
         if (downloadedCount % updateInterval === 0 || downloadedCount === totalImages) {
-          if (tabId) {
-            chrome.tabs.sendMessage(tabId, {
-              action: 'BATCH_PROGRESS_UPDATE',
-              data: {
-                phase: 'downloading',
-                current: downloadedCount,
-                total: totalImages,
-                message: `Downloading files... (${downloadedCount}/${totalImages})`
-              }
-            }).catch(() => {});
-          }
+          sendProgressUpdate(tabId, {
+            phase: 'downloading',
+            current: downloadedCount,
+            total: totalImages,
+            message: `Downloading files... (${downloadedCount}/${totalImages})`
+          });
           console.log(`   📥 Downloaded ${downloadedCount}/${totalImages} images...`);
         }
 
@@ -678,17 +679,12 @@ async function handleProcessBatchWithVariations(message, sender, sendResponse) {
     console.log(`✅ Downloaded ${downloadedCount}/${result.imagesCreated} synthetic images`);
 
     // Send completion update
-    if (tabId) {
-      chrome.tabs.sendMessage(tabId, {
-        action: 'BATCH_PROGRESS_UPDATE',
-        data: {
-          phase: 'complete',
-          current: downloadedCount,
-          total: downloadedCount,
-          message: `Complete! ${downloadedCount} images created and downloaded.`
-        }
-      }).catch(() => {});
-    }
+    sendProgressUpdate(tabId, {
+      phase: 'complete',
+      current: downloadedCount,
+      total: downloadedCount,
+      message: `Complete! ${downloadedCount} images created and downloaded.`
+    });
 
     sendResponse({
       success: true,
