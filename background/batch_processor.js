@@ -355,13 +355,20 @@ function applyAugmentation(ctx, width, height) {
 // SECTION 7: UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function loadImage(dataUrl) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Failed to load image'));
-    img.src = dataUrl;
-  });
+// Load image from data URL (service worker compatible using ImageBitmap)
+async function loadImage(dataUrl) {
+  try {
+    // Convert data URL to Blob
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+
+    // Use createImageBitmap which works in service workers
+    const imageBitmap = await createImageBitmap(blob);
+    return imageBitmap;
+  } catch (error) {
+    console.error('Failed to load image:', error);
+    throw new Error('Failed to load image: ' + error.message);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
