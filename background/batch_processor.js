@@ -40,6 +40,20 @@ const MIN_SPACING = 20; // Minimum pixels between elements
 const MAX_PLACEMENT_ATTEMPTS = 100;
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Convert Blob to Data URL (for OffscreenCanvas compatibility)
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // SECTION 1: BATCH PROCESSING
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -93,12 +107,9 @@ async function createSyntheticImage(elements, canvasSize, backgroundColor, augme
   console.log(`🎨 Creating synthetic image (${canvasSize.width}x${canvasSize.height})...`);
 
   try {
-    // Create canvas
-    const canvas = document.createElement('canvas');
+    // Create canvas (use OffscreenCanvas for service worker compatibility)
+    const canvas = new OffscreenCanvas(canvasSize.width, canvasSize.height);
     const ctx = canvas.getContext('2d');
-
-    canvas.width = canvasSize.width;
-    canvas.height = canvasSize.height;
 
     // Fill background
     ctx.fillStyle = backgroundColor;
@@ -169,8 +180,9 @@ async function createSyntheticImage(elements, canvasSize, backgroundColor, augme
       applyAugmentation(ctx, canvas.width, canvas.height);
     }
 
-    // Convert canvas to data URL
-    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+    // Convert canvas to data URL (OffscreenCanvas uses convertToBlob)
+    const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.95 });
+    const imageDataUrl = await blobToDataURL(blob);
     const labelText = labels.join('\n');
 
     // Generate filename
@@ -578,12 +590,9 @@ function shuffleArray(array) {
 
 async function createSyntheticImageWithVariation(elements, layout, canvasSize, backgroundColor, rotation, scale) {
   try {
-    // Create canvas
-    const canvas = document.createElement('canvas');
+    // Create canvas (use OffscreenCanvas for service worker compatibility)
+    const canvas = new OffscreenCanvas(canvasSize.width, canvasSize.height);
     const ctx = canvas.getContext('2d');
-
-    canvas.width = canvasSize.width;
-    canvas.height = canvasSize.height;
 
     // Fill background
     ctx.fillStyle = backgroundColor;
@@ -629,8 +638,9 @@ async function createSyntheticImageWithVariation(elements, layout, canvasSize, b
       labels.push(label);
     }
 
-    // Convert canvas to image
-    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    // Convert canvas to image (OffscreenCanvas uses convertToBlob)
+    const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+    const imageDataUrl = await blobToDataURL(blob);
     const labelText = labels.join('\n');
     const timestamp = Date.now();
     const filename = `synthetic_${canvasSize.name}_${backgroundColor.replace('#', '')}_r${rotation}_s${scale.toFixed(1)}_${timestamp}`;
