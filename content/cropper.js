@@ -848,6 +848,11 @@ async function promptForElementInfo() {
     const confirmBtn = dialog.querySelector('#element-confirm-btn');
     const cancelBtn = dialog.querySelector('#element-cancel-btn');
 
+    // Prevent clicks inside dialog from bubbling to modal background
+    dialog.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
     // Focus name input
     nameInput.focus();
 
