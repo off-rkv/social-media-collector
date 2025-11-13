@@ -2,6 +2,9 @@
 // SERVICE_WORKER.JS - Background Service Worker (Extension Coordinator)
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Import batch processor (must be at top level in Manifest V3)
+importScripts('batch_processor.js');
+
 chrome.runtime.onInstalled.addListener(async (details) => {
   console.log("🎉 Extension installed/updated!");
   console.log("Install reason:", details.reason);
@@ -511,9 +514,6 @@ async function handleProcessCropBatch(message, sender, sendResponse) {
   console.log(`   Batch size: ${message.batchSize || 3}`);
 
   try {
-    // Import batch processor (load script dynamically)
-    await importScripts('batch_processor.js');
-
     // Process the batch
     const result = await self.BatchProcessor.processCropBatch(
       message.elements,
@@ -583,9 +583,6 @@ async function handleProcessBatchWithVariations(message, sender, sendResponse) {
   console.log(`   Config:`, message.config);
 
   try {
-    // Import batch processor
-    await importScripts('batch_processor.js');
-
     // Process the batch with variations
     const result = await self.BatchProcessor.processCropBatchWithVariations(
       message.elements,
