@@ -356,7 +356,7 @@ function loadImage(dataUrl) {
 // SECTION 7: GRID-BASED BATCH GENERATION WITH VARIATIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-async function processCropBatchWithVariations(elements, config) {
+async function processCropBatchWithVariations(elements, config, tabId = null) {
   console.log(`📦 Processing batch with variations...`);
   console.log(`⚙️ Config:`, config);
 
@@ -372,6 +372,15 @@ async function processCropBatchWithVariations(elements, config) {
   // Define variations
   const rotations = enableRotation ? [0, 90, 180, 270] : [0];
   const scales = enableScaling ? [0.8, 1.0, 1.2] : [1.0];
+
+  // Calculate total images to generate
+  let totalImagesToGenerate = 0;
+  for (const canvasSize of canvasSizes) {
+    const layouts = generateGridLayouts(elements, canvasSize, positionLevel, gridStepSize);
+    totalImagesToGenerate += layouts.length * backgrounds.length * rotations.length * scales.length;
+  }
+
+  console.log(`📊 Total images to generate: ${totalImagesToGenerate}`);
 
   const results = [];
   let totalGenerated = 0;
@@ -403,9 +412,27 @@ async function processCropBatchWithVariations(elements, config) {
               results.push(result);
               totalGenerated++;
 
-              // Progress logging every 100 images
-              if (totalGenerated % 100 === 0) {
-                console.log(`  📊 Generated ${totalGenerated} images...`);
+              // Send progress update every 10 images or every 100 images (depending on total)
+              const updateInterval = totalImagesToGenerate > 1000 ? 100 : totalImagesToGenerate > 100 ? 10 : 1;
+              if (totalGenerated % updateInterval === 0 || totalGenerated === totalImagesToGenerate) {
+                console.log(`  📊 Generated ${totalGenerated}/${totalImagesToGenerate} images...`);
+
+                // Send progress update to tab if tabId is provided
+                if (tabId) {
+                  try {
+                    chrome.tabs.sendMessage(tabId, {
+                      action: 'BATCH_PROGRESS_UPDATE',
+                      data: {
+                        phase: 'generating',
+                        current: totalGenerated,
+                        total: totalImagesToGenerate,
+                        message: `Generating images... (${totalGenerated}/${totalImagesToGenerate})`
+                      }
+                    }).catch(() => {}); // Ignore errors
+                  } catch (e) {
+                    // Ignore errors
+                  }
+                }
               }
             }
           }

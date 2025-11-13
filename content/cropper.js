@@ -668,6 +668,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // Keep channel open for async response
   }
 
+  if (message.action === "BATCH_PROGRESS_UPDATE") {
+    // Update loading UI with progress
+    const { phase, current, total, message: statusMessage } = message.data;
+    updateLoadingProgress(phase, current, total, statusMessage);
+    return true;
+  }
+
   if (message.action === "GET_CROPPER_STATE") {
     sendResponse({
       success: true,
@@ -693,6 +700,9 @@ async function handleGenerateBatchWithVariations(config, sendResponse) {
   }
 
   try {
+    // Show loading UI
+    showLoadingUI();
+
     // Send to backend for grid-based generation
     chrome.runtime.sendMessage(
       {
@@ -701,6 +711,11 @@ async function handleGenerateBatchWithVariations(config, sendResponse) {
         config: config
       },
       (response) => {
+        // Hide loading UI after a short delay to show completion
+        setTimeout(() => {
+          hideLoadingUI();
+        }, 2000);
+
         if (response && response.success) {
           console.log(`✅ Generated ${response.imagesCreated} images!`);
 
@@ -747,6 +762,165 @@ async function handleGenerateBatchWithVariations(config, sendResponse) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SECTION 11: INITIALIZATION
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECTION 9: LOADING UI
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let loadingUI = null;
+
+function showLoadingUI(totalImages = 0) {
+  // Remove existing loading UI if present
+  if (loadingUI) {
+    loadingUI.remove();
+  }
+
+  // Create loading overlay
+  loadingUI = document.createElement('div');
+  loadingUI.id = 'batch-loading-overlay';
+  loadingUI.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  `;
+
+  loadingUI.innerHTML = `
+    <div style="
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      min-width: 400px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    ">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">⚡</div>
+        <div style="font-size: 20px; font-weight: bold; color: #333; margin-bottom: 8px;">
+          Generating Synthetic Data
+        </div>
+        <div id="loading-status" style="font-size: 14px; color: #666; margin-bottom: 16px;">
+          Preparing batch...
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div style="
+        width: 100%;
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 12px;
+      ">
+        <div id="loading-progress-bar" style="
+          height: 100%;
+          width: 0%;
+          background: linear-gradient(90deg, #4CAF50, #45a049);
+          transition: width 0.3s ease;
+        "></div>
+      </div>
+
+      <!-- Progress Text -->
+      <div style="display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 16px;">
+        <span id="loading-current">0</span>
+        <span id="loading-total">${totalImages > 0 ? totalImages : '...'}</span>
+      </div>
+
+      <!-- Phase Indicators -->
+      <div style="font-size: 12px; color: #999; border-top: 1px solid #e0e0e0; padding-top: 16px;">
+        <div id="phase-generate" style="margin-bottom: 8px;">
+          <span style="display: inline-block; width: 20px;">⏳</span> Generating images...
+        </div>
+        <div id="phase-download" style="margin-bottom: 8px; opacity: 0.3;">
+          <span style="display: inline-block; width: 20px;">⏳</span> Downloading files...
+        </div>
+        <div id="phase-complete" style="opacity: 0.3;">
+          <span style="display: inline-block; width: 20px;">⏳</span> Complete!
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(loadingUI);
+  console.log("📊 Loading UI shown");
+}
+
+function updateLoadingProgress(phase, current, total, message = '') {
+  if (!loadingUI) return;
+
+  const progressBar = loadingUI.querySelector('#loading-progress-bar');
+  const statusText = loadingUI.querySelector('#loading-status');
+  const currentText = loadingUI.querySelector('#loading-current');
+  const totalText = loadingUI.querySelector('#loading-total');
+  const phaseGenerate = loadingUI.querySelector('#phase-generate');
+  const phaseDownload = loadingUI.querySelector('#phase-download');
+  const phaseComplete = loadingUI.querySelector('#phase-complete');
+
+  // Update progress bar
+  const percentage = total > 0 ? (current / total) * 100 : 0;
+  if (progressBar) {
+    progressBar.style.width = `${percentage}%`;
+  }
+
+  // Update counters
+  if (currentText) currentText.textContent = current;
+  if (totalText) totalText.textContent = total;
+
+  // Update status message
+  if (statusText && message) {
+    statusText.textContent = message;
+  }
+
+  // Update phase indicators
+  if (phase === 'generating') {
+    if (phaseGenerate) {
+      phaseGenerate.style.opacity = '1';
+      phaseGenerate.innerHTML = '<span style="display: inline-block; width: 20px;">⚡</span> Generating images...';
+    }
+    if (phaseDownload) phaseDownload.style.opacity = '0.3';
+    if (phaseComplete) phaseComplete.style.opacity = '0.3';
+  } else if (phase === 'downloading') {
+    if (phaseGenerate) {
+      phaseGenerate.style.opacity = '0.5';
+      phaseGenerate.innerHTML = '<span style="display: inline-block; width: 20px;">✅</span> Generated images';
+    }
+    if (phaseDownload) {
+      phaseDownload.style.opacity = '1';
+      phaseDownload.innerHTML = '<span style="display: inline-block; width: 20px;">⬇️</span> Downloading files...';
+    }
+    if (phaseComplete) phaseComplete.style.opacity = '0.3';
+  } else if (phase === 'complete') {
+    if (phaseGenerate) {
+      phaseGenerate.style.opacity = '0.5';
+      phaseGenerate.innerHTML = '<span style="display: inline-block; width: 20px;">✅</span> Generated images';
+    }
+    if (phaseDownload) {
+      phaseDownload.style.opacity = '0.5';
+      phaseDownload.innerHTML = '<span style="display: inline-block; width: 20px;">✅</span> Downloaded files';
+    }
+    if (phaseComplete) {
+      phaseComplete.style.opacity = '1';
+      phaseComplete.innerHTML = '<span style="display: inline-block; width: 20px;">✅</span> Complete!';
+    }
+  }
+
+  console.log(`📊 Progress: ${phase} - ${current}/${total} - ${message}`);
+}
+
+function hideLoadingUI() {
+  if (loadingUI) {
+    loadingUI.remove();
+    loadingUI = null;
+    console.log("📊 Loading UI hidden");
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Initialize on load
