@@ -121,6 +121,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Setup tab switching
   setupTabSwitching();
 
+  // Load and restore last active tab
+  await loadLastActiveTab();
+
   // Setup cropper buttons
   setupCropperButtons();
 
@@ -204,6 +207,18 @@ function setupTabSwitching() {
   });
 }
 
+async function loadLastActiveTab() {
+  try {
+    const result = await chrome.storage.local.get("lastActiveTab");
+    if (result.lastActiveTab) {
+      switchToTab(result.lastActiveTab);
+      console.log("✅ Restored last active tab:", result.lastActiveTab);
+    }
+  } catch (error) {
+    console.error("❌ Error loading last active tab:", error);
+  }
+}
+
 function switchToTab(tabName) {
   if (tabName === "zoneScanner") {
     // Update tab buttons
@@ -226,6 +241,11 @@ function switchToTab(tabName) {
 
     console.log("✂️ Switched to Element Cropper tab");
   }
+
+  // Save active tab to storage
+  chrome.storage.local.set({ lastActiveTab: tabName }).catch((error) => {
+    console.error("❌ Error saving active tab:", error);
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

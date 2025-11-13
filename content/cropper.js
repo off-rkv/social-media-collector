@@ -178,9 +178,8 @@ function deactivateCropper() {
   // Restore cursor
   document.body.style.cursor = '';
 
-  // Note: We keep the progress counters so user can see total stats
-  // Clear current batch if any
-  clearCroppedElements();
+  // Reset all counters and clear elements
+  resetCropperProgress();
 
   console.log("✅ Cropper Mode Deactivated");
 }
@@ -592,6 +591,10 @@ function showCropSuccess(bbox) {
 function clearCroppedElements() {
   croppedElements = [];
   updateCropperUI();
+
+  // Send progress update to popup
+  sendProgressUpdate();
+
   console.log("🗑️ Cleared all cropped elements");
 }
 

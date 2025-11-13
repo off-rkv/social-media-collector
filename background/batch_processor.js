@@ -359,6 +359,7 @@ function loadImage(dataUrl) {
 async function processCropBatchWithVariations(elements, config, tabId = null) {
   console.log(`📦 Processing batch with variations...`);
   console.log(`⚙️ Config:`, config);
+  console.log(`📋 Elements received:`, elements.length);
 
   const {
     canvasSizes = [CANVAS_SIZES[0]],
@@ -368,6 +369,11 @@ async function processCropBatchWithVariations(elements, config, tabId = null) {
     enableScaling = true,
     gridStepSize = 50
   } = config;
+
+  console.log(`  Canvas sizes: ${canvasSizes.length}`);
+  console.log(`  Backgrounds: ${backgrounds.length}`);
+  console.log(`  Position level: ${positionLevel}`);
+  console.log(`  Grid step size: ${gridStepSize}px`);
 
   // Define variations
   const rotations = enableRotation ? [0, 90, 180, 270] : [0];
@@ -457,6 +463,10 @@ function generateGridLayouts(elements, canvasSize, positionLevel, gridStepSize) 
   else if (positionLevel === "high") targetLayouts = 500;
   else if (positionLevel === "maximum") targetLayouts = 1000;
 
+  console.log(`    🎲 Generating layouts: target=${targetLayouts}, gridStep=${gridStepSize}`);
+  console.log(`    📏 Canvas: ${canvasSize.width}x${canvasSize.height}`);
+  console.log(`    🔢 Elements to place: ${elements.length}`);
+
   const layouts = [];
   const maxAttempts = targetLayouts * 10; // Try 10x more to find valid layouts
   let attempts = 0;
@@ -473,8 +483,12 @@ function generateGridLayouts(elements, canvasSize, positionLevel, gridStepSize) 
       const element = elements[i];
 
       // Get element size (use display size for calculations)
-      const elemWidth = element.bbox.displayWidth || element.bbox.width;
-      const elemHeight = element.bbox.displayHeight || element.bbox.height;
+      const elemWidth = element.bbox?.displayWidth || element.bbox?.width || 100;
+      const elemHeight = element.bbox?.displayHeight || element.bbox?.height || 100;
+
+      if (attempts === 1) {
+        console.log(`      📐 Element ${i}: ${elemWidth}x${elemHeight}px`);
+      }
 
       // Scale down if too large (max 30% of canvas)
       const maxSize = Math.min(canvasSize.width, canvasSize.height) * 0.3;
