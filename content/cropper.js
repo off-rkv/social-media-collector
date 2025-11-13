@@ -272,6 +272,11 @@ function handleMouseUp(e) {
 function handleClick(e) {
   if (!cropperActive) return;
 
+  // Allow clicks on classification modal
+  if (e.target.closest('#classification-modal')) {
+    return;
+  }
+
   // Prevent normal click behavior
   if (!e.target.closest('#cropper-ui-panel')) {
     e.preventDefault();
@@ -735,6 +740,7 @@ async function promptForElementInfo() {
   return new Promise((resolve) => {
     // Create modal dialog
     const modal = document.createElement('div');
+    modal.id = 'classification-modal';
     modal.style.cssText = `
       position: fixed;
       top: 0;
