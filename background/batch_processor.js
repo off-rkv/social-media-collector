@@ -394,9 +394,11 @@ async function processCropBatchWithVariations(elements, config, tabId = null) {
   console.log(`  Position level: ${positionLevel}`);
   console.log(`  Grid step size: ${gridStepSize}px`);
 
-  // Define variations
-  const rotations = enableRotation ? [0, 90, 180, 270] : [0];
-  const scales = enableScaling ? [0.8, 1.0, 1.2] : [1.0];
+  // Define variations with enhanced diversity
+  // More rotation angles (every 30 degrees) for better orientation coverage
+  const rotations = enableRotation ? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330] : [0];
+  // More scale variations (0.7x to 1.3x) for size diversity
+  const scales = enableScaling ? [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3] : [1.0];
 
   // Calculate total images to generate
   let totalImagesToGenerate = 0;
@@ -615,20 +617,39 @@ async function createSyntheticImageWithVariation(elements, layout, canvasSize, b
       // Load element image
       const img = await loadImage(element.image);
 
-      // Apply transformations
-      ctx.save();
-
-      // Translate to center of placement
-      const centerX = placement.x + placement.width / 2;
-      const centerY = placement.y + placement.height / 2;
-      ctx.translate(centerX, centerY);
-
-      // Apply rotation
-      ctx.rotate((rotation * Math.PI) / 180);
-
-      // Apply scale
+      // Calculate final dimensions with scale
       const finalWidth = placement.width * scale;
       const finalHeight = placement.height * scale;
+
+      // Calculate center point
+      const centerX = placement.x + placement.width / 2;
+      const centerY = placement.y + placement.height / 2;
+
+      // Calculate bounding box after rotation to check if it stays in bounds
+      const rotRad = (rotation * Math.PI) / 180;
+      const cos = Math.abs(Math.cos(rotRad));
+      const sin = Math.abs(Math.sin(rotRad));
+      const rotatedWidth = finalWidth * cos + finalHeight * sin;
+      const rotatedHeight = finalWidth * sin + finalHeight * cos;
+
+      // Add safety margin (10px from edges)
+      const margin = 10;
+      const halfRotatedWidth = rotatedWidth / 2;
+      const halfRotatedHeight = rotatedHeight / 2;
+
+      // Skip this element if it would go outside bounds
+      if (centerX - halfRotatedWidth < margin ||
+          centerX + halfRotatedWidth > canvasSize.width - margin ||
+          centerY - halfRotatedHeight < margin ||
+          centerY + halfRotatedHeight > canvasSize.height - margin) {
+        console.log(`  ⚠️ Skipping element ${i} - would extend outside canvas bounds after rotation ${rotation}° and scale ${scale}`);
+        continue;
+      }
+
+      // Apply transformations
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(rotRad);
 
       // Draw image
       ctx.drawImage(img, -finalWidth / 2, -finalHeight / 2, finalWidth, finalHeight);

@@ -17,6 +17,9 @@
 // GLOBAL STATE
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Configuration
+const MAX_ELEMENTS_PER_BATCH = 10; // Maximum elements user can select before generating
+
 let cropperActive = false;
 let hoveredElement = null;
 let isDragging = false;
@@ -97,7 +100,7 @@ function createCropperUI() {
       🎯 Element Cropper
     </div>
     <div style="font-size: 12px; color: #666; margin-bottom: 12px;">
-      Cropped: <span id="cropped-count">0</span>/3
+      Cropped: <span id="cropped-count">0</span>/${MAX_ELEMENTS_PER_BATCH}
     </div>
     <button id="crop-clear-btn" style="
       width: 100%;
@@ -495,17 +498,17 @@ function cropImageFromScreenshot(dataUrl, bbox) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function addCroppedElement(cropData) {
-  // Check if already have 3 elements
-  if (croppedElements.length >= 3) {
-    console.log("⚠️ Already have 3 elements. Use 'Generate Batch' in popup or 'Clear All' to start over.");
-    alert("Already have 3 elements!\n\nUse 'Generate Batch' button in popup to create images,\nor click 'Clear All' to start over.");
+  // Check if already have maximum elements
+  if (croppedElements.length >= MAX_ELEMENTS_PER_BATCH) {
+    console.log(`⚠️ Already have ${MAX_ELEMENTS_PER_BATCH} elements. Use 'Generate Batch' in popup or 'Clear All' to start over.`);
+    alert(`Already have ${MAX_ELEMENTS_PER_BATCH} elements!\n\nUse 'Generate Batch' button in popup to create images,\nor click 'Clear All' to start over.`);
     return;
   }
 
   croppedElements.push(cropData);
   totalElementCount++;
 
-  console.log(`✅ Element cropped (${croppedElements.length}/3)`);
+  console.log(`✅ Element cropped (${croppedElements.length}/${MAX_ELEMENTS_PER_BATCH})`);
 
   // Update UI
   updateCropperUI();
@@ -517,8 +520,8 @@ function addCroppedElement(cropData) {
   showCropSuccess(cropData.bbox);
 
   // Notify when batch is ready (but don't auto-process)
-  if (croppedElements.length === 3) {
-    console.log("✅ Batch ready! Use 'Generate Batch' button in popup to create synthetic images.");
+  if (croppedElements.length === MAX_ELEMENTS_PER_BATCH) {
+    console.log(`✅ Batch ready! ${MAX_ELEMENTS_PER_BATCH} elements collected. Use 'Generate Batch' button in popup to create synthetic images.`);
     // Optional: Show a visual notification
     const notification = document.createElement('div');
     notification.style.cssText = `
@@ -536,7 +539,7 @@ function addCroppedElement(cropData) {
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       animation: fadeInOut 3s ease-in-out;
     `;
-    notification.textContent = '✅ 3 elements ready! Open popup to generate batch.';
+    notification.textContent = `✅ ${MAX_ELEMENTS_PER_BATCH} elements ready! Open popup to generate batch.`;
     document.body.appendChild(notification);
 
     setTimeout(() => {
@@ -694,10 +697,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function handleGenerateBatchWithVariations(config, sendResponse) {
   console.log("🚀 Generating batch with variations...", config);
 
+  // Allow generating with 3 or more elements (up to MAX_ELEMENTS_PER_BATCH)
   if (croppedElements.length < 3) {
     sendResponse({
       success: false,
-      error: `Need 3 elements, only have ${croppedElements.length}`
+      error: `Need at least 3 elements, only have ${croppedElements.length}`
     });
     return;
   }
