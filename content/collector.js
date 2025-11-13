@@ -287,6 +287,33 @@ async function collectionLoop() {
       // ═══════════════════════════════════════════════════════════════════════
       const foundElements = [];
 
+      // ═══════════════════════════════════════════════════════════════════════
+      // OPTIONAL: Capture fixed/static elements (compose, nav, search)
+      // Only in first 200 samples to avoid position overfitting
+      // ═══════════════════════════════════════════════════════════════════════
+      const CAPTURE_FIXED_ELEMENTS = false; // Set to true to enable
+      const FIXED_ELEMENT_LIMIT = 200;
+
+      if (CAPTURE_FIXED_ELEMENTS && samplesCollected < FIXED_ELEMENT_LIMIT) {
+        // Define fixed elements (outside post containers)
+        const fixedElements = {
+          // Add selectors for fixed elements here
+          // Example: 'twitter_compose_button': { selector: '[data-testid="SideNav_NewTweet_Button"]', classId: 100 }
+        };
+
+        for (const [elementType, config] of Object.entries(fixedElements)) {
+          const elem = document.querySelector(config.selector);
+          if (elem && window.CollectorHelpers.isElementVisible(elem)) {
+            foundElements.push({
+              element: elem,
+              type: elementType,
+              classId: config.classId
+            });
+            console.log(`✅ Fixed element captured: ${elementType} (sample ${samplesCollected}/${FIXED_ELEMENT_LIMIT})`);
+          }
+        }
+      }
+
       // Process each post container in zone
       for (const targetContainer of targetContainers) {
         // Add container itself first
