@@ -21,6 +21,7 @@
 const MAX_ELEMENTS_PER_BATCH = 10; // Maximum elements user can select before generating
 
 let cropperActive = false;
+let cropperPaused = false; // Toggle to temporarily disable element selection
 let hoveredElement = null;
 let isDragging = false;
 let dragStart = null;
