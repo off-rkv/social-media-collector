@@ -441,10 +441,33 @@ async function collectionLoop() {
       await window.CollectorHelpers.sleep(100);
 
       // ═══════════════════════════════════════════════════════════════════════
+      // STEP 6.5: Apply augmentation if needed
+      // ═══════════════════════════════════════════════════════════════════════
+      const needsAugmentation = pureCount >= TARGET_PURE;
+      let augmentationApplied = false;
+
+      if (needsAugmentation) {
+        console.log("🎨 Applying augmentation filters...");
+        const filters = "brightness(1.2) contrast(1.15) saturate(1.1)";
+        document.body.style.filter = filters;
+        augmentationApplied = true;
+        console.log(`✅ Augmentation applied: ${filters}`);
+        await window.CollectorHelpers.sleep(100); // Let filters render
+      }
+
+      // ═══════════════════════════════════════════════════════════════════════
       // STEP 7: Capture screenshot
       // ═══════════════════════════════════════════════════════════════════════
       console.log("📸 Calling captureScreenshotViaBackground()...");
       const screenshot = await captureScreenshotViaBackground();
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // STEP 7.5: Remove augmentation if applied
+      // ═══════════════════════════════════════════════════════════════════════
+      if (augmentationApplied) {
+        document.body.style.filter = "";
+        console.log("✅ Augmentation filters removed");
+      }
 
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 8: RESTORE zone border
