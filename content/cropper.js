@@ -24,6 +24,11 @@ let dragStart = null;
 let dragEnd = null;
 let croppedElements = []; // Store cropped elements for batch processing
 
+// Progress tracking
+let totalElementCount = 0;
+let totalBatchCount = 0;
+let totalImageCount = 0;
+
 // UI Elements
 let highlightBox = null;
 let selectionBox = null;
@@ -184,7 +189,21 @@ function deactivateCropper() {
   // Restore cursor
   document.body.style.cursor = '';
 
+  // Note: We keep the progress counters so user can see total stats
+  // Clear current batch if any
+  clearCroppedElements();
+
   console.log("✅ Cropper Mode Deactivated");
+}
+
+function resetCropperProgress() {
+  // Reset all counters
+  totalElementCount = 0;
+  totalBatchCount = 0;
+  totalImageCount = 0;
+  clearCroppedElements();
+  sendProgressUpdate();
+  console.log("🔄 Cropper progress reset");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -489,11 +508,15 @@ function cropImageFromScreenshot(dataUrl, bbox) {
 
 function addCroppedElement(cropData) {
   croppedElements.push(cropData);
+  totalElementCount++;
 
   console.log(`✅ Element cropped (${croppedElements.length}/3)`);
 
   // Update UI
   updateCropperUI();
+
+  // Send progress update to popup
+  sendProgressUpdate();
 
   // Visual feedback
   showCropSuccess(cropData.bbox);
@@ -503,6 +526,19 @@ function addCroppedElement(cropData) {
     console.log("📦 Batch full! Processing...");
     setTimeout(() => processBatch(), 500);
   }
+}
+
+function sendProgressUpdate() {
+  chrome.runtime.sendMessage({
+    action: 'CROPPER_PROGRESS_UPDATED',
+    data: {
+      elementCount: totalElementCount,
+      batchCount: totalBatchCount,
+      imageCount: totalImageCount
+    }
+  }, (response) => {
+    // Optional: handle response
+  });
 }
 
 function updateCropperUI() {
@@ -564,6 +600,22 @@ async function processBatch() {
       if (response && response.success) {
         console.log("✅ Batch processed successfully!");
         console.log(`   Generated ${response.imagesCreated} synthetic images`);
+
+        // Update counters
+        totalBatchCount++;
+        totalImageCount += response.imagesCreated || 1;
+
+        // Send progress update
+        sendProgressUpdate();
+
+        // Notify popup
+        chrome.runtime.sendMessage({
+          action: 'CROPPER_BATCH_COMPLETE',
+          data: {
+            batchNumber: totalBatchCount,
+            imagesCreated: response.imagesCreated
+          }
+        });
 
         // Clear batch
         clearCroppedElements();

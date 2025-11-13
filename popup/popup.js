@@ -35,6 +35,12 @@ let currentZone = {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const elements = {
+  // Navigation tabs
+  zoneScannerTab: document.getElementById("zoneScannerTab"),
+  elementCropperTab: document.getElementById("elementCropperTab"),
+  zoneScannerPanel: document.getElementById("zoneScannerPanel"),
+  elementCropperPanel: document.getElementById("elementCropperPanel"),
+
   // Zone inputs
   zoneTop: document.getElementById("zoneTop"),
   zoneLeft: document.getElementById("zoneLeft"),
@@ -59,6 +65,15 @@ const elements = {
   // Buttons
   startBtn: document.getElementById("startBtn"),
   stopBtn: document.getElementById("stopBtn"),
+
+  // Cropper elements
+  cropperStatusIndicator: document.getElementById("cropperStatusIndicator"),
+  activateCropperBtn: document.getElementById("activateCropperBtn"),
+  deactivateCropperBtn: document.getElementById("deactivateCropperBtn"),
+  cropperElementCount: document.getElementById("cropperElementCount"),
+  cropperBatchCount: document.getElementById("cropperBatchCount"),
+  cropperImageCount: document.getElementById("cropperImageCount"),
+  cropperProgressText: document.getElementById("cropperProgressText"),
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -74,9 +89,157 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load saved progress
   await loadProgress();
 
+  // Setup tab switching
+  setupTabSwitching();
+
+  // Setup cropper buttons
+  setupCropperButtons();
 
   console.log("✅ Popup initialized");
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function setupTabSwitching() {
+  elements.zoneScannerTab.addEventListener("click", () => {
+    switchToTab("zoneScanner");
+  });
+
+  elements.elementCropperTab.addEventListener("click", () => {
+    switchToTab("elementCropper");
+  });
+}
+
+function switchToTab(tabName) {
+  if (tabName === "zoneScanner") {
+    // Update tab buttons
+    elements.zoneScannerTab.classList.add("active");
+    elements.elementCropperTab.classList.remove("active");
+
+    // Update panels
+    elements.zoneScannerPanel.classList.add("active");
+    elements.elementCropperPanel.classList.remove("active");
+
+    console.log("📊 Switched to Zone Scanner tab");
+  } else if (tabName === "elementCropper") {
+    // Update tab buttons
+    elements.zoneScannerTab.classList.remove("active");
+    elements.elementCropperTab.classList.add("active");
+
+    // Update panels
+    elements.zoneScannerPanel.classList.remove("active");
+    elements.elementCropperPanel.classList.add("active");
+
+    console.log("✂️ Switched to Element Cropper tab");
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CROPPER BUTTON HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function setupCropperButtons() {
+  // Activate cropper button
+  elements.activateCropperBtn.addEventListener("click", async () => {
+    console.log("✂️ Activate Cropper button clicked");
+
+    try {
+      // Get active tab
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      if (!tab) {
+        alert("❌ No active tab found. Please navigate to a page first.");
+        return;
+      }
+
+      // Send message to activate cropper
+      chrome.tabs.sendMessage(
+        tab.id,
+        { action: "ACTIVATE_CROPPER" },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.error("❌ Error:", chrome.runtime.lastError);
+            alert(
+              "❌ Failed to activate cropper.\n\n" +
+              "Make sure you're on a supported social media site and refresh the page."
+            );
+            return;
+          }
+
+          if (response && response.success) {
+            updateCropperStatus("active");
+            elements.activateCropperBtn.disabled = true;
+            elements.deactivateCropperBtn.disabled = false;
+            console.log("✅ Cropper activated");
+          } else {
+            alert("❌ Failed to activate cropper: " + (response?.error || "Unknown error"));
+          }
+        }
+      );
+    } catch (error) {
+      console.error("❌ Error activating cropper:", error);
+      alert("❌ Error: " + error.message);
+    }
+  });
+
+  // Deactivate cropper button
+  elements.deactivateCropperBtn.addEventListener("click", async () => {
+    console.log("⏹️ Deactivate Cropper button clicked");
+
+    try {
+      // Get active tab
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      if (!tab) {
+        return;
+      }
+
+      // Send message to deactivate cropper
+      chrome.tabs.sendMessage(
+        tab.id,
+        { action: "DEACTIVATE_CROPPER" },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.error("❌ Error:", chrome.runtime.lastError);
+            return;
+          }
+
+          if (response && response.success) {
+            updateCropperStatus("inactive");
+            elements.activateCropperBtn.disabled = false;
+            elements.deactivateCropperBtn.disabled = true;
+            console.log("✅ Cropper deactivated");
+          }
+        }
+      );
+    } catch (error) {
+      console.error("❌ Error deactivating cropper:", error);
+    }
+  });
+}
+
+function updateCropperStatus(status) {
+  const statusEl = elements.cropperStatusIndicator;
+
+  // Remove all status classes
+  statusEl.className = "status";
+
+  if (status === "inactive") {
+    statusEl.classList.add("idle");
+    statusEl.textContent = "⚪ Cropper Inactive";
+  } else if (status === "active") {
+    statusEl.classList.add("collecting");
+    statusEl.textContent = "🟢 Cropper Active - Select elements on page";
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LOAD SAVED SETTINGS
@@ -581,9 +744,48 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.action === "CROPPER_PROGRESS_UPDATED") {
+    updateCropperProgress({
+      elementCount: message.data.elementCount || 0,
+      batchCount: message.data.batchCount || 0,
+      imageCount: message.data.imageCount || 0,
+    });
+    sendResponse({ received: true });
+    return true;
+  }
+
+  if (message.action === "CROPPER_BATCH_COMPLETE") {
+    console.log("✅ Cropper batch complete:", message.data);
+    sendResponse({ received: true });
+    return true;
+  }
+
   // Don't respond to messages not meant for popup
   return false;
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// UPDATE CROPPER PROGRESS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function updateCropperProgress(data) {
+  const { elementCount = 0, batchCount = 0, imageCount = 0 } = data;
+
+  elements.cropperElementCount.textContent = elementCount;
+  elements.cropperBatchCount.textContent = batchCount;
+  elements.cropperImageCount.textContent = imageCount;
+
+  if (elementCount === 0) {
+    elements.cropperProgressText.textContent = "Ready to crop elements";
+  } else if (elementCount % 3 === 0) {
+    elements.cropperProgressText.textContent = `Batch complete! ${imageCount} synthetic images created`;
+  } else {
+    const remaining = 3 - (elementCount % 3);
+    elements.cropperProgressText.textContent = `${remaining} more element${remaining > 1 ? 's' : ''} needed for next batch`;
+  }
+
+  console.log("📊 Cropper progress updated:", data);
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SAVE SETTINGS ON INPUT CHANGE

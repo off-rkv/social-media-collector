@@ -424,6 +424,122 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.7; }
     }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* NAVIGATION TABS */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .nav-tabs {
+      display: flex;
+      background: white;
+      border-bottom: 2px solid #e0e0e0;
+      padding: 0;
+      margin: 0;
+    }
+
+    .nav-tab {
+      flex: 1;
+      padding: 14px 16px;
+      background: #f5f5f5;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .nav-tab:hover {
+      background: #e8e8e8;
+      color: #333;
+    }
+
+    .nav-tab.active {
+      background: white;
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* PANEL DISPLAY */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* ELEMENT CROPPER PANEL STYLES */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .cropper-info {
+      padding: 16px;
+      background: #e3f2fd;
+      border-left: 4px solid #1976d2;
+      margin-bottom: 16px;
+      border-radius: 6px;
+    }
+
+    .cropper-info h3 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #1976d2;
+      font-weight: 600;
+    }
+
+    .cropper-info p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #555;
+    }
+
+    .cropper-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-cropper {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: white;
+    }
+
+    .btn-cropper:hover {
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-cropper.active {
+      background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0 0;
+    }
+
+    .feature-list li {
+      padding: 6px 0;
+      font-size: 12px;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-list li::before {
+      content: '✓';
+      color: #51cf66;
+      font-weight: bold;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -434,10 +550,23 @@
   <div class="header">
     <h1>🎯 Social Media Data Collector</h1>
   </div>
-  
+
   <!-- ═══════════════════════════════════════════════════════════════════ -->
-  <!-- MAIN CONTAINER -->
+  <!-- NAVIGATION TABS -->
   <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="zoneScannerTab">
+      📊 Zone Scanner
+    </button>
+    <button class="nav-tab" id="elementCropperTab">
+      ✂️ Element Cropper
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- ZONE SCANNER PANEL (Default) -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="panel active" id="zoneScannerPanel">
   <div class="container">
     
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
@@ -585,13 +714,110 @@
         </button>
       </div>
     </div>
-    
+
   </div>
-  
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- ELEMENT CROPPER PANEL -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="elementCropperPanel">
+  <div class="container">
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 1: CROPPER INFO -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="cropper-info">
+        <h3>✂️ Element Cropper - Synthetic Data Generation</h3>
+        <p>
+          Manually select and crop UI elements with pixel-perfect accuracy,
+          then automatically generate synthetic training images with YOLO labels.
+        </p>
+        <ul class="feature-list">
+          <li>Click element to auto-crop</li>
+          <li>Drag to manually crop area</li>
+          <li>Batch of 3 elements per image</li>
+          <li>Smart placement (no overlap)</li>
+          <li>Automatic YOLO labels</li>
+          <li>Multiple canvas sizes</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 2: CROPPER STATUS -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="status idle" id="cropperStatusIndicator">
+        ⚪ Cropper Inactive
+      </div>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 3: CROPPER CONTROLS -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="section-title">🎯 Controls</div>
+      <div class="cropper-controls">
+        <button class="btn btn-cropper" id="activateCropperBtn">
+          ▶ Activate Cropper
+        </button>
+        <button class="btn btn-stop" id="deactivateCropperBtn" disabled>
+          ⏹ Deactivate Cropper
+        </button>
+      </div>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 4: CROPPER PROGRESS -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="section-title">📊 Cropper Progress</div>
+
+      <div class="progress-stats">
+        <div class="stat">
+          <div class="stat-label">Elements</div>
+          <div class="stat-value total" id="cropperElementCount">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Batches</div>
+          <div class="stat-value pure" id="cropperBatchCount">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Images</div>
+          <div class="stat-value aug" id="cropperImageCount">0</div>
+        </div>
+      </div>
+
+      <div class="progress-text" id="cropperProgressText">
+        Ready to crop elements
+      </div>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 5: INSTRUCTIONS -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="section-title">📖 Instructions</div>
+      <div style="font-size: 12px; line-height: 1.6; color: #555;">
+        <p style="margin: 0 0 10px 0;"><strong>1. Activate Cropper:</strong> Click "Activate Cropper" button</p>
+        <p style="margin: 0 0 10px 0;"><strong>2. Auto-Crop:</strong> Hover over element, see green box, click once</p>
+        <p style="margin: 0 0 10px 0;"><strong>3. Manual Crop:</strong> Click and drag to select custom area</p>
+        <p style="margin: 0 0 10px 0;"><strong>4. Batch Process:</strong> After 3 elements, synthetic images auto-generate</p>
+        <p style="margin: 0;"><strong>5. Deactivate:</strong> Click "Deactivate Cropper" or press ESC</p>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   <!-- LOAD POPUP JAVASCRIPT -->
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   <script src="popup.js"></script>
-  
+
 </body>
 </html>
