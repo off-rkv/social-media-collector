@@ -74,6 +74,23 @@ const elements = {
   cropperBatchCount: document.getElementById("cropperBatchCount"),
   cropperImageCount: document.getElementById("cropperImageCount"),
   cropperProgressText: document.getElementById("cropperProgressText"),
+
+  // Generation settings
+  canvas_fhd: document.getElementById("canvas_fhd"),
+  canvas_hd: document.getElementById("canvas_hd"),
+  canvas_2k: document.getElementById("canvas_2k"),
+  canvas_square: document.getElementById("canvas_square"),
+  bgColorSelect: document.getElementById("bgColorSelect"),
+  pos_low: document.getElementById("pos_low"),
+  pos_medium: document.getElementById("pos_medium"),
+  pos_high: document.getElementById("pos_high"),
+  pos_maximum: document.getElementById("pos_maximum"),
+  enableRotation: document.getElementById("enableRotation"),
+  enableScaling: document.getElementById("enableScaling"),
+  gridStepSize: document.getElementById("gridStepSize"),
+  estimatedImages: document.getElementById("estimatedImages"),
+  estimateBreakdown: document.getElementById("estimateBreakdown"),
+  generateBatchBtn: document.getElementById("generateBatchBtn"),
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -94,6 +111,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Setup cropper buttons
   setupCropperButtons();
+
+  // Setup generation settings
+  setupGenerationSettings();
 
   console.log("✅ Popup initialized");
 });
@@ -238,6 +258,162 @@ function updateCropperStatus(status) {
   } else if (status === "active") {
     statusEl.classList.add("collecting");
     statusEl.textContent = "🟢 Cropper Active - Select elements on page";
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GENERATION SETTINGS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function setupGenerationSettings() {
+  // Add event listeners to all settings inputs
+  elements.canvas_fhd.addEventListener("change", updateEstimate);
+  elements.canvas_hd.addEventListener("change", updateEstimate);
+  elements.canvas_2k.addEventListener("change", updateEstimate);
+  elements.canvas_square.addEventListener("change", updateEstimate);
+  elements.bgColorSelect.addEventListener("change", updateEstimate);
+  elements.pos_low.addEventListener("change", updateEstimate);
+  elements.pos_medium.addEventListener("change", updateEstimate);
+  elements.pos_high.addEventListener("change", updateEstimate);
+  elements.pos_maximum.addEventListener("change", updateEstimate);
+  elements.enableRotation.addEventListener("change", updateEstimate);
+  elements.enableScaling.addEventListener("change", updateEstimate);
+  elements.gridStepSize.addEventListener("change", updateEstimate);
+
+  // Generate batch button
+  elements.generateBatchBtn.addEventListener("click", handleGenerateBatch);
+
+  // Initial estimate
+  updateEstimate();
+}
+
+function updateEstimate() {
+  // Count selected canvas sizes
+  let canvasCount = 0;
+  if (elements.canvas_fhd.checked) canvasCount++;
+  if (elements.canvas_hd.checked) canvasCount++;
+  if (elements.canvas_2k.checked) canvasCount++;
+  if (elements.canvas_square.checked) canvasCount++;
+
+  // Get background color count
+  let bgCount = 1;
+  const bgValue = elements.bgColorSelect.value;
+  if (bgValue === "all") bgCount = 6;
+  else if (bgValue === "dark") bgCount = 3;
+  else if (bgValue === "light") bgCount = 3;
+  else bgCount = 1;
+
+  // Get position count
+  let positionCount = 200; // default medium
+  if (elements.pos_low.checked) positionCount = 50;
+  else if (elements.pos_medium.checked) positionCount = 200;
+  else if (elements.pos_high.checked) positionCount = 500;
+  else if (elements.pos_maximum.checked) positionCount = 1000; // placeholder
+
+  // Get rotation count
+  const rotationCount = elements.enableRotation.checked ? 4 : 1;
+
+  // Get scale count
+  const scaleCount = elements.enableScaling.checked ? 3 : 1;
+
+  // Calculate total
+  const total = canvasCount * bgCount * positionCount * rotationCount * scaleCount;
+
+  // Update display
+  elements.estimatedImages.textContent = total.toLocaleString() + " images";
+  elements.estimateBreakdown.textContent =
+    `${canvasCount} canvas × ${bgCount} backgrounds × ${positionCount} positions × ${rotationCount} rotations × ${scaleCount} scales`;
+
+  console.log("📊 Estimated output:", total, "images");
+}
+
+async function handleGenerateBatch() {
+  console.log("🚀 Generate Batch button clicked");
+
+  try {
+    // Get active tab
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+
+    if (!tab) {
+      alert("❌ No active tab found.");
+      return;
+    }
+
+    // Collect generation config
+    const config = {
+      canvasSizes: [],
+      backgrounds: [],
+      positionLevel: "medium",
+      enableRotation: elements.enableRotation.checked,
+      enableScaling: elements.enableScaling.checked,
+      gridStepSize: parseInt(elements.gridStepSize.value)
+    };
+
+    // Canvas sizes
+    if (elements.canvas_fhd.checked) config.canvasSizes.push({ width: 1920, height: 1080, name: 'FHD' });
+    if (elements.canvas_hd.checked) config.canvasSizes.push({ width: 1280, height: 720, name: 'HD' });
+    if (elements.canvas_2k.checked) config.canvasSizes.push({ width: 2560, height: 1440, name: '2K' });
+    if (elements.canvas_square.checked) config.canvasSizes.push({ width: 640, height: 640, name: 'Square' });
+
+    // Backgrounds
+    const bgValue = elements.bgColorSelect.value;
+    if (bgValue === "all") {
+      config.backgrounds = ['#000000', '#FFFFFF', '#1a1a1a', '#f5f5f5', '#0d1117', '#ffffff'];
+    } else if (bgValue === "dark") {
+      config.backgrounds = ['#000000', '#1a1a1a', '#0d1117'];
+    } else if (bgValue === "light") {
+      config.backgrounds = ['#FFFFFF', '#f5f5f5', '#ffffff'];
+    } else {
+      config.backgrounds = ['#000000'];
+    }
+
+    // Position level
+    if (elements.pos_low.checked) config.positionLevel = "low";
+    else if (elements.pos_medium.checked) config.positionLevel = "medium";
+    else if (elements.pos_high.checked) config.positionLevel = "high";
+    else if (elements.pos_maximum.checked) config.positionLevel = "maximum";
+
+    console.log("📋 Generation config:", config);
+
+    // Disable button during generation
+    elements.generateBatchBtn.disabled = true;
+    elements.generateBatchBtn.textContent = "⏳ Generating...";
+
+    // Send message to content script to trigger batch generation
+    chrome.tabs.sendMessage(
+      tab.id,
+      {
+        action: "GENERATE_BATCH_WITH_VARIATIONS",
+        config: config
+      },
+      (response) => {
+        // Re-enable button
+        elements.generateBatchBtn.disabled = false;
+        elements.generateBatchBtn.textContent = "🚀 Generate Batch (need 3 elements)";
+
+        if (chrome.runtime.lastError) {
+          console.error("❌ Error:", chrome.runtime.lastError);
+          alert("❌ Failed to generate batch: " + chrome.runtime.lastError.message);
+          return;
+        }
+
+        if (response && response.success) {
+          console.log("✅ Batch generated successfully!");
+          alert(`✅ Generated ${response.imagesCreated} synthetic images!`);
+        } else {
+          alert("❌ Failed to generate batch: " + (response?.error || "Unknown error"));
+        }
+      }
+    );
+
+  } catch (error) {
+    console.error("❌ Error generating batch:", error);
+    alert("❌ Error: " + error.message);
+    elements.generateBatchBtn.disabled = false;
+    elements.generateBatchBtn.textContent = "🚀 Generate Batch (need 3 elements)";
   }
 }
 
@@ -774,6 +950,23 @@ function updateCropperProgress(data) {
   elements.cropperElementCount.textContent = elementCount;
   elements.cropperBatchCount.textContent = batchCount;
   elements.cropperImageCount.textContent = imageCount;
+
+  // Enable/disable Generate Batch button based on element count
+  const currentBatchCount = elementCount % 3;
+  if (currentBatchCount === 0 && elementCount > 0) {
+    // Has complete batch (3 elements)
+    elements.generateBatchBtn.disabled = false;
+    elements.generateBatchBtn.textContent = "🚀 Generate Batch (3 elements ready)";
+  } else if (currentBatchCount > 0) {
+    // Has partial batch
+    const remaining = 3 - currentBatchCount;
+    elements.generateBatchBtn.disabled = true;
+    elements.generateBatchBtn.textContent = `🚀 Generate Batch (need ${remaining} more)`;
+  } else {
+    // No elements
+    elements.generateBatchBtn.disabled = true;
+    elements.generateBatchBtn.textContent = "🚀 Generate Batch (need 3 elements)";
+  }
 
   if (elementCount === 0) {
     elements.cropperProgressText.textContent = "Ready to crop elements";

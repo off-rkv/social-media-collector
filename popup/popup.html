@@ -540,6 +540,123 @@
       font-weight: bold;
       font-size: 14px;
     }
+
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* GENERATION SETTINGS */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    .settings-group {
+      margin-bottom: 16px;
+    }
+
+    .settings-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #555;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .radio-group-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #555;
+      cursor: pointer;
+    }
+
+    .radio-item input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .select-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 12px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .estimate-box {
+      padding: 12px;
+      background: #f0f7ff;
+      border-left: 4px solid #1976d2;
+      border-radius: 6px;
+      margin-top: 16px;
+    }
+
+    .estimate-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #1976d2;
+      margin-bottom: 8px;
+    }
+
+    .estimate-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1976d2;
+      margin-bottom: 4px;
+    }
+
+    .estimate-details {
+      font-size: 10px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .btn-generate:hover {
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-generate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -798,7 +915,108 @@
     </div>
 
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-    <!-- SECTION 5: INSTRUCTIONS -->
+    <!-- SECTION 5: GENERATION SETTINGS -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="section">
+      <div class="section-title">⚙️ Generation Settings</div>
+
+      <!-- Canvas Sizes -->
+      <div class="settings-group">
+        <label class="settings-label">Canvas Sizes:</label>
+        <div class="checkbox-grid">
+          <div class="checkbox-item">
+            <input type="checkbox" id="canvas_fhd" checked>
+            <label for="canvas_fhd">FHD (1920×1080)</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="canvas_hd" checked>
+            <label for="canvas_hd">HD (1280×720)</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="canvas_2k" checked>
+            <label for="canvas_2k">2K (2560×1440)</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="canvas_square" checked>
+            <label for="canvas_square">Square (640×640)</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Background Colors -->
+      <div class="settings-group">
+        <label class="settings-label">Background Colors:</label>
+        <select id="bgColorSelect" class="select-input">
+          <option value="all">All 6 colors</option>
+          <option value="dark">Dark themes only (3)</option>
+          <option value="light">Light themes only (3)</option>
+          <option value="one">Single color (Black)</option>
+        </select>
+      </div>
+
+      <!-- Position Variations -->
+      <div class="settings-group">
+        <label class="settings-label">Position Variations:</label>
+        <div class="radio-group-vertical">
+          <label class="radio-item">
+            <input type="radio" name="positionLevel" value="low" id="pos_low">
+            <span>Low (50 layouts)</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="positionLevel" value="medium" id="pos_medium" checked>
+            <span>Medium (200 layouts)</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="positionLevel" value="high" id="pos_high">
+            <span>High (500 layouts)</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="positionLevel" value="maximum" id="pos_maximum">
+            <span>Maximum (compute all possible)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Rotation & Scale -->
+      <div class="settings-group">
+        <div class="checkbox-item" style="margin-bottom: 8px;">
+          <input type="checkbox" id="enableRotation" checked>
+          <label for="enableRotation">Enable Rotation (4 angles: 0°, 90°, 180°, 270°)</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="enableScaling" checked>
+          <label for="enableScaling">Enable Scaling (3 sizes: 0.8x, 1.0x, 1.2x)</label>
+        </div>
+      </div>
+
+      <!-- Grid Step Size -->
+      <div class="settings-group">
+        <label class="settings-label">Grid Step Size (pixels):</label>
+        <select id="gridStepSize" class="select-input">
+          <option value="30">30px (more variations)</option>
+          <option value="50" selected>50px (balanced)</option>
+          <option value="70">70px (fewer variations)</option>
+          <option value="100">100px (minimal variations)</option>
+        </select>
+      </div>
+
+      <!-- Estimate -->
+      <div class="estimate-box">
+        <div class="estimate-title">Estimated Output:</div>
+        <div class="estimate-value" id="estimatedImages">24,000 images</div>
+        <div class="estimate-details" id="estimateBreakdown">
+          4 canvas × 6 backgrounds × 200 positions × 4 rotations × 3 scales
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <button class="btn btn-generate" id="generateBatchBtn" disabled>
+        🚀 Generate Batch (need 3 elements)
+      </button>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- SECTION 6: INSTRUCTIONS -->
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <div class="section">
       <div class="section-title">📖 Instructions</div>
@@ -806,8 +1024,9 @@
         <p style="margin: 0 0 10px 0;"><strong>1. Activate Cropper:</strong> Click "Activate Cropper" button</p>
         <p style="margin: 0 0 10px 0;"><strong>2. Auto-Crop:</strong> Hover over element, see green box, click once</p>
         <p style="margin: 0 0 10px 0;"><strong>3. Manual Crop:</strong> Click and drag to select custom area</p>
-        <p style="margin: 0 0 10px 0;"><strong>4. Batch Process:</strong> After 3 elements, synthetic images auto-generate</p>
-        <p style="margin: 0;"><strong>5. Deactivate:</strong> Click "Deactivate Cropper" or press ESC</p>
+        <p style="margin: 0 0 10px 0;"><strong>4. Configure Settings:</strong> Adjust canvas sizes, positions, rotation, scale</p>
+        <p style="margin: 0 0 10px 0;"><strong>5. Generate Batch:</strong> After 3 elements, click "Generate Batch" button</p>
+        <p style="margin: 0;"><strong>6. Deactivate:</strong> Click "Deactivate Cropper" or press ESC</p>
       </div>
     </div>
 

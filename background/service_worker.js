@@ -104,6 +104,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleProcessCropBatch(message, sender, sendResponse);
       return true;
 
+    case "PROCESS_BATCH_WITH_VARIATIONS":
+      handleProcessBatchWithVariations(message, sender, sendResponse);
+      return true;
+
     case "GET_CURRENT_STATE":
       handleGetState(message, sender, sendResponse);
       return true;
@@ -569,6 +573,80 @@ async function handleProcessCropBatch(message, sender, sendResponse) {
 
   } catch (error) {
     console.error("❌ Error processing crop batch:", error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+async function handleProcessBatchWithVariations(message, sender, sendResponse) {
+  console.log("🚀 Processing batch with variations...");
+  console.log(`   Elements: ${message.elements?.length || 0}`);
+  console.log(`   Config:`, message.config);
+
+  try {
+    // Import batch processor
+    await importScripts('background/batch_processor.js');
+
+    // Process the batch with variations
+    const result = await self.BatchProcessor.processCropBatchWithVariations(
+      message.elements,
+      message.config
+    );
+
+    if (!result || !result.success) {
+      console.error("❌ Batch generation failed");
+      sendResponse({ success: false, error: "Generation failed" });
+      return;
+    }
+
+    console.log(`✅ Generated ${result.imagesCreated} images`);
+
+    // Download all generated images and labels
+    let downloadedCount = 0;
+    const totalImages = result.results.length;
+
+    for (let i = 0; i < result.results.length; i++) {
+      const item = result.results[i];
+
+      try {
+        // Download image
+        await chrome.downloads.download({
+          url: item.imageDataUrl,
+          filename: `synthetic_data/${item.filename}.jpg`,
+          saveAs: false
+        });
+
+        // Download label
+        const labelBlob = new Blob([item.labelText], { type: 'text/plain' });
+        const labelDataUrl = URL.createObjectURL(labelBlob);
+
+        await chrome.downloads.download({
+          url: labelDataUrl,
+          filename: `synthetic_data/${item.filename}.txt`,
+          saveAs: false
+        });
+
+        downloadedCount++;
+
+        // Progress logging every 100 images
+        if (downloadedCount % 100 === 0) {
+          console.log(`   📥 Downloaded ${downloadedCount}/${totalImages} images...`);
+        }
+
+      } catch (error) {
+        console.error(`   ❌ Download failed for ${item.filename}:`, error);
+      }
+    }
+
+    console.log(`✅ Downloaded ${downloadedCount}/${result.imagesCreated} synthetic images`);
+
+    sendResponse({
+      success: true,
+      imagesCreated: result.imagesCreated,
+      downloaded: downloadedCount
+    });
+
+  } catch (error) {
+    console.error("❌ Error generating batch with variations:", error);
     sendResponse({ success: false, error: error.message });
   }
 }

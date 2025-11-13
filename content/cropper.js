@@ -644,7 +644,76 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ success: true });
     return true;
   }
+
+  if (message.action === "GENERATE_BATCH_WITH_VARIATIONS") {
+    handleGenerateBatchWithVariations(message.config, sendResponse);
+    return true; // Keep channel open for async response
+  }
 });
+
+async function handleGenerateBatchWithVariations(config, sendResponse) {
+  console.log("🚀 Generating batch with variations...", config);
+
+  if (croppedElements.length < 3) {
+    sendResponse({
+      success: false,
+      error: `Need 3 elements, only have ${croppedElements.length}`
+    });
+    return;
+  }
+
+  try {
+    // Send to backend for grid-based generation
+    chrome.runtime.sendMessage(
+      {
+        action: 'PROCESS_BATCH_WITH_VARIATIONS',
+        elements: croppedElements,
+        config: config
+      },
+      (response) => {
+        if (response && response.success) {
+          console.log(`✅ Generated ${response.imagesCreated} images!`);
+
+          // Update counters
+          totalBatchCount++;
+          totalImageCount += response.imagesCreated || 0;
+
+          // Send progress update
+          sendProgressUpdate();
+
+          // Notify popup
+          chrome.runtime.sendMessage({
+            action: 'CROPPER_BATCH_COMPLETE',
+            data: {
+              batchNumber: totalBatchCount,
+              imagesCreated: response.imagesCreated
+            }
+          });
+
+          // Clear batch
+          clearCroppedElements();
+
+          sendResponse({
+            success: true,
+            imagesCreated: response.imagesCreated
+          });
+        } else {
+          console.error("❌ Batch processing failed:", response?.error);
+          sendResponse({
+            success: false,
+            error: response?.error || "Unknown error"
+          });
+        }
+      }
+    );
+  } catch (error) {
+    console.error("❌ Error generating batch:", error);
+    sendResponse({
+      success: false,
+      error: error.message
+    });
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SECTION 11: INITIALIZATION

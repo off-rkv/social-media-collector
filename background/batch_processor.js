@@ -353,6 +353,260 @@ function loadImage(dataUrl) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// SECTION 7: GRID-BASED BATCH GENERATION WITH VARIATIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function processCropBatchWithVariations(elements, config) {
+  console.log(`📦 Processing batch with variations...`);
+  console.log(`⚙️ Config:`, config);
+
+  const {
+    canvasSizes = [CANVAS_SIZES[0]],
+    backgrounds = [BACKGROUND_COLORS[0]],
+    positionLevel = "medium",
+    enableRotation = true,
+    enableScaling = true,
+    gridStepSize = 50
+  } = config;
+
+  // Define variations
+  const rotations = enableRotation ? [0, 90, 180, 270] : [0];
+  const scales = enableScaling ? [0.8, 1.0, 1.2] : [1.0];
+
+  const results = [];
+  let totalGenerated = 0;
+
+  // Generate position layouts for each canvas size
+  for (const canvasSize of canvasSizes) {
+    console.log(`📐 Generating layouts for ${canvasSize.name} (${canvasSize.width}×${canvasSize.height})...`);
+
+    // Generate grid-based position layouts
+    const layouts = generateGridLayouts(elements, canvasSize, positionLevel, gridStepSize);
+    console.log(`  ✅ Generated ${layouts.length} position layouts`);
+
+    // For each layout, generate variations
+    for (const layout of layouts) {
+      for (const backgroundColor of backgrounds) {
+        for (const rotation of rotations) {
+          for (const scale of scales) {
+            // Create synthetic image with this configuration
+            const result = await createSyntheticImageWithVariation(
+              elements,
+              layout,
+              canvasSize,
+              backgroundColor,
+              rotation,
+              scale
+            );
+
+            if (result) {
+              results.push(result);
+              totalGenerated++;
+
+              // Progress logging every 100 images
+              if (totalGenerated % 100 === 0) {
+                console.log(`  📊 Generated ${totalGenerated} images...`);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  console.log(`✅ Generated ${totalGenerated} total images`);
+
+  return {
+    success: true,
+    imagesCreated: totalGenerated,
+    results: results
+  };
+}
+
+function generateGridLayouts(elements, canvasSize, positionLevel, gridStepSize) {
+  // Determine number of layouts based on level
+  let targetLayouts = 200; // medium
+  if (positionLevel === "low") targetLayouts = 50;
+  else if (positionLevel === "high") targetLayouts = 500;
+  else if (positionLevel === "maximum") targetLayouts = 1000;
+
+  const layouts = [];
+  const maxAttempts = targetLayouts * 10; // Try 10x more to find valid layouts
+  let attempts = 0;
+
+  while (layouts.length < targetLayouts && attempts < maxAttempts) {
+    attempts++;
+
+    const layout = [];
+    const placements = [];
+
+    // Try to place all 3 elements
+    let allPlaced = true;
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i];
+
+      // Get element size (use display size for calculations)
+      const elemWidth = element.bbox.displayWidth || element.bbox.width;
+      const elemHeight = element.bbox.displayHeight || element.bbox.height;
+
+      // Scale down if too large (max 30% of canvas)
+      const maxSize = Math.min(canvasSize.width, canvasSize.height) * 0.3;
+      let scaledWidth = elemWidth;
+      let scaledHeight = elemHeight;
+
+      if (elemWidth > maxSize || elemHeight > maxSize) {
+        const scale = maxSize / Math.max(elemWidth, elemHeight);
+        scaledWidth = elemWidth * scale;
+        scaledHeight = elemHeight * scale;
+      }
+
+      // Try grid positions
+      const placement = findGridPosition(scaledWidth, scaledHeight, canvasSize, placements, gridStepSize);
+
+      if (placement) {
+        placements.push({
+          x: placement.x,
+          y: placement.y,
+          width: scaledWidth,
+          height: scaledHeight
+        });
+
+        layout.push({
+          elementIndex: i,
+          x: placement.x,
+          y: placement.y,
+          width: scaledWidth,
+          height: scaledHeight
+        });
+      } else {
+        allPlaced = false;
+        break;
+      }
+    }
+
+    // If all elements placed successfully, add layout
+    if (allPlaced && layout.length === elements.length) {
+      layouts.push(layout);
+    }
+  }
+
+  console.log(`  🎯 Generated ${layouts.length} valid layouts (${attempts} attempts)`);
+  return layouts;
+}
+
+function findGridPosition(width, height, canvasSize, existingPlacements, gridStepSize) {
+  // Create grid points
+  const gridXPoints = [];
+  const gridYPoints = [];
+
+  for (let x = 0; x <= canvasSize.width - width; x += gridStepSize) {
+    gridXPoints.push(x);
+  }
+
+  for (let y = 0; y <= canvasSize.height - height; y += gridStepSize) {
+    gridYPoints.push(y);
+  }
+
+  // Shuffle grid points for randomness
+  shuffleArray(gridXPoints);
+  shuffleArray(gridYPoints);
+
+  // Try grid positions
+  for (const x of gridXPoints) {
+    for (const y of gridYPoints) {
+      // Check if position is valid (no overlap with existing)
+      const hasOverlap = existingPlacements.some(existing =>
+        checkOverlap(x, y, width, height, existing.x, existing.y, existing.width, existing.height)
+      );
+
+      if (!hasOverlap) {
+        return { x: Math.round(x), y: Math.round(y) };
+      }
+    }
+  }
+
+  return null; // No valid position found
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+async function createSyntheticImageWithVariation(elements, layout, canvasSize, backgroundColor, rotation, scale) {
+  try {
+    // Create canvas
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = canvasSize.width;
+    canvas.height = canvasSize.height;
+
+    // Fill background
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const labels = [];
+
+    // Place each element according to layout
+    for (let i = 0; i < layout.length; i++) {
+      const placement = layout[i];
+      const element = elements[placement.elementIndex];
+
+      // Load element image
+      const img = await loadImage(element.image);
+
+      // Apply transformations
+      ctx.save();
+
+      // Translate to center of placement
+      const centerX = placement.x + placement.width / 2;
+      const centerY = placement.y + placement.height / 2;
+      ctx.translate(centerX, centerY);
+
+      // Apply rotation
+      ctx.rotate((rotation * Math.PI) / 180);
+
+      // Apply scale
+      const finalWidth = placement.width * scale;
+      const finalHeight = placement.height * scale;
+
+      // Draw image
+      ctx.drawImage(img, -finalWidth / 2, -finalHeight / 2, finalWidth, finalHeight);
+
+      ctx.restore();
+
+      // Generate YOLO label (using final transformed dimensions)
+      const labelCenterX = centerX / canvasSize.width;
+      const labelCenterY = centerY / canvasSize.height;
+      const labelWidth = finalWidth / canvasSize.width;
+      const labelHeight = finalHeight / canvasSize.height;
+
+      const label = `${element.classId} ${labelCenterX.toFixed(6)} ${labelCenterY.toFixed(6)} ${labelWidth.toFixed(6)} ${labelHeight.toFixed(6)}`;
+      labels.push(label);
+    }
+
+    // Convert canvas to image
+    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    const labelText = labels.join('\n');
+    const timestamp = Date.now();
+    const filename = `synthetic_${canvasSize.name}_${backgroundColor.replace('#', '')}_r${rotation}_s${scale.toFixed(1)}_${timestamp}`;
+
+    return {
+      imageDataUrl,
+      labelText,
+      filename
+    };
+
+  } catch (error) {
+    console.error('❌ Error creating synthetic image:', error);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // SECTION 8: EXPORT
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -361,6 +615,7 @@ if (typeof self !== 'undefined' && self.importScripts) {
   // Service worker context
   self.BatchProcessor = {
     processCropBatch,
+    processCropBatchWithVariations,
     createSyntheticImage,
     CANVAS_SIZES,
     BACKGROUND_COLORS
@@ -369,6 +624,7 @@ if (typeof self !== 'undefined' && self.importScripts) {
   // Regular window context
   window.BatchProcessor = {
     processCropBatch,
+    processCropBatchWithVariations,
     createSyntheticImage,
     CANVAS_SIZES,
     BACKGROUND_COLORS
