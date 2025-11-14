@@ -553,9 +553,8 @@ async function handleProcessCropBatch(message, sender, sendResponse) {
           saveAs: false
         });
 
-        // Download label
-        const labelBlob = new Blob([item.labelText], { type: 'text/plain' });
-        const labelDataUrl = URL.createObjectURL(labelBlob);
+        // Download label (convert to data URL for reliable download)
+        const labelDataUrl = 'data:text/plain;charset=utf-8,' + encodeURIComponent(item.labelText);
 
         await chrome.downloads.download({
           url: labelDataUrl,
@@ -655,9 +654,8 @@ async function handleProcessBatchWithVariations(message, sender, sendResponse) {
           saveAs: false
         });
 
-        // Download label
-        const labelBlob = new Blob([item.labelText], { type: 'text/plain' });
-        const labelDataUrl = URL.createObjectURL(labelBlob);
+        // Download label (convert to data URL for reliable download)
+        const labelDataUrl = 'data:text/plain;charset=utf-8,' + encodeURIComponent(item.labelText);
 
         await chrome.downloads.download({
           url: labelDataUrl,
