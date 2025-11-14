@@ -394,11 +394,11 @@ async function processCropBatchWithVariations(elements, config, tabId = null) {
   console.log(`  Position level: ${positionLevel}`);
   console.log(`  Grid step size: ${gridStepSize}px`);
 
-  // Define variations with enhanced diversity
-  // More rotation angles (every 30 degrees) for better orientation coverage
-  const rotations = enableRotation ? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330] : [0];
-  // More scale variations (0.7x to 1.3x) for size diversity
-  const scales = enableScaling ? [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3] : [1.0];
+  // Define variations (4 rotations × 3 scales = 12 variations per position)
+  // 4 rotation angles for orientation coverage
+  const rotations = enableRotation ? [0, 90, 180, 270] : [0];
+  // 3 scale variations for size diversity
+  const scales = enableScaling ? [0.8, 1.0, 1.2] : [1.0];
 
   // Calculate total images to generate
   let totalImagesToGenerate = 0;
