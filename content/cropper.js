@@ -419,6 +419,9 @@ function autoCropElement(x, y) {
     id: element.id || null
   };
 
+  // Hide highlight box before capturing screenshot
+  if (highlightBox) highlightBox.style.display = 'none';
+
   // Capture screenshot of element
   captureElementScreenshot(cropData);
 }
@@ -445,6 +448,9 @@ function manualCropArea(start, end) {
     },
     timestamp: Date.now()
   };
+
+  // Hide highlight box before capturing screenshot
+  if (highlightBox) highlightBox.style.display = 'none';
 
   // Capture screenshot of area
   captureAreaScreenshot(cropData);
