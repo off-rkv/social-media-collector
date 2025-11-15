@@ -885,8 +885,30 @@ async function promptForElementInfo() {
         />
       </div>
 
-      <div style="font-size: 12px; color: #999; margin-bottom: 16px; padding: 8px; background: #f5f5f5; border-radius: 4px;">
-        <strong>Class ID:</strong> ${nextClassId} (auto-assigned)
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #333;">
+          Class ID Number (Manual Assignment)
+        </label>
+        <input
+          id="element-classid-input"
+          type="number"
+          min="0"
+          value="${nextClassId}"
+          placeholder="Enter class ID number (e.g., 18, 56)"
+          style="
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            cursor: text;
+            pointer-events: auto;
+          "
+        />
+        <div style="font-size: 11px; color: #666; margin-top: 4px;">
+          💡 FB: 18-30, 56-66 | Twitter: 0-17 | Instagram: 31-44 | Threads: 45-55
+        </div>
       </div>
 
       <div style="display: flex; gap: 8px;">
@@ -928,6 +950,7 @@ async function promptForElementInfo() {
 
     const nameInput = dialog.querySelector('#element-name-input');
     const descriptionInput = dialog.querySelector('#element-description-input');
+    const classIdInput = dialog.querySelector('#element-classid-input');
     const confirmBtn = dialog.querySelector('#element-confirm-btn');
     const cancelBtn = dialog.querySelector('#element-cancel-btn');
 
@@ -945,6 +968,11 @@ async function promptForElementInfo() {
     descriptionInput.addEventListener('click', (e) => {
       e.stopPropagation();
       descriptionInput.focus();
+    });
+
+    classIdInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      classIdInput.focus();
     });
 
     // Focus name input
@@ -968,9 +996,15 @@ async function promptForElementInfo() {
 
       const name = nameInput.value.trim();
       const description = descriptionInput.value.trim();
+      const classId = parseInt(classIdInput.value);
 
       if (!name || !description) {
         alert("Please provide both name and description!");
+        return;
+      }
+
+      if (isNaN(classId) || classId < 0) {
+        alert("Please provide a valid Class ID (must be 0 or greater)!");
         return;
       }
 
@@ -980,11 +1014,12 @@ async function promptForElementInfo() {
       resolve({
         name: name,
         description: description,
-        classId: nextClassId
+        classId: classId
       });
 
-      // Increment for next element
-      nextClassId++;
+      // Update nextClassId to be one more than the manually entered ID
+      // This helps auto-suggest a reasonable next value
+      nextClassId = classId + 1;
     };
 
     // Handle cancel
@@ -999,7 +1034,7 @@ async function promptForElementInfo() {
     };
 
     // Handle Enter key
-    nameInput.onkeydown = descriptionInput.onkeydown = (e) => {
+    nameInput.onkeydown = descriptionInput.onkeydown = classIdInput.onkeydown = (e) => {
       if (e.key === 'Enter') {
         confirmBtn.click();
       } else if (e.key === 'Escape') {

@@ -195,6 +195,72 @@
       "fallbackSelectors": ["div[role='button'] span[dir='auto']"],
       "classId": 30,
       "description": "Facebook: Share count text"
+    },
+    "facebook_follow_button": {
+      "selector": "div[role='button'][aria-label='Follow']",
+      "fallbackSelectors": ["button:has-text('Follow')", "div[role='button']:has-text('Follow')"],
+      "classId": 56,
+      "description": "Facebook: Follow button in post header"
+    },
+    "facebook_post_menu_button": {
+      "selector": "div[aria-label='Actions for this post'] div[role='button']",
+      "fallbackSelectors": ["div[aria-label*='Actions'] div[role='button']", "div[role='button'] svg[aria-label*='More']"],
+      "classId": 57,
+      "description": "Facebook: Post actions menu (three dots)"
+    },
+    "facebook_hide_post_button": {
+      "selector": "div[aria-label='Hide'] div[role='link']",
+      "fallbackSelectors": ["div[aria-label*='Hide'] div[role='link']"],
+      "classId": 58,
+      "description": "Facebook: Hide post button (X icon)"
+    },
+    "facebook_privacy_icon": {
+      "selector": "svg[aria-label='Public']",
+      "fallbackSelectors": ["svg[aria-label*='Public']", "svg[aria-label*='Friends']", "image[*='globe']"],
+      "classId": 59,
+      "description": "Facebook: Privacy indicator (globe/people icon)"
+    },
+    "facebook_see_more_button": {
+      "selector": "div[role='button']:has-text('See more')",
+      "fallbackSelectors": ["div[role='button'] span:has-text('See more')", "div.x1i10hfl:has-text('See more')"],
+      "classId": 60,
+      "description": "Facebook: See more caption expand button"
+    },
+    "facebook_video_container": {
+      "selector": "div.x1ey2m1c.x9f619.xtijo5x.x1o0tod.x10l6tqk.x13vifvy.x1ypdohk[role='presentation']",
+      "fallbackSelectors": ["div[role='presentation'] video", "video"],
+      "classId": 61,
+      "description": "Facebook: Video post container"
+    },
+    "facebook_reaction_haha": {
+      "selector": "svg[aria-label*='Haha:']",
+      "fallbackSelectors": ["image[*='haha']", "svg[aria-label*='Haha']"],
+      "classId": 62,
+      "description": "Facebook: Haha reaction icon (laughing face)"
+    },
+    "facebook_reaction_love": {
+      "selector": "svg[aria-label*='Love:']",
+      "fallbackSelectors": ["image[*='love']", "svg[aria-label*='Love']"],
+      "classId": 63,
+      "description": "Facebook: Love reaction icon (heart)"
+    },
+    "facebook_reaction_care": {
+      "selector": "svg[aria-label*='Care:']",
+      "fallbackSelectors": ["image[*='care']", "svg[aria-label*='Care']"],
+      "classId": 64,
+      "description": "Facebook: Care reaction icon (hugging face)"
+    },
+    "facebook_reaction_wow": {
+      "selector": "svg[aria-label*='Wow:']",
+      "fallbackSelectors": ["image[*='wow']", "svg[aria-label*='Wow']"],
+      "classId": 65,
+      "description": "Facebook: Wow reaction icon (surprised face)"
+    },
+    "facebook_reaction_sad": {
+      "selector": "svg[aria-label*='Sad:']",
+      "fallbackSelectors": ["image[*='sad']", "svg[aria-label*='Sad']"],
+      "classId": 66,
+      "description": "Facebook: Sad reaction icon (crying face)"
     }
   },
   "instagram": {
