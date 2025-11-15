@@ -20,14 +20,37 @@
 let isCollecting = false;
 let currentPlatform = "twitter";
 
-// ═══ DEFAULT ZONE VALUES ═══
-// These will be saved to storage on first load
-let currentZone = {
-  top: 40,
-  left: 380,
-  bottom: 770,
-  right: 1030,
+// ═══ PLATFORM-SPECIFIC DEFAULT ZONE VALUES ═══
+// Different platforms have different feed layouts
+const PLATFORM_ZONES = {
+  twitter: {
+    top: 40,
+    left: 380,
+    bottom: 770,
+    right: 1030,
+  },
+  facebook: {
+    top: 80,
+    left: 480,
+    bottom: 800,
+    right: 1200,
+  },
+  instagram: {
+    top: 100,
+    left: 450,
+    bottom: 750,
+    right: 950,
+  },
+  threads: {
+    top: 80,
+    left: 450,
+    bottom: 770,
+    right: 950,
+  }
 };
+
+// Current zone (will be loaded from storage or use platform default)
+let currentZone = { ...PLATFORM_ZONES.twitter };
 // ═══ END DEFAULTS ═══
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -525,14 +548,28 @@ async function loadSavedSettings() {
       "scrollDirection",
     ]);
 
+    // Apply platform first (needed for zone defaults)
+    if (result.platform) {
+      currentPlatform = result.platform;
+      elements.platformSelect.value = result.platform;
+      console.log("✅ Loaded saved platform:", result.platform);
+    } else {
+      // Save default platform
+      await chrome.storage.local.set({ platform: currentPlatform });
+      console.log("💾 Saved default platform:", currentPlatform);
+    }
+
     // ═══ ZONE PERSISTENCE FIX ═══
-    // Apply zone coordinates (or use and SAVE defaults)
+    // Apply zone coordinates (or use platform-specific defaults)
     if (result.zone) {
       currentZone = result.zone;
       console.log("✅ Loaded saved zone:", result.zone);
     } else {
-      // No saved zone - save the default values
-      console.log("💾 No saved zone found, saving defaults:", currentZone);
+      // No saved zone - use platform-specific defaults
+      if (PLATFORM_ZONES[currentPlatform]) {
+        currentZone = { ...PLATFORM_ZONES[currentPlatform] };
+        console.log(`💾 No saved zone found, using ${currentPlatform} defaults:`, currentZone);
+      }
       await chrome.storage.local.set({ zone: currentZone });
     }
 
@@ -543,17 +580,6 @@ async function loadSavedSettings() {
     elements.zoneRight.value = currentZone.right;
     console.log("✅ Zone UI updated:", currentZone);
     // ═══ END FIX ═══
-
-    // Apply platform
-    if (result.platform) {
-      currentPlatform = result.platform;
-      elements.platformSelect.value = result.platform;
-      console.log("✅ Loaded saved platform:", result.platform);
-    } else {
-      // Save default platform
-      await chrome.storage.local.set({ platform: currentPlatform });
-      console.log("💾 Saved default platform:", currentPlatform);
-    }
 
     // Apply highlight toggle
     if (result.highlightEnabled !== undefined) {
@@ -692,10 +718,33 @@ async function updateZoneBorder() {
 elements.platformSelect.addEventListener("change", async () => {
   currentPlatform = elements.platformSelect.value;
 
-  // Save to storage
-  await chrome.storage.local.set({ platform: currentPlatform });
+  // Load platform-specific zone defaults
+  if (PLATFORM_ZONES[currentPlatform]) {
+    currentZone = { ...PLATFORM_ZONES[currentPlatform] };
 
-  console.log("🌐 Platform changed to:", currentPlatform);
+    // Update UI with platform zone
+    elements.zoneTop.value = currentZone.top;
+    elements.zoneLeft.value = currentZone.left;
+    elements.zoneBottom.value = currentZone.bottom;
+    elements.zoneRight.value = currentZone.right;
+
+    // Save zone to storage
+    await chrome.storage.local.set({
+      platform: currentPlatform,
+      zone: currentZone
+    });
+
+    // Update zone visualization if enabled
+    if (elements.highlightToggle.checked) {
+      await sendToContentScript({ action: "SHOW_ZONE", zone: currentZone });
+    }
+
+    console.log(`🌐 Platform changed to: ${currentPlatform}, zone updated:`, currentZone);
+  } else {
+    // Just save platform if no specific zone defined
+    await chrome.storage.local.set({ platform: currentPlatform });
+    console.log("🌐 Platform changed to:", currentPlatform);
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
