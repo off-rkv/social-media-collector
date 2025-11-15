@@ -29,8 +29,10 @@ let dragEnd = null;
 let croppedElements = []; // Store cropped elements for batch processing
 let platformIds = {}; // Store loaded platform IDs
 let nextClassId = 56; // Start from 56 (current max is 55)
+let usedClassIds = new Set(); // Track all used class IDs to prevent duplicates
 let isClassificationModalOpen = false; // Prevent multiple modals from opening
 let modalClosedTimestamp = 0; // Track when modal was closed to prevent immediate re-trigger
+let customElementTypes = []; // Store all custom element types for export
 
 // Progress tracking
 let totalElementCount = 0;
@@ -122,6 +124,18 @@ function createCropperUI() {
       margin-bottom: 4px;
       font-weight: 600;
     ">⏸️ Pause Selection</button>
+    <button id="crop-export-btn" style="
+      width: 100%;
+      padding: 8px;
+      background: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    ">📥 Export Element Types</button>
     <button id="crop-clear-btn" style="
       width: 100%;
       padding: 8px;
@@ -155,8 +169,40 @@ function createCropperUI() {
 
   // Add event listeners
   document.getElementById('crop-pause-btn').addEventListener('click', toggleCropperPause);
+  document.getElementById('crop-export-btn').addEventListener('click', exportElementTypes);
   document.getElementById('crop-clear-btn').addEventListener('click', clearCroppedElements);
   document.getElementById('crop-exit-btn').addEventListener('click', deactivateCropper);
+}
+
+function exportElementTypes() {
+  if (customElementTypes.length === 0) {
+    alert('No custom element types to export yet!\n\nStart cropping elements and classifying them first.');
+    return;
+  }
+
+  // Create JSON file
+  const exportData = {
+    exportDate: new Date().toISOString(),
+    totalElements: customElementTypes.length,
+    elements: customElementTypes,
+    usedClassIds: Array.from(usedClassIds).sort((a, b) => a - b)
+  };
+
+  const jsonString = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  // Create download link
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `custom_element_types_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  console.log(`✅ Exported ${customElementTypes.length} custom element types`);
+  alert(`✅ Exported ${customElementTypes.length} custom element types!\n\nFile saved as: ${a.download}`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -323,14 +369,13 @@ function handleClick(e) {
     return;
   }
 
-  // If paused, block all other clicks
+  // If paused, allow all clicks - user can freely navigate
   if (cropperPaused) {
-    e.preventDefault();
-    e.stopPropagation();
+    // Don't prevent default - let clicks work normally
     return;
   }
 
-  // Prevent normal click behavior
+  // Only prevent normal click behavior when NOT paused
   e.preventDefault();
   e.stopPropagation();
 }
@@ -779,11 +824,14 @@ async function loadPlatformIds() {
       if (response && response.success) {
         platformIds = response.data;
 
-        // Find the highest class ID to determine nextClassId
+        // Find the highest class ID and track all used IDs
         let maxClassId = 55; // Current known max
+        usedClassIds.clear();
+
         for (const platform in platformIds) {
           for (const elementKey in platformIds[platform]) {
             const classId = platformIds[platform][elementKey].classId;
+            usedClassIds.add(classId);
             if (classId > maxClassId) {
               maxClassId = classId;
             }
@@ -792,6 +840,15 @@ async function loadPlatformIds() {
         nextClassId = maxClassId + 1;
 
         console.log(`📋 Loaded platform IDs. Next class ID: ${nextClassId}`);
+        console.log(`📋 Tracking ${usedClassIds.size} used class IDs`);
+      }
+    });
+
+    // Also load custom element types from storage
+    chrome.storage.local.get('customElementTypes', (result) => {
+      if (result.customElementTypes) {
+        customElementTypes = result.customElementTypes;
+        console.log(`📋 Loaded ${customElementTypes.length} custom element types`);
       }
     });
   } catch (error) {
@@ -864,7 +921,7 @@ async function promptForElementInfo() {
         />
       </div>
 
-      <div style="margin-bottom: 20px;">
+      <div style="margin-bottom: 16px;">
         <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #333;">
           Description (e.g., Twitter: Follow button)
         </label>
@@ -885,8 +942,34 @@ async function promptForElementInfo() {
         />
       </div>
 
-      <div style="font-size: 12px; color: #999; margin-bottom: 16px; padding: 8px; background: #f5f5f5; border-radius: 4px;">
-        <strong>Class ID:</strong> ${nextClassId} (auto-assigned)
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #333;">
+          Class ID (default: ${nextClassId})
+        </label>
+        <input
+          id="element-classid-input"
+          type="number"
+          value="${nextClassId}"
+          min="0"
+          max="999"
+          placeholder="${nextClassId}"
+          style="
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            cursor: text;
+            pointer-events: auto;
+          "
+        />
+        <div id="classid-error" style="font-size: 11px; color: #f44336; margin-top: 4px; display: none;">
+          ⚠️ This class ID is already in use!
+        </div>
+        <div style="font-size: 11px; color: #999; margin-top: 4px;">
+          You can manually set any class ID (0-999)
+        </div>
       </div>
 
       <div style="display: flex; gap: 8px;">
@@ -928,6 +1011,8 @@ async function promptForElementInfo() {
 
     const nameInput = dialog.querySelector('#element-name-input');
     const descriptionInput = dialog.querySelector('#element-description-input');
+    const classIdInput = dialog.querySelector('#element-classid-input');
+    const classIdError = dialog.querySelector('#classid-error');
     const confirmBtn = dialog.querySelector('#element-confirm-btn');
     const cancelBtn = dialog.querySelector('#element-cancel-btn');
 
@@ -945,6 +1030,29 @@ async function promptForElementInfo() {
     descriptionInput.addEventListener('click', (e) => {
       e.stopPropagation();
       descriptionInput.focus();
+    });
+
+    classIdInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      classIdInput.focus();
+    });
+
+    // Validate class ID on input
+    classIdInput.addEventListener('input', (e) => {
+      const classId = parseInt(classIdInput.value);
+      if (usedClassIds.has(classId)) {
+        classIdError.style.display = 'block';
+        classIdInput.style.borderColor = '#f44336';
+        confirmBtn.disabled = true;
+        confirmBtn.style.opacity = '0.5';
+        confirmBtn.style.cursor = 'not-allowed';
+      } else {
+        classIdError.style.display = 'none';
+        classIdInput.style.borderColor = '#ddd';
+        confirmBtn.disabled = false;
+        confirmBtn.style.opacity = '1';
+        confirmBtn.style.cursor = 'pointer';
+      }
     });
 
     // Focus name input
@@ -968,23 +1076,40 @@ async function promptForElementInfo() {
 
       const name = nameInput.value.trim();
       const description = descriptionInput.value.trim();
+      const classId = parseInt(classIdInput.value);
 
       if (!name || !description) {
         alert("Please provide both name and description!");
         return;
       }
 
+      if (isNaN(classId) || classId < 0 || classId > 999) {
+        alert("Class ID must be a number between 0 and 999!");
+        return;
+      }
+
+      if (usedClassIds.has(classId)) {
+        alert("This class ID is already in use! Please choose a different one.");
+        return;
+      }
+
       modal.remove();
       isClassificationModalOpen = false;
       modalClosedTimestamp = Date.now();
+
+      // Add to used class IDs
+      usedClassIds.add(classId);
+
+      // Update nextClassId if needed
+      if (classId >= nextClassId) {
+        nextClassId = classId + 1;
+      }
+
       resolve({
         name: name,
         description: description,
-        classId: nextClassId
+        classId: classId
       });
-
-      // Increment for next element
-      nextClassId++;
     };
 
     // Handle cancel
@@ -1010,17 +1135,44 @@ async function promptForElementInfo() {
 }
 
 function saveNewElementType(elementInfo) {
-  // Send to service worker to save to platform_ids.json
+  // Add to custom element types array
+  const elementData = {
+    name: elementInfo.name,
+    description: elementInfo.description,
+    classId: elementInfo.classId,
+    timestamp: new Date().toISOString(),
+    platform: detectCurrentPlatform()
+  };
+
+  customElementTypes.push(elementData);
+
+  // Save to chrome storage
+  chrome.storage.local.set({ customElementTypes: customElementTypes }, () => {
+    console.log(`✅ Element type saved locally: ${elementInfo.name} (class ${elementInfo.classId})`);
+  });
+
+  // Also send to service worker
   chrome.runtime.sendMessage({
     action: 'SAVE_ELEMENT_TYPE',
     data: elementInfo
   }, (response) => {
     if (response && response.success) {
-      console.log(`✅ Element type saved: ${elementInfo.name}`);
+      console.log(`✅ Element type saved to service worker: ${elementInfo.name}`);
     } else {
-      console.error(`❌ Failed to save element type: ${response?.error}`);
+      console.error(`❌ Failed to save element type to service worker: ${response?.error}`);
     }
   });
+}
+
+function detectCurrentPlatform() {
+  const hostname = window.location.hostname;
+  if (hostname.includes('twitter.com') || hostname.includes('x.com')) return 'twitter';
+  if (hostname.includes('instagram.com')) return 'instagram';
+  if (hostname.includes('facebook.com')) return 'facebook';
+  if (hostname.includes('threads.net') || hostname.includes('threads.com')) return 'threads';
+  if (hostname.includes('linkedin.com')) return 'linkedin';
+  if (hostname.includes('reddit.com')) return 'reddit';
+  return 'unknown';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
