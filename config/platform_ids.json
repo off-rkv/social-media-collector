@@ -1,122 +1,10 @@
 {
-  "facebook": {
-    "facebook_post_container": {
-      "selector": "div[role='article']",
-      "fallbackSelectors": [],
-      "classId": 18,
-      "description": "Facebook post container"
-    },
-    "facebook_profile_picture": {
-      "selector": "div[role='article'] img[referrerpolicy='origin-when-cross-origin']",
-      "fallbackSelectors": [
-        "div[role='article'] a[role='link'] img[alt]",
-        "div[role='article'] image"
-      ],
-      "classId": 19,
-      "description": "User profile picture"
-    },
-    "facebook_username": {
-      "selector": "div[role='article'] h2 strong a",
-      "fallbackSelectors": [
-        "div[role='article'] a[role='link'] strong",
-        "div[role='article'] strong span"
-      ],
-      "classId": 20,
-      "description": "Username or page name"
-    },
-    "facebook_verified_badge": {
-      "selector": "div[role='article'] svg[aria-label*='Verified']",
-      "fallbackSelectors": [
-        "svg[aria-label*='verified']"
-      ],
-      "classId": 21,
-      "description": "Verified badge"
-    },
-    "facebook_timestamp": {
-      "selector": "div[role='article'] a[aria-label*='ago']",
-      "fallbackSelectors": [
-        "div[role='article'] span[id] a"
-      ],
-      "classId": 22,
-      "description": "Post timestamp"
-    },
-    "facebook_post_text": {
-      "selector": "div[role='article'] div[data-ad-preview='message']",
-      "fallbackSelectors": [
-        "div[role='article'] div[dir='auto'][style*='text-align']",
-        "div[role='article'] div[class*='text']"
-      ],
-      "classId": 23,
-      "description": "Post text content"
-    },
-    "facebook_post_image": {
-      "selector": "div[role='article'] img[data-visualcompletion='media-vc-image']",
-      "fallbackSelectors": [
-        "div[role='article'] div[role='presentation'] img"
-      ],
-      "classId": 24,
-      "description": "Post image"
-    },
-    "facebook_post_video": {
-      "selector": "div[role='article'] div[role='presentation'] video",
-      "fallbackSelectors": [
-        "div[role='article'] video"
-      ],
-      "classId": 25,
-      "description": "Post video"
-    },
-    "facebook_like_button": {
-      "selector": "div[role='article'] div[aria-label*='Like']",
-      "fallbackSelectors": [
-        "div[role='article'] div[role='button'][aria-label*='Like']"
-      ],
-      "classId": 26,
-      "description": "Like button"
-    },
-    "facebook_comment_button": {
-      "selector": "div[role='article'] div[aria-label*='Comment']",
-      "fallbackSelectors": [
-        "div[role='article'] div[role='button'][aria-label*='Comment']"
-      ],
-      "classId": 27,
-      "description": "Comment button"
-    },
-    "facebook_share_button": {
-      "selector": "div[role='article'] div[aria-label*='Share']",
-      "fallbackSelectors": [
-        "div[role='article'] div[role='button'][aria-label*='Share']",
-        "div[role='article'] div[aria-label*='Send']"
-      ],
-      "classId": 28,
-      "description": "Share button"
-    },
-    "facebook_like_count": {
-      "selector": "div[role='article'] div[role='toolbar'] span[aria-hidden='true']",
-      "fallbackSelectors": [
-        "div[role='article'] span[aria-label*='reactions']"
-      ],
-      "classId": 29,
-      "description": "Like/reaction count"
-    },
-    "facebook_comment_count": {
-      "selector": "div[role='article'] span[aria-label*='comment']",
-      "fallbackSelectors": [],
-      "classId": 30,
-      "description": "Comment count"
-    },
-    "facebook_share_count": {
-      "selector": "div[role='article'] span[aria-label*='share']",
-      "fallbackSelectors": [],
-      "classId": 31,
-      "description": "Share count"
-    }
-  },
   "twitter": {
     "twitter_tweet_container": {
       "selector": "[data-testid='tweet']",
       "fallbackSelectors": ["article[role='article']"],
       "classId": 0,
-      "description": "Full tweet container"
+      "description": "Twitter: Full tweet container"
     },
     "twitter_profile_picture": {
       "selector": "a[role='link'] img[alt]",
@@ -127,49 +15,49 @@
         "a[href*='/photo'] img:first-of-type"
       ],
       "classId": 1,
-      "description": "User profile picture"
+      "description": "Twitter: User profile picture"
     },
     "twitter_username": {
       "selector": "[data-testid='User-Name'] span",
       "fallbackSelectors": ["[dir='ltr'] > span"],
       "classId": 2,
-      "description": "Username text"
+      "description": "Twitter: Username text"
     },
     "twitter_user_id": {
       "selector": "[data-testid='User-Name'] a[href*='/']",
       "fallbackSelectors": [],
       "classId": 3,
-      "description": "User ID / handle"
+      "description": "Twitter: User ID / handle"
     },
     "twitter_like_button": {
       "selector": "[data-testid='like']",
       "fallbackSelectors": ["button[aria-label*='Like']"],
       "classId": 4,
-      "description": "Like button"
+      "description": "Twitter: Like button"
     },
     "twitter_comment_button": {
       "selector": "[data-testid='reply']",
       "fallbackSelectors": ["button[aria-label*='Reply']"],
       "classId": 5,
-      "description": "Reply button"
+      "description": "Twitter: Reply button"
     },
     "twitter_repost_button": {
       "selector": "[data-testid='retweet']",
       "fallbackSelectors": ["button[aria-label*='Repost']"],
       "classId": 6,
-      "description": "Retweet button"
+      "description": "Twitter: Retweet button"
     },
     "twitter_share_button": {
       "selector": "button[aria-label='Share post']",
       "fallbackSelectors": ["[aria-label*='Share']"],
       "classId": 7,
-      "description": "Share button"
+      "description": "Twitter: Share button"
     },
     "twitter_bookmark_button": {
       "selector": "[data-testid='bookmark']",
       "fallbackSelectors": ["button[aria-label*='Bookmark']"],
       "classId": 8,
-      "description": "Bookmark button"
+      "description": "Twitter: Bookmark button"
     },
     "twitter_view_count": {
       "selector": "a[href*='/analytics'] span",
@@ -178,55 +66,289 @@
         "a[href$='/analytics'] span"
       ],
       "classId": 9,
-      "description": "View count number"
+      "description": "Twitter: View count number"
     },
     "twitter_like_count": {
       "selector": "[data-testid='like'] span",
       "fallbackSelectors": [],
       "classId": 10,
-      "description": "Like count number"
+      "description": "Twitter: Like count number"
     },
     "twitter_comment_count": {
       "selector": "[data-testid='reply'] span",
       "fallbackSelectors": [],
       "classId": 11,
-      "description": "Comment/reply count"
+      "description": "Twitter: Comment/reply count"
     },
     "twitter_repost_count": {
       "selector": "[data-testid='retweet'] span",
       "fallbackSelectors": [],
       "classId": 12,
-      "description": "Repost count"
+      "description": "Twitter: Repost count"
     },
     "twitter_post_text": {
       "selector": "[data-testid='tweetText']",
       "fallbackSelectors": ["[lang]"],
       "classId": 13,
-      "description": "Tweet text content"
+      "description": "Twitter: Tweet text content"
     },
     "twitter_post_image": {
       "selector": "[data-testid='tweetPhoto'] img",
       "fallbackSelectors": ["img[alt='Image']"],
       "classId": 14,
-      "description": "Tweet image"
+      "description": "Twitter: Tweet image"
     },
     "twitter_post_video": {
       "selector": "[data-testid='videoPlayer']",
       "fallbackSelectors": ["[data-testid='videoComponent']", "video"],
       "classId": 15,
-      "description": "Tweet video player"
+      "description": "Twitter: Tweet video player"
     },
     "twitter_timestamp": {
       "selector": "time",
       "fallbackSelectors": [],
       "classId": 16,
-      "description": "Tweet timestamp"
+      "description": "Twitter: Tweet timestamp"
     },
     "twitter_verified_badge": {
       "selector": "[data-testid='icon-verified']",
       "fallbackSelectors": ["svg[aria-label*='Verified']"],
       "classId": 17,
-      "description": "Verified checkmark badge"
+      "description": "Twitter: Verified checkmark badge"
+    }
+  },
+  "facebook": {
+    "facebook_post_container": {
+      "selector": "[role='article']",
+      "fallbackSelectors": ["div[data-pagelet*='FeedUnit']"],
+      "classId": 18,
+      "description": "Facebook: Full post container"
+    },
+    "facebook_profile_picture": {
+      "selector": "a[role='link'] img[referrerpolicy='origin-when-cross-origin']",
+      "fallbackSelectors": ["img[alt*='profile picture']"],
+      "classId": 19,
+      "description": "Facebook: Profile avatar (circular)"
+    },
+    "facebook_username": {
+      "selector": "a[role='link'] strong span",
+      "fallbackSelectors": ["strong[dir='auto']"],
+      "classId": 20,
+      "description": "Facebook: Page name or username"
+    },
+    "facebook_verified_badge": {
+      "selector": "svg[aria-label='Verified']",
+      "fallbackSelectors": ["image[*='verified']"],
+      "classId": 21,
+      "description": "Facebook: Verified checkmark badge"
+    },
+    "facebook_timestamp": {
+      "selector": "a[aria-label*='ago'] span",
+      "fallbackSelectors": ["a[href*='/posts/'] span[dir='auto']"],
+      "classId": 22,
+      "description": "Facebook: Time indicator (3d, 5h, etc.)"
+    },
+    "facebook_post_text": {
+      "selector": "div[data-ad-preview='message']",
+      "fallbackSelectors": ["div[dir='auto'][style*='text-align']"],
+      "classId": 23,
+      "description": "Facebook: Post caption text"
+    },
+    "facebook_like_button": {
+      "selector": "[aria-label='Like']",
+      "fallbackSelectors": ["div[role='button'] svg[aria-label*='Like']"],
+      "classId": 24,
+      "description": "Facebook: Like button with thumbs up icon"
+    },
+    "facebook_comment_button": {
+      "selector": "[aria-label='Comment']",
+      "fallbackSelectors": ["div[role='button'] svg[aria-label*='Comment']"],
+      "classId": 25,
+      "description": "Facebook: Comment button"
+    },
+    "facebook_share_button": {
+      "selector": "[aria-label='Share']",
+      "fallbackSelectors": ["div[role='button'] svg[aria-label*='Share']"],
+      "classId": 26,
+      "description": "Facebook: Share button"
+    },
+    "facebook_reaction_like": {
+      "selector": "svg[aria-label*='Like:']",
+      "fallbackSelectors": ["image[*='like']"],
+      "classId": 27,
+      "description": "Facebook: Like reaction icon"
+    },
+    "facebook_reaction_count": {
+      "selector": "span[aria-label*='All reactions:']",
+      "fallbackSelectors": ["div[role='button'] span[dir='auto']"],
+      "classId": 28,
+      "description": "Facebook: Total reaction count (151K)"
+    },
+    "facebook_comment_count": {
+      "selector": "span[role='button']",
+      "fallbackSelectors": ["a[href*='/posts/'] span"],
+      "classId": 29,
+      "description": "Facebook: Comment count text"
+    },
+    "facebook_share_count": {
+      "selector": "span[aria-label*='share']",
+      "fallbackSelectors": ["div[role='button'] span[dir='auto']"],
+      "classId": 30,
+      "description": "Facebook: Share count text"
+    }
+  },
+  "instagram": {
+    "instagram_post_container": {
+      "selector": "article:not([role])",
+      "fallbackSelectors": ["article"],
+      "classId": 31,
+      "description": "Instagram: Full post container"
+    },
+    "instagram_profile_picture": {
+      "selector": "img[alt*=\"'s profile picture\"]",
+      "fallbackSelectors": ["header img", "img[alt*='profile']"],
+      "classId": 32,
+      "description": "Instagram: Profile picture (circular)"
+    },
+    "instagram_username": {
+      "selector": "a",
+      "fallbackSelectors": ["header a", "a[href^='/']"],
+      "classId": 33,
+      "description": "Instagram: Username text"
+    },
+    "instagram_verified_badge": {
+      "selector": "svg[aria-label='Verified']",
+      "fallbackSelectors": ["svg[aria-label*='Verified']"],
+      "classId": 34,
+      "description": "Instagram: Verified badge"
+    },
+    "instagram_timestamp": {
+      "selector": "time[datetime]",
+      "fallbackSelectors": ["time", "a time"],
+      "classId": 35,
+      "description": "Instagram: Post timestamp"
+    },
+    "instagram_post_text": {
+      "selector": "h1",
+      "fallbackSelectors": ["span[dir='auto']", "div[style*='text'] span"],
+      "classId": 36,
+      "description": "Instagram: Post caption text"
+    },
+    "instagram_post_image": {
+      "selector": "img[alt*='Photo by']",
+      "fallbackSelectors": ["img[alt*='Image']", "img[srcset]"],
+      "classId": 37,
+      "description": "Instagram: Post image/photo"
+    },
+    "instagram_like_button": {
+      "selector": "svg[aria-label='Like']",
+      "fallbackSelectors": ["svg[aria-label*='like' i]"],
+      "classId": 38,
+      "description": "Instagram: Like button (heart outline)"
+    },
+    "instagram_comment_button": {
+      "selector": "svg[aria-label='Comment']",
+      "fallbackSelectors": ["svg[aria-label*='comment' i]"],
+      "classId": 39,
+      "description": "Instagram: Comment button (speech bubble)"
+    },
+    "instagram_share_button": {
+      "selector": "svg[aria-label='Share']",
+      "fallbackSelectors": ["svg[aria-label*='share' i]"],
+      "classId": 40,
+      "description": "Instagram: Share button (paper plane)"
+    },
+    "instagram_save_button": {
+      "selector": "svg[aria-label='Save']",
+      "fallbackSelectors": ["svg[aria-label*='save' i]"],
+      "classId": 41,
+      "description": "Instagram: Save button (bookmark)"
+    },
+    "instagram_more_options": {
+      "selector": "svg[aria-label='More options']",
+      "fallbackSelectors": ["svg[aria-label*='More']"],
+      "classId": 42,
+      "description": "Instagram: More options menu (three dots)"
+    },
+    "instagram_like_count": {
+      "selector": "span",
+      "fallbackSelectors": ["section span", "button span"],
+      "classId": 43,
+      "description": "Instagram: Like count text"
+    },
+    "instagram_post_video": {
+      "selector": "video",
+      "fallbackSelectors": ["video[playsinline]", "div[role='button'] video"],
+      "classId": 44,
+      "description": "Instagram: Post video player"
+    }
+  },
+  "threads": {
+    "threads_post_container": {
+      "selector": "div[role='article']",
+      "fallbackSelectors": ["div[class*='x1n2onr6']"],
+      "classId": 45,
+      "description": "Threads: Full post container"
+    },
+    "threads_profile_picture": {
+      "selector": "img[alt*=\"'s profile picture\"]",
+      "fallbackSelectors": ["button img[alt*='profile']"],
+      "classId": 46,
+      "description": "Threads: Profile avatar (36px circle)"
+    },
+    "threads_username": {
+      "selector": "a[href^='/@'] span",
+      "fallbackSelectors": ["div[role='button'] span"],
+      "classId": 47,
+      "description": "Threads: Username text (bold)"
+    },
+    "threads_verified_badge": {
+      "selector": "svg[aria-label='Verified']",
+      "fallbackSelectors": ["svg[title='Verified']"],
+      "classId": 48,
+      "description": "Threads: Verified badge (check/star)"
+    },
+    "threads_timestamp": {
+      "selector": "time",
+      "fallbackSelectors": ["a time"],
+      "classId": 49,
+      "description": "Threads: Post timestamp (4h, 3d, etc.)"
+    },
+    "threads_post_text": {
+      "selector": "div[dir='auto'][style*='text-align']",
+      "fallbackSelectors": ["div[class*='x1iorvi4'] span"],
+      "classId": 50,
+      "description": "Threads: Post text content"
+    },
+    "threads_like_button": {
+      "selector": "svg[title='Like']",
+      "fallbackSelectors": ["button[aria-label='Like']"],
+      "classId": 51,
+      "description": "Threads: Like button (heart outline)"
+    },
+    "threads_reply_button": {
+      "selector": "svg[title='Reply']",
+      "fallbackSelectors": ["button svg[aria-label='Reply']"],
+      "classId": 52,
+      "description": "Threads: Reply button (curved arrow)"
+    },
+    "threads_repost_button": {
+      "selector": "svg[title='Repost']",
+      "fallbackSelectors": ["button svg[aria-label='Repost']"],
+      "classId": 53,
+      "description": "Threads: Repost button (loop arrows)"
+    },
+    "threads_share_button": {
+      "selector": "svg[title='Share']",
+      "fallbackSelectors": ["button svg[aria-label='Share']"],
+      "classId": 54,
+      "description": "Threads: Share button (send arrow)"
+    },
+    "threads_like_count": {
+      "selector": "div[role='button'] span[dir='auto']",
+      "fallbackSelectors": ["button span"],
+      "classId": 55,
+      "description": "Threads: Like count number"
     }
   }
 }
