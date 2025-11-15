@@ -1,4 +1,116 @@
 {
+  "facebook": {
+    "facebook_post_container": {
+      "selector": "div[role='article']",
+      "fallbackSelectors": [],
+      "classId": 0,
+      "description": "Facebook post container"
+    },
+    "facebook_profile_picture": {
+      "selector": "div[role='article'] img[referrerpolicy='origin-when-cross-origin']",
+      "fallbackSelectors": [
+        "div[role='article'] a[role='link'] img[alt]",
+        "div[role='article'] image"
+      ],
+      "classId": 1,
+      "description": "User profile picture"
+    },
+    "facebook_username": {
+      "selector": "div[role='article'] h2 strong a",
+      "fallbackSelectors": [
+        "div[role='article'] a[role='link'] strong",
+        "div[role='article'] strong span"
+      ],
+      "classId": 2,
+      "description": "Username or page name"
+    },
+    "facebook_verified_badge": {
+      "selector": "div[role='article'] svg[aria-label*='Verified']",
+      "fallbackSelectors": [
+        "svg[aria-label*='verified']"
+      ],
+      "classId": 3,
+      "description": "Verified badge"
+    },
+    "facebook_timestamp": {
+      "selector": "div[role='article'] a[aria-label*='ago']",
+      "fallbackSelectors": [
+        "div[role='article'] span[id] a"
+      ],
+      "classId": 4,
+      "description": "Post timestamp"
+    },
+    "facebook_post_text": {
+      "selector": "div[role='article'] div[data-ad-preview='message']",
+      "fallbackSelectors": [
+        "div[role='article'] div[dir='auto'][style*='text-align']",
+        "div[role='article'] div[class*='text']"
+      ],
+      "classId": 5,
+      "description": "Post text content"
+    },
+    "facebook_post_image": {
+      "selector": "div[role='article'] img[data-visualcompletion='media-vc-image']",
+      "fallbackSelectors": [
+        "div[role='article'] div[role='presentation'] img"
+      ],
+      "classId": 6,
+      "description": "Post image"
+    },
+    "facebook_post_video": {
+      "selector": "div[role='article'] div[role='presentation'] video",
+      "fallbackSelectors": [
+        "div[role='article'] video"
+      ],
+      "classId": 7,
+      "description": "Post video"
+    },
+    "facebook_like_button": {
+      "selector": "div[role='article'] div[aria-label*='Like']",
+      "fallbackSelectors": [
+        "div[role='article'] div[role='button'][aria-label*='Like']"
+      ],
+      "classId": 8,
+      "description": "Like button"
+    },
+    "facebook_comment_button": {
+      "selector": "div[role='article'] div[aria-label*='Comment']",
+      "fallbackSelectors": [
+        "div[role='article'] div[role='button'][aria-label*='Comment']"
+      ],
+      "classId": 9,
+      "description": "Comment button"
+    },
+    "facebook_share_button": {
+      "selector": "div[role='article'] div[aria-label*='Share']",
+      "fallbackSelectors": [
+        "div[role='article'] div[role='button'][aria-label*='Share']",
+        "div[role='article'] div[aria-label*='Send']"
+      ],
+      "classId": 10,
+      "description": "Share button"
+    },
+    "facebook_like_count": {
+      "selector": "div[role='article'] div[role='toolbar'] span[aria-hidden='true']",
+      "fallbackSelectors": [
+        "div[role='article'] span[aria-label*='reactions']"
+      ],
+      "classId": 11,
+      "description": "Like/reaction count"
+    },
+    "facebook_comment_count": {
+      "selector": "div[role='article'] span[aria-label*='comment']",
+      "fallbackSelectors": [],
+      "classId": 12,
+      "description": "Comment count"
+    },
+    "facebook_share_count": {
+      "selector": "div[role='article'] span[aria-label*='share']",
+      "fallbackSelectors": [],
+      "classId": 13,
+      "description": "Share count"
+    }
+  },
   "twitter": {
     "twitter_tweet_container": {
       "selector": "[data-testid='tweet']",
