@@ -124,7 +124,7 @@ function createCropperUI() {
       margin-bottom: 4px;
       font-weight: 600;
     ">⏸️ Pause Selection</button>
-    <button id="crop-export-btn" style="
+    <button id="crop-export-json-btn" style="
       width: 100%;
       padding: 8px;
       background: #2196F3;
@@ -132,10 +132,22 @@ function createCropperUI() {
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 11px;
       margin-bottom: 4px;
       font-weight: 600;
-    ">📥 Export Element Types</button>
+    ">📥 Export for platform_ids.json</button>
+    <button id="crop-export-full-btn" style="
+      width: 100%;
+      padding: 8px;
+      background: #9C27B0;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    ">📊 Export Full Data</button>
     <button id="crop-clear-btn" style="
       width: 100%;
       padding: 8px;
@@ -169,18 +181,75 @@ function createCropperUI() {
 
   // Add event listeners
   document.getElementById('crop-pause-btn').addEventListener('click', toggleCropperPause);
-  document.getElementById('crop-export-btn').addEventListener('click', exportElementTypes);
+  document.getElementById('crop-export-json-btn').addEventListener('click', exportAsPlatformIdsJson);
+  document.getElementById('crop-export-full-btn').addEventListener('click', exportFullData);
   document.getElementById('crop-clear-btn').addEventListener('click', clearCroppedElements);
   document.getElementById('crop-exit-btn').addEventListener('click', deactivateCropper);
 }
 
-function exportElementTypes() {
+// ═══════════════════════════════════════════════════════════════════════════════
+// EXPORT FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Export in platform_ids.json compatible format
+function exportAsPlatformIdsJson() {
   if (customElementTypes.length === 0) {
     alert('No custom element types to export yet!\n\nStart cropping elements and classifying them first.');
     return;
   }
 
-  // Create JSON file
+  // Group by platform
+  const platformGroups = {};
+
+  customElementTypes.forEach(element => {
+    const platform = element.platform || 'custom';
+    if (!platformGroups[platform]) {
+      platformGroups[platform] = {};
+    }
+
+    // Convert to platform_ids.json format
+    const elementKey = element.name.toLowerCase().replace(/\s+/g, '_');
+    platformGroups[platform][elementKey] = {
+      selector: "PLACEHOLDER", // User needs to fill this in manually
+      fallbackSelectors: [],
+      classId: element.classId,
+      description: element.description
+    };
+  });
+
+  // Create formatted output
+  const exportData = {
+    _comment: "Copy the platform sections below and merge them into your platform_ids.json file",
+    _exportDate: new Date().toISOString(),
+    _totalElements: customElementTypes.length,
+    ...platformGroups
+  };
+
+  const jsonString = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  // Create download link
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `platform_ids_export_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  console.log(`✅ Exported ${customElementTypes.length} elements in platform_ids.json format`);
+  alert(`✅ Exported ${customElementTypes.length} elements!\n\nFormat: platform_ids.json compatible\nFile: ${a.download}\n\n⚠️ Remember to:\n1. Add CSS selectors (currently "PLACEHOLDER")\n2. Merge into your main platform_ids.json file`);
+}
+
+// Export full metadata (original format)
+function exportFullData() {
+  if (customElementTypes.length === 0) {
+    alert('No custom element types to export yet!\n\nStart cropping elements and classifying them first.');
+    return;
+  }
+
+  // Create JSON file with full metadata
   const exportData = {
     exportDate: new Date().toISOString(),
     totalElements: customElementTypes.length,
@@ -201,8 +270,8 @@ function exportElementTypes() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 
-  console.log(`✅ Exported ${customElementTypes.length} custom element types`);
-  alert(`✅ Exported ${customElementTypes.length} custom element types!\n\nFile saved as: ${a.download}`);
+  console.log(`✅ Exported ${customElementTypes.length} custom element types with full metadata`);
+  alert(`✅ Exported ${customElementTypes.length} custom element types!\n\nFormat: Full metadata including timestamps\nFile: ${a.download}`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
