@@ -28,7 +28,7 @@ let dragStart = null;
 let dragEnd = null;
 let croppedElements = []; // Store cropped elements for batch processing
 let platformIds = {}; // Store loaded platform IDs
-let nextClassId = 56; // Start from 56 (current max is 55)
+let nextClassId = 66; // Start from 66 (56-65 reserved for Twitter system elements)
 let usedClassIds = new Set(); // Track all used class IDs to prevent duplicates
 let isClassificationModalOpen = false; // Prevent multiple modals from opening
 let modalClosedTimestamp = 0; // Track when modal was closed to prevent immediate re-trigger
@@ -825,7 +825,7 @@ async function loadPlatformIds() {
         platformIds = response.data;
 
         // Find the highest class ID and track all used IDs
-        let maxClassId = 55; // Current known max
+        let maxClassId = 65; // Current known max (56-65 are Twitter system placeholders)
         usedClassIds.clear();
 
         for (const platform in platformIds) {

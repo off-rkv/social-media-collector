@@ -115,6 +115,66 @@
       "fallbackSelectors": ["svg[aria-label*='Verified']"],
       "classId": 17,
       "description": "Twitter: Verified checkmark badge"
+    },
+    "twitter_sys_element_1": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 56,
+      "description": "Twitter System: Placeholder 1 (edit me)"
+    },
+    "twitter_sys_element_2": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 57,
+      "description": "Twitter System: Placeholder 2 (edit me)"
+    },
+    "twitter_sys_element_3": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 58,
+      "description": "Twitter System: Placeholder 3 (edit me)"
+    },
+    "twitter_sys_element_4": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 59,
+      "description": "Twitter System: Placeholder 4 (edit me)"
+    },
+    "twitter_sys_element_5": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 60,
+      "description": "Twitter System: Placeholder 5 (edit me)"
+    },
+    "twitter_sys_element_6": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 61,
+      "description": "Twitter System: Placeholder 6 (edit me)"
+    },
+    "twitter_sys_element_7": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 62,
+      "description": "Twitter System: Placeholder 7 (edit me)"
+    },
+    "twitter_sys_element_8": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 63,
+      "description": "Twitter System: Placeholder 8 (edit me)"
+    },
+    "twitter_sys_element_9": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 64,
+      "description": "Twitter System: Placeholder 9 (edit me)"
+    },
+    "twitter_sys_element_10": {
+      "selector": "PLACEHOLDER",
+      "fallbackSelectors": [],
+      "classId": 65,
+      "description": "Twitter System: Placeholder 10 (edit me)"
     }
   },
   "facebook": {
