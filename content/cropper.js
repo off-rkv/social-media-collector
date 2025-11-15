@@ -173,6 +173,7 @@ function createCropperUI() {
       • Hover to highlight<br>
       • Click to auto-crop<br>
       • Drag to manual crop<br>
+      • <strong>Ctrl+/</strong> to pause/resume<br>
       • Use popup to generate batch
     </div>
   `;
@@ -292,11 +293,13 @@ function activateCropper() {
   document.addEventListener('click', handleClick, true);
   document.addEventListener('mousedown', handleMouseDown, true);
   document.addEventListener('mouseup', handleMouseUp, true);
+  document.addEventListener('keydown', handleKeyDown, true);
 
   // Change cursor
   document.body.style.cursor = 'crosshair';
 
   console.log("✅ Cropper Mode Active");
+  console.log("💡 Press Ctrl+/ to pause/resume selection");
 }
 
 function deactivateCropper() {
@@ -313,6 +316,7 @@ function deactivateCropper() {
   document.removeEventListener('click', handleClick, true);
   document.removeEventListener('mousedown', handleMouseDown, true);
   document.removeEventListener('mouseup', handleMouseUp, true);
+  document.removeEventListener('keydown', handleKeyDown, true);
 
   // Restore cursor
   document.body.style.cursor = '';
@@ -340,8 +344,10 @@ function toggleCropperPause() {
 
   if (cropperPaused) {
     // Paused - disable selection
-    pauseBtn.style.background = '#4CAF50';
-    pauseBtn.innerHTML = '▶️ Resume Selection';
+    if (pauseBtn) {
+      pauseBtn.style.background = '#4CAF50';
+      pauseBtn.innerHTML = '▶️ Resume Selection';
+    }
 
     // Hide highlight box
     if (highlightBox) {
@@ -349,19 +355,34 @@ function toggleCropperPause() {
     }
     hoveredElement = null;
 
+    // Show visual feedback
+    showToast('⏸️ Selection Paused (Ctrl+/ to resume)');
     console.log("⏸️ Cropper paused - selection disabled");
   } else {
     // Resumed - enable selection
-    pauseBtn.style.background = '#FF9800';
-    pauseBtn.innerHTML = '⏸️ Pause Selection';
+    if (pauseBtn) {
+      pauseBtn.style.background = '#FF9800';
+      pauseBtn.innerHTML = '⏸️ Pause Selection';
+    }
 
+    // Show visual feedback
+    showToast('▶️ Selection Resumed (Ctrl+/ to pause)');
     console.log("▶️ Cropper resumed - selection enabled");
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 3: MOUSE EVENT HANDLERS
+// SECTION 3: KEYBOARD & MOUSE EVENT HANDLERS
 // ═══════════════════════════════════════════════════════════════════════════════
+
+function handleKeyDown(e) {
+  // Check for Ctrl+/ (Ctrl + ForwardSlash)
+  if (e.ctrlKey && e.key === '/') {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleCropperPause();
+  }
+}
 
 function handleMouseMove(e) {
   if (!cropperActive || cropperPaused) return;
@@ -1244,6 +1265,34 @@ function detectCurrentPlatform() {
   return 'unknown';
 }
 
+// Show toast notification
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 10000002;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    animation: toastFadeInOut 2s ease-in-out;
+    pointer-events: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 2000);
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // SECTION 11: MESSAGE LISTENER
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1537,6 +1586,13 @@ style.textContent = `
     20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  }
+
+  @keyframes toastFadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    90% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
   }
 `;
 document.head.appendChild(style);
