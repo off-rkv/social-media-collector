@@ -30,10 +30,10 @@ const PLATFORM_ZONES = {
     right: 1030,
   },
   facebook: {
-    top: 80,
-    left: 480,
-    bottom: 800,
-    right: 1200,
+    top: 100,
+    left: 20,
+    bottom: 700,
+    right: 700,
   },
   instagram: {
     top: 100,
