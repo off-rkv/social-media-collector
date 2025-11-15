@@ -778,7 +778,7 @@ elements.startBtn.addEventListener("click", async () => {
         isValidPlatform = url.includes("discord.com");
         break;
       case "threads":
-        isValidPlatform = url.includes("threads.net");
+        isValidPlatform = url.includes("threads.net") || url.includes("threads.com");
         break;
       case "youtube":
         isValidPlatform = url.includes("youtube.com");

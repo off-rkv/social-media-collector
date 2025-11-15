@@ -35,7 +35,7 @@
     platform = "instagram";
   } else if (hostname.includes("facebook.com")) {
     platform = "facebook";
-  } else if (hostname.includes("threads.net")) {
+  } else if (hostname.includes("threads.net") || hostname.includes("threads.com")) {
     platform = "threads";
   }
 

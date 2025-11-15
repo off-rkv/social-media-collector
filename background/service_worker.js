@@ -784,7 +784,7 @@ function detectPlatformFromUrl(url) {
   if (url.includes('twitter.com') || url.includes('x.com')) return 'twitter';
   if (url.includes('facebook.com')) return 'facebook';
   if (url.includes('instagram.com')) return 'instagram';
-  if (url.includes('threads.net')) return 'threads';
+  if (url.includes('threads.net') || url.includes('threads.com')) return 'threads';
 
   return 'custom';
 }
