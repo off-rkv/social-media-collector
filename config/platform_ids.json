@@ -1,4 +1,13 @@
 {
+  "_comment_classId_allocation": "ClassId Allocation for YOLO Training - DO NOT OVERLAP",
+  "_classId_ranges": {
+    "twitter": "0-17 (18 elements)",
+    "facebook": "18-30 (13 elements)",
+    "instagram": "31-44 (14 elements)",
+    "threads": "45-55 (11 elements)",
+    "RESERVED": "56-66 (custom selectors - DO NOT USE)",
+    "future_platforms": "67+ (available for new platforms/elements)"
+  },
   "twitter": {
     "twitter_tweet_container": {
       "selector": "[data-testid='tweet']",
