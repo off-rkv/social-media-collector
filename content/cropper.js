@@ -907,7 +907,7 @@ async function promptForElementInfo() {
           "
         />
         <div style="font-size: 11px; color: #666; margin-top: 4px;">
-          💡 FB: 18-30, 56-66 | Twitter: 0-17 | Instagram: 31-44 | Threads: 45-55
+          💡 Twitter: 0-17 | FB: 18-30, 67-78 | Instagram: 31-44 | Threads: 45-55 | Reserved: 56-66
         </div>
       </div>
 
