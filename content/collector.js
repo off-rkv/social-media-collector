@@ -257,6 +257,15 @@ async function collectionLoop() {
       const targetContainers = [];
 
       for (const container of postContainers) {
+        // Skip loading skeletons (Facebook-specific check)
+        if (currentPlatform === 'facebook') {
+          const loadingState = container.querySelector('[data-visualcompletion="loading-state"]');
+          if (loadingState) {
+            console.log(`⏭️ Skipping loading skeleton`);
+            continue;
+          }
+        }
+
         const rect = container.getBoundingClientRect();
         const containerMiddle = rect.top + (rect.height / 2);
 
