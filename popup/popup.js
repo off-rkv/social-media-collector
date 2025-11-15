@@ -655,12 +655,17 @@ elements.zoneBottom.addEventListener("input", handleZoneChange);
 elements.zoneRight.addEventListener("input", handleZoneChange);
 
 async function handleZoneChange() {
-  // Get current values
+  // Get current values (properly handle 0 values!)
+  const top = parseInt(elements.zoneTop.value);
+  const left = parseInt(elements.zoneLeft.value);
+  const bottom = parseInt(elements.zoneBottom.value);
+  const right = parseInt(elements.zoneRight.value);
+
   currentZone = {
-    top: parseInt(elements.zoneTop.value) || 0,
-    left: parseInt(elements.zoneLeft.value) || 0,
-    bottom: parseInt(elements.zoneBottom.value) || 900,
-    right: parseInt(elements.zoneRight.value) || 1920,
+    top: isNaN(top) ? 0 : top,
+    left: isNaN(left) ? 0 : left,
+    bottom: isNaN(bottom) ? 900 : bottom,
+    right: isNaN(right) ? 1920 : right,
   };
 
   // Save to storage
