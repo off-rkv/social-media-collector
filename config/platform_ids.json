@@ -3,7 +3,7 @@
     "facebook_post_container": {
       "selector": "div[role='article']",
       "fallbackSelectors": [],
-      "classId": 0,
+      "classId": 18,
       "description": "Facebook post container"
     },
     "facebook_profile_picture": {
@@ -12,7 +12,7 @@
         "div[role='article'] a[role='link'] img[alt]",
         "div[role='article'] image"
       ],
-      "classId": 1,
+      "classId": 19,
       "description": "User profile picture"
     },
     "facebook_username": {
@@ -21,7 +21,7 @@
         "div[role='article'] a[role='link'] strong",
         "div[role='article'] strong span"
       ],
-      "classId": 2,
+      "classId": 20,
       "description": "Username or page name"
     },
     "facebook_verified_badge": {
@@ -29,7 +29,7 @@
       "fallbackSelectors": [
         "svg[aria-label*='verified']"
       ],
-      "classId": 3,
+      "classId": 21,
       "description": "Verified badge"
     },
     "facebook_timestamp": {
@@ -37,7 +37,7 @@
       "fallbackSelectors": [
         "div[role='article'] span[id] a"
       ],
-      "classId": 4,
+      "classId": 22,
       "description": "Post timestamp"
     },
     "facebook_post_text": {
@@ -46,7 +46,7 @@
         "div[role='article'] div[dir='auto'][style*='text-align']",
         "div[role='article'] div[class*='text']"
       ],
-      "classId": 5,
+      "classId": 23,
       "description": "Post text content"
     },
     "facebook_post_image": {
@@ -54,7 +54,7 @@
       "fallbackSelectors": [
         "div[role='article'] div[role='presentation'] img"
       ],
-      "classId": 6,
+      "classId": 24,
       "description": "Post image"
     },
     "facebook_post_video": {
@@ -62,7 +62,7 @@
       "fallbackSelectors": [
         "div[role='article'] video"
       ],
-      "classId": 7,
+      "classId": 25,
       "description": "Post video"
     },
     "facebook_like_button": {
@@ -70,7 +70,7 @@
       "fallbackSelectors": [
         "div[role='article'] div[role='button'][aria-label*='Like']"
       ],
-      "classId": 8,
+      "classId": 26,
       "description": "Like button"
     },
     "facebook_comment_button": {
@@ -78,7 +78,7 @@
       "fallbackSelectors": [
         "div[role='article'] div[role='button'][aria-label*='Comment']"
       ],
-      "classId": 9,
+      "classId": 27,
       "description": "Comment button"
     },
     "facebook_share_button": {
@@ -87,7 +87,7 @@
         "div[role='article'] div[role='button'][aria-label*='Share']",
         "div[role='article'] div[aria-label*='Send']"
       ],
-      "classId": 10,
+      "classId": 28,
       "description": "Share button"
     },
     "facebook_like_count": {
@@ -95,19 +95,19 @@
       "fallbackSelectors": [
         "div[role='article'] span[aria-label*='reactions']"
       ],
-      "classId": 11,
+      "classId": 29,
       "description": "Like/reaction count"
     },
     "facebook_comment_count": {
       "selector": "div[role='article'] span[aria-label*='comment']",
       "fallbackSelectors": [],
-      "classId": 12,
+      "classId": 30,
       "description": "Comment count"
     },
     "facebook_share_count": {
       "selector": "div[role='article'] span[aria-label*='share']",
       "fallbackSelectors": [],
-      "classId": 13,
+      "classId": 31,
       "description": "Share count"
     }
   },
