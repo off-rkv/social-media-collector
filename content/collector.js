@@ -250,6 +250,7 @@ async function collectionLoop() {
       }
 
       console.log(`📦 Found ${postContainers.length} posts on page`);
+      console.log(`📍 Zone: top=${collectionZone.top}, bottom=${collectionZone.bottom}, left=${collectionZone.left}, right=${collectionZone.right}`);
 
       // ═══════════════════════════════════════════════════════════════════════
       // STEP 2: Find ALL posts in zone (not just one!)
@@ -270,6 +271,8 @@ async function collectionLoop() {
         if (overlapsZone) {
           targetContainers.push(container);
           console.log(`✅ Post in zone (top: ${Math.round(rect.top)}, bottom: ${Math.round(rect.bottom)})`);
+        } else {
+          console.log(`❌ Post NOT in zone: top=${Math.round(rect.top)}, bottom=${Math.round(rect.bottom)}, left=${Math.round(rect.left)}, right=${Math.round(rect.right)}`);
         }
       }
 
