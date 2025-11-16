@@ -413,8 +413,8 @@
   },
   "linkedin": {
     "linkedin_post_container": {
-      "selector": "div[role='listitem']",
-      "fallbackSelectors": ["div[data-view-name='feed-full-update']"],
+      "selector": "div[data-view-name='feed-full-update']",
+      "fallbackSelectors": ["div[role='listitem']"],
       "classId": 150,
       "description": "LinkedIn: Full post container"
     },
