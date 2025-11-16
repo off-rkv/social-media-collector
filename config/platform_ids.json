@@ -410,5 +410,103 @@
       "classId": 55,
       "description": "Threads: Like count number"
     }
+  },
+  "linkedin": {
+    "linkedin_post_container": {
+      "selector": "div[role='listitem']",
+      "fallbackSelectors": ["div[data-view-name='feed-full-update']"],
+      "classId": 150,
+      "description": "LinkedIn: Full post container"
+    },
+    "linkedin_profile_picture": {
+      "selector": "a[data-view-name='feed-actor-image'] img",
+      "fallbackSelectors": ["figure[role='image'] img", "img[alt='']"],
+      "classId": 151,
+      "description": "LinkedIn: Company/profile logo"
+    },
+    "linkedin_username": {
+      "selector": "a[href*='/company/'] p.f44a3832",
+      "fallbackSelectors": ["p.f44a3832.c89e9805"],
+      "classId": 152,
+      "description": "LinkedIn: Company or user name"
+    },
+    "linkedin_follower_count": {
+      "selector": "p.f44a3832.ae317b91._0e39c0ae",
+      "fallbackSelectors": ["p:has-text('followers')"],
+      "classId": 153,
+      "description": "LinkedIn: Follower count text"
+    },
+    "linkedin_post_text": {
+      "selector": "p[data-view-name='feed-commentary']",
+      "fallbackSelectors": ["span[data-testid='expandable-text-box']"],
+      "classId": 154,
+      "description": "LinkedIn: Post caption/text content"
+    },
+    "linkedin_post_image": {
+      "selector": "picture img[src*='media.licdn.com']",
+      "fallbackSelectors": ["img[loading='lazy'][alt]"],
+      "classId": 155,
+      "description": "LinkedIn: Post image/photo"
+    },
+    "linkedin_post_video": {
+      "selector": "video[class*='vjs-tech']",
+      "fallbackSelectors": ["div[data-vjs-player] video", "video[preload='metadata']"],
+      "classId": 156,
+      "description": "LinkedIn: Post video player"
+    },
+    "linkedin_like_button": {
+      "selector": "button[data-view-name='reaction-button']",
+      "fallbackSelectors": ["button[aria-label*='Reaction button']", "svg#thumbs-up-outline-small"],
+      "classId": 157,
+      "description": "LinkedIn: Like/reaction button"
+    },
+    "linkedin_comment_button": {
+      "selector": "button[data-view-name='feed-comment-button']",
+      "fallbackSelectors": ["button:has(svg#comment-small)"],
+      "classId": 158,
+      "description": "LinkedIn: Comment button"
+    },
+    "linkedin_repost_button": {
+      "selector": "button[data-view-name='feed-share-button']",
+      "fallbackSelectors": ["button:has(svg#repost-small)"],
+      "classId": 159,
+      "description": "LinkedIn: Repost/share button"
+    },
+    "linkedin_send_button": {
+      "selector": "button[data-view-name='feed-send-as-message-button']",
+      "fallbackSelectors": ["button:has(svg#send-privately-small)"],
+      "classId": 160,
+      "description": "LinkedIn: Send privately button"
+    },
+    "linkedin_reaction_count": {
+      "selector": "div[data-view-name='feed-reaction-count'] p",
+      "fallbackSelectors": ["div[role='button']:has(svg[id*='consumption-ring']) p"],
+      "classId": 161,
+      "description": "LinkedIn: Total reaction count"
+    },
+    "linkedin_comment_count": {
+      "selector": "div[data-view-name='feed-comment-count'] p",
+      "fallbackSelectors": ["p:has-text('comments')"],
+      "classId": 162,
+      "description": "LinkedIn: Comment count text"
+    },
+    "linkedin_repost_count": {
+      "selector": "div[data-view-name='feed-repost-count'] p",
+      "fallbackSelectors": ["p:has-text('reposts')"],
+      "classId": 163,
+      "description": "LinkedIn: Repost count text"
+    },
+    "linkedin_more_options": {
+      "selector": "button[aria-label='View more options']",
+      "fallbackSelectors": ["svg#overflow-web-ios-small"],
+      "classId": 164,
+      "description": "LinkedIn: More options menu (three dots)"
+    },
+    "linkedin_promoted_label": {
+      "selector": "p:has-text('Promoted')",
+      "fallbackSelectors": ["p.f44a3832.ae317b91"],
+      "classId": 165,
+      "description": "LinkedIn: Promoted/sponsored post label"
+    }
   }
 }
