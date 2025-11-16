@@ -431,8 +431,8 @@
       "description": "LinkedIn: Company or user name"
     },
     "linkedin_follower_count": {
-      "selector": "p.f44a3832.ae317b91._0e39c0ae",
-      "fallbackSelectors": ["p:has-text('followers')"],
+      "selector": "a[href*='/company/'] ~ div p:nth-child(2)",
+      "fallbackSelectors": ["p.f44a3832.ae317b91._0e39c0ae"],
       "classId": 153,
       "description": "LinkedIn: Follower count text"
     },
@@ -462,37 +462,37 @@
     },
     "linkedin_comment_button": {
       "selector": "button[data-view-name='feed-comment-button']",
-      "fallbackSelectors": ["button:has(svg#comment-small)"],
+      "fallbackSelectors": ["button[aria-label*='Comment']"],
       "classId": 158,
       "description": "LinkedIn: Comment button"
     },
     "linkedin_repost_button": {
       "selector": "button[data-view-name='feed-share-button']",
-      "fallbackSelectors": ["button:has(svg#repost-small)"],
+      "fallbackSelectors": ["button[aria-label*='Repost']"],
       "classId": 159,
       "description": "LinkedIn: Repost/share button"
     },
     "linkedin_send_button": {
       "selector": "button[data-view-name='feed-send-as-message-button']",
-      "fallbackSelectors": ["button:has(svg#send-privately-small)"],
+      "fallbackSelectors": ["button[aria-label*='Send']"],
       "classId": 160,
       "description": "LinkedIn: Send privately button"
     },
     "linkedin_reaction_count": {
       "selector": "div[data-view-name='feed-reaction-count'] p",
-      "fallbackSelectors": ["div[role='button']:has(svg[id*='consumption-ring']) p"],
+      "fallbackSelectors": ["button[data-view-name='feed-reaction-count'] p"],
       "classId": 161,
       "description": "LinkedIn: Total reaction count"
     },
     "linkedin_comment_count": {
       "selector": "div[data-view-name='feed-comment-count'] p",
-      "fallbackSelectors": ["p:has-text('comments')"],
+      "fallbackSelectors": ["button[data-view-name='feed-comment-count'] p"],
       "classId": 162,
       "description": "LinkedIn: Comment count text"
     },
     "linkedin_repost_count": {
       "selector": "div[data-view-name='feed-repost-count'] p",
-      "fallbackSelectors": ["p:has-text('reposts')"],
+      "fallbackSelectors": ["button[data-view-name='feed-repost-count'] p"],
       "classId": 163,
       "description": "LinkedIn: Repost count text"
     },
@@ -503,8 +503,8 @@
       "description": "LinkedIn: More options menu (three dots)"
     },
     "linkedin_promoted_label": {
-      "selector": "p:has-text('Promoted')",
-      "fallbackSelectors": ["p.f44a3832.ae317b91"],
+      "selector": "p.f44a3832.ae317b91:nth-child(3)",
+      "fallbackSelectors": ["a[href*='/company/'] ~ div p:nth-child(3)"],
       "classId": 165,
       "description": "LinkedIn: Promoted/sponsored post label"
     }
