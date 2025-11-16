@@ -549,6 +549,7 @@
     "reddit_share_button": {
       "selector": "shreddit-post-share-button",
       "fallbackSelectors": [
+        "button:has(svg[icon-name='share'])",
         "[data-post-click-location='share']",
         "button[aria-label*='share' i]"
       ],
