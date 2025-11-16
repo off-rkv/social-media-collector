@@ -410,5 +410,198 @@
       "classId": 55,
       "description": "Threads: Like count number"
     }
+  },
+  "reddit": {
+    "reddit_post_container": {
+      "selector": "shreddit-post",
+      "fallbackSelectors": ["article"],
+      "classId": 100,
+      "description": "Reddit: Post container (custom web component)"
+    },
+    "reddit_profile_picture": {
+      "selector": "[slot='credit-bar'] img",
+      "fallbackSelectors": [
+        "img[src*='redd.it']",
+        "img[alt*='Avatar']"
+      ],
+      "classId": 101,
+      "description": "Reddit: Subreddit or user avatar"
+    },
+    "reddit_subreddit_name": {
+      "selector": "[slot='credit-bar'] a[data-testid='subreddit-name']",
+      "fallbackSelectors": [
+        "[slot='credit-bar'] a[href^='/r/']",
+        "a[href*='/r/']"
+      ],
+      "classId": 102,
+      "description": "Reddit: Subreddit name (r/linuxhardware)"
+    },
+    "reddit_username": {
+      "selector": "a[href^='/user/']",
+      "fallbackSelectors": [
+        "a[href^='/u/']",
+        "[data-author]"
+      ],
+      "classId": 103,
+      "description": "Reddit: Username link (for user posts, u/username) - NOTE: May not exist on subreddit posts"
+    },
+    "reddit_post_title": {
+      "selector": "a[slot='title']",
+      "fallbackSelectors": [
+        "h1",
+        "[id*='post-title']"
+      ],
+      "classId": 104,
+      "description": "Reddit: Post title text"
+    },
+    "reddit_post_text": {
+      "selector": "div[id*='-post-rtjson-content']",
+      "fallbackSelectors": [
+        "div[slot='text-body']",
+        "p"
+      ],
+      "classId": 105,
+      "description": "Reddit: Post body text content"
+    },
+    "reddit_post_image_container": {
+      "selector": "div[slot='post-media-container']",
+      "fallbackSelectors": [
+        "shreddit-aspect-ratio",
+        "div:has(> img)"
+      ],
+      "classId": 106,
+      "description": "Reddit: Image/video media container"
+    },
+    "reddit_post_image": {
+      "selector": "shreddit-aspect-ratio img",
+      "fallbackSelectors": [
+        "img[src*='preview.redd.it']",
+        "img[src*='i.redd.it']",
+        "[slot='post-media-container'] img",
+        "img[id='post-image']"
+      ],
+      "classId": 107,
+      "description": "Reddit: Post image element"
+    },
+    "reddit_post_video": {
+      "selector": "shreddit-player video",
+      "fallbackSelectors": [
+        "video[src*='v.redd.it']",
+        "[slot='post-media-container'] video",
+        "video"
+      ],
+      "classId": 108,
+      "description": "Reddit: Post video player - NOTE: Only appears on video posts"
+    },
+    "reddit_vote_count": {
+      "selector": "faceplate-number[pretty]",
+      "fallbackSelectors": [
+        "shreddit-post faceplate-number",
+        "[id*='vote-count']"
+      ],
+      "classId": 109,
+      "description": "Reddit: Vote score count (custom element)"
+    },
+    "reddit_timestamp": {
+      "selector": "time[datetime]",
+      "fallbackSelectors": ["time"],
+      "classId": 110,
+      "description": "Reddit: Post timestamp"
+    },
+    "reddit_upvote_button": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "button[aria-label*='upvote' i]",
+        "button[icon='upvote']"
+      ],
+      "classId": 111,
+      "description": "Reddit: Upvote button - TODO: Run reddit_find_buttons.js to find selector"
+    },
+    "reddit_downvote_button": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "button[aria-label*='downvote' i]",
+        "button[icon='downvote']"
+      ],
+      "classId": 112,
+      "description": "Reddit: Downvote button - TODO: Run reddit_find_buttons.js to find selector"
+    },
+    "reddit_comment_button": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "button[aria-label*='comment' i]",
+        "a[aria-label*='comment' i]",
+        "a[href*='/comments/']"
+      ],
+      "classId": 113,
+      "description": "Reddit: Comment button/link - TODO: Run reddit_find_buttons.js to find selector"
+    },
+    "reddit_comment_count": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "span[id*='comment-count']",
+        "faceplate-number"
+      ],
+      "classId": 114,
+      "description": "Reddit: Comment count number - TODO: Run reddit_find_buttons.js to find selector"
+    },
+    "reddit_share_button": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "button[aria-label*='share' i]",
+        "button[icon='share']"
+      ],
+      "classId": 115,
+      "description": "Reddit: Share button - TODO: Run reddit_find_buttons.js to find selector"
+    },
+    "reddit_save_button": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "button[aria-label*='save' i]",
+        "button[icon='bookmark']",
+        "button[icon='save']"
+      ],
+      "classId": 116,
+      "description": "Reddit: Save button - TODO: Run reddit_find_buttons.js to find selector"
+    },
+    "reddit_award_button": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "button[aria-label*='award' i]",
+        "button[icon='gift']"
+      ],
+      "classId": 117,
+      "description": "Reddit: Award/Gift button - TODO: Run reddit_find_buttons.js to find selector"
+    },
+    "reddit_more_options": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "button[aria-label*='more' i]",
+        "button[icon='overflow']",
+        "button[icon='overflow-horizontal']"
+      ],
+      "classId": 118,
+      "description": "Reddit: More options menu - TODO: Run reddit_find_buttons.js to find selector"
+    },
+    "reddit_comment_textarea": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "shreddit-composer textarea",
+        "textarea[placeholder*='comment' i]",
+        "faceplate-form textarea"
+      ],
+      "classId": 119,
+      "description": "Reddit: Comment input textarea - TODO: Click 'Add comment', then run reddit_find_buttons.js"
+    },
+    "reddit_reaction_panel": {
+      "selector": "TODO",
+      "fallbackSelectors": [
+        "shreddit-post faceplate-batch",
+        "div[slot='actionRow']",
+        "div:has(> button[aria-label*='upvote'])"
+      ],
+      "classId": 120,
+      "description": "Reddit: Action bar container - TODO: Run reddit_find_buttons.js to find selector"
+    }
   }
 }
