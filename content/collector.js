@@ -336,13 +336,17 @@ async function collectionLoop() {
           const selector = elementConfig.selector;
           const fallbackSelectors = elementConfig.fallbackSelectors || [];
 
+          // ═══ SHADOW DOM SUPPORT ═══
+          // Reddit uses Shadow DOM, so we need to search inside shadowRoot
+          const searchRoot = targetContainer.shadowRoot || targetContainer;
+
           // Try primary
-          let elements = targetContainer.querySelectorAll(selector);
+          let elements = searchRoot.querySelectorAll(selector);
 
           // Try fallbacks if needed
           if (elements.length === 0 && fallbackSelectors.length > 0) {
             for (const fallback of fallbackSelectors) {
-              elements = targetContainer.querySelectorAll(fallback);
+              elements = searchRoot.querySelectorAll(fallback);
               if (elements.length > 0) {
                 break;
               }
