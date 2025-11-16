@@ -3,6 +3,7 @@
 **Date:** 2025-11-16
 **Platform:** Reddit (New Design)
 **Status:** ✅ **COMPLETE!** (20/21 selectors working, 1 TODO)
+**Zone Fix:** ✅ **APPLIED** - Reaction buttons now use overlap check instead of full containment
 
 ---
 

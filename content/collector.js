@@ -390,14 +390,49 @@ async function collectionLoop() {
                 console.log(`⚠️ ${elementType} outside zone (left: ${Math.round(rect.left)}, zone.left: ${collectionZone.left})`);
               }
             } else {
-              // For other elements, check if fully in zone
-              if (window.CollectorHelpers.isElementInZone(elem, collectionZone)) {
-                foundElements.push({
-                  element: elem,
-                  type: elementType,
-                  classId: elementConfig.classId
-                });
-                console.log(`✅ ${elementType} (classId: ${elementConfig.classId})`);
+              // ═══ SPECIAL HANDLING for reaction panel and buttons ═══
+              // These might extend slightly outside zone, so be lenient
+              const isReactionElement =
+                elementType.includes('reaction') ||
+                elementType.includes('button') ||
+                elementType.includes('_panel');
+
+              if (isReactionElement) {
+                const rect = elem.getBoundingClientRect();
+
+                // Basic dimension check
+                if (rect.width === 0 || rect.height === 0) {
+                  console.log(`⚠️ ${elementType} has zero dimensions`);
+                  continue;
+                }
+
+                // Check if it overlaps with zone (not fully inside)
+                const overlapsZone =
+                  rect.bottom > collectionZone.top &&
+                  rect.top < collectionZone.bottom &&
+                  rect.right > collectionZone.left &&
+                  rect.left < collectionZone.right;
+
+                if (overlapsZone) {
+                  foundElements.push({
+                    element: elem,
+                    type: elementType,
+                    classId: elementConfig.classId
+                  });
+                  console.log(`✅ ${elementType} (classId: ${elementConfig.classId}) [overlap]`);
+                } else {
+                  console.log(`⚠️ ${elementType} outside zone (left: ${Math.round(rect.left)}, zone.left: ${collectionZone.left})`);
+                }
+              } else {
+                // For other elements, check if fully in zone
+                if (window.CollectorHelpers.isElementInZone(elem, collectionZone)) {
+                  foundElements.push({
+                    element: elem,
+                    type: elementType,
+                    classId: elementConfig.classId
+                  });
+                  console.log(`✅ ${elementType} (classId: ${elementConfig.classId})`);
+                }
               }
             }
           }
