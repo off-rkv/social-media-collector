@@ -148,6 +148,18 @@ function createCropperUI() {
       margin-bottom: 4px;
       font-weight: 600;
     ">📊 Export Full Data</button>
+    <button id="crop-preview-btn" style="
+      width: 100%;
+      padding: 8px;
+      background: #00BCD4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    ">👁️ Preview Cropped Elements</button>
     <button id="crop-clear-btn" style="
       width: 100%;
       padding: 8px;
@@ -184,6 +196,7 @@ function createCropperUI() {
   document.getElementById('crop-pause-btn').addEventListener('click', toggleCropperPause);
   document.getElementById('crop-export-json-btn').addEventListener('click', exportAsPlatformIdsJson);
   document.getElementById('crop-export-full-btn').addEventListener('click', exportFullData);
+  document.getElementById('crop-preview-btn').addEventListener('click', showElementsPreview);
   document.getElementById('crop-clear-btn').addEventListener('click', clearCroppedElements);
   document.getElementById('crop-exit-btn').addEventListener('click', deactivateCropper);
 }
@@ -241,6 +254,170 @@ function exportAsPlatformIdsJson() {
 
   console.log(`✅ Exported ${customElementTypes.length} elements in platform_ids.json format`);
   alert(`✅ Exported ${customElementTypes.length} elements!\n\nFormat: platform_ids.json compatible\nFile: ${a.download}\n\n⚠️ Remember to:\n1. Add CSS selectors (currently "PLACEHOLDER")\n2. Merge into your main platform_ids.json file`);
+}
+
+// Show preview of all cropped elements
+function showElementsPreview() {
+  if (croppedElements.length === 0) {
+    alert('No elements cropped yet!\n\nStart cropping elements to see preview.');
+    return;
+  }
+
+  // Create preview modal
+  const modal = document.createElement('div');
+  modal.id = 'preview-modal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000003;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow: auto;
+    padding: 20px;
+  `;
+
+  const container = document.createElement('div');
+  container.style.cssText = `
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  `;
+
+  // Header
+  const header = document.createElement('div');
+  header.style.cssText = `
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e0e0e0;
+  `;
+
+  header.innerHTML = `
+    <div>
+      <h2 style="margin: 0; font-size: 24px; color: #333;">👁️ Cropped Elements Preview</h2>
+      <p style="margin: 8px 0 0 0; font-size: 14px; color: #666;">
+        ${croppedElements.length} element${croppedElements.length !== 1 ? 's' : ''} ready for batch generation
+      </p>
+    </div>
+    <button id="preview-close-btn" style="
+      background: #f44336;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    ">✕ Close</button>
+  `;
+
+  // Elements grid
+  const grid = document.createElement('div');
+  grid.style.cssText = `
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  `;
+
+  // Add each element
+  croppedElements.forEach((element, index) => {
+    const card = document.createElement('div');
+    card.style.cssText = `
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px;
+      background: #f9f9f9;
+      transition: all 0.2s;
+      position: relative;
+    `;
+
+    card.innerHTML = `
+      <div style="position: relative;">
+        <img src="${element.image}" style="
+          width: 100%;
+          height: auto;
+          border-radius: 4px;
+          border: 1px solid #ddd;
+          background: white;
+        " />
+        <button class="delete-element-btn" data-index="${index}" style="
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          background: rgba(244, 67, 54, 0.9);
+          color: white;
+          border: none;
+          border-radius: 4px;
+          padding: 4px 8px;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 600;
+        ">🗑️ Delete</button>
+      </div>
+      <div style="margin-top: 12px;">
+        <div style="font-weight: 600; font-size: 14px; color: #333; margin-bottom: 4px;">
+          ${element.elementName || 'Unnamed Element'}
+        </div>
+        <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+          ${element.elementDescription || 'No description'}
+        </div>
+        <div style="font-size: 11px; color: #999; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e0e0e0;">
+          <strong>Class ID:</strong> ${element.classId}<br>
+          <strong>Type:</strong> ${element.type}<br>
+          <strong>Size:</strong> ${Math.round(element.bbox.width)}×${Math.round(element.bbox.height)}px
+        </div>
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
+
+  container.appendChild(header);
+  container.appendChild(grid);
+  modal.appendChild(container);
+  document.body.appendChild(modal);
+
+  // Close button handler
+  document.getElementById('preview-close-btn').addEventListener('click', () => {
+    modal.remove();
+  });
+
+  // Delete element handlers
+  document.querySelectorAll('.delete-element-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const index = parseInt(e.target.dataset.index);
+      if (confirm(`Delete "${croppedElements[index].elementName}"?\n\nThis cannot be undone.`)) {
+        croppedElements.splice(index, 1);
+        totalElementCount = Math.max(0, totalElementCount - 1);
+        updateCropperUI();
+        sendProgressUpdate();
+        modal.remove();
+        showToast(`✅ Element deleted (${croppedElements.length} remaining)`);
+      }
+    });
+  });
+
+  // Close on background click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
+  console.log(`👁️ Preview shown: ${croppedElements.length} elements`);
 }
 
 // Export full metadata (original format)
