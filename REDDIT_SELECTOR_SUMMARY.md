@@ -2,11 +2,11 @@
 
 **Date:** 2025-11-16
 **Platform:** Reddit (New Design)
-**Status:** ✅ Partial Success (10/21 selectors working)
+**Status:** ✅ **COMPLETE!** (20/21 selectors working, 1 TODO)
 
 ---
 
-## ✅ WORKING SELECTORS (10/21)
+## ✅ WORKING SELECTORS (20/21)
 
 These selectors are **confirmed working** and added to `platform_ids.json`:
 
@@ -15,7 +15,7 @@ These selectors are **confirmed working** and added to `platform_ids.json`:
 | **Container** | 100 | `shreddit-post` | ✅ Working |
 | **Profile Picture** | 101 | `[slot='credit-bar'] img` | ✅ Working |
 | **Subreddit Name** | 102 | `[slot='credit-bar'] a[data-testid='subreddit-name']` | ✅ Working |
-| **Username** | 103 | `a[href^='/user/']` | ⚠️ Only on user posts |
+| **Username** | 103 | `a.author-name` | ✅ Working |
 | **Post Title** | 104 | `a[slot='title']` | ✅ Working |
 | **Post Text** | 105 | `div[id*='-post-rtjson-content']` | ✅ Working |
 | **Image Container** | 106 | `div[slot='post-media-container']` | ✅ Working |
@@ -23,25 +23,23 @@ These selectors are **confirmed working** and added to `platform_ids.json`:
 | **Post Video** | 108 | `shreddit-player video` | ⚠️ Only on video posts |
 | **Vote Count** | 109 | `faceplate-number[pretty]` | ✅ Working |
 | **Timestamp** | 110 | `time[datetime]` | ✅ Working |
+| **Upvote Button** | 111 | `button[upvote]` | ✅ Working |
+| **Downvote Button** | 112 | `button[downvote]` | ✅ Working |
+| **Comment Button** | 113 | `button[data-post-click-location='comments-button']` | ✅ Working |
+| **Comment Count** | 114 | `button[data-post-click-location='comments-button'] faceplate-number` | ✅ Working |
+| **Share Button** | 115 | `shreddit-post-share-button` | ✅ Working |
+| **Award Button** | 117 | `award-button` | ✅ Working |
+| **More Options** | 118 | `shreddit-post-overflow-menu` | ✅ Working |
+| **Comment Textarea** | 119 | `shreddit-composer textarea` | ⚠️ Only after clicking "Add comment" |
+| **Reaction Panel** | 120 | `div[data-testid='action-row']` | ✅ Working |
 
 ---
 
-## ❌ MISSING SELECTORS (11/21)
-
-These selectors need to be found - marked as `"TODO"` in `platform_ids.json`:
+## ❌ STILL MISSING (1/21)
 
 | Element | Class ID | Status |
 |---------|----------|--------|
-| **Upvote Button** | 111 | 🔍 Need to find |
-| **Downvote Button** | 112 | 🔍 Need to find |
-| **Comment Button** | 113 | 🔍 Need to find |
-| **Comment Count** | 114 | 🔍 Need to find |
-| **Share Button** | 115 | 🔍 Need to find |
-| **Save Button** | 116 | 🔍 Need to find |
-| **Award Button** | 117 | 🔍 Need to find |
-| **More Options** | 118 | 🔍 Need to find |
-| **Comment Textarea** | 119 | 🔍 Need to find (click "Add comment" first) |
-| **Reaction Panel** | 120 | 🔍 Need to find |
+| **Save Button** | 116 | 🔍 Need to find - likely hidden in overflow menu or requires interaction |
 
 ---
 

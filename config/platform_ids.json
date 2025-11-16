@@ -437,13 +437,14 @@
       "description": "Reddit: Subreddit name (r/linuxhardware)"
     },
     "reddit_username": {
-      "selector": "a[href^='/user/']",
+      "selector": "a.author-name",
       "fallbackSelectors": [
-        "a[href^='/u/']",
-        "[data-author]"
+        "a[aria-label^='Author:']",
+        "a[href^='/user/']",
+        "a[href^='/u/']"
       ],
       "classId": 103,
-      "description": "Reddit: Username link (for user posts, u/username) - NOTE: May not exist on subreddit posts"
+      "description": "Reddit: Author username link (e.g., levitatorzoned)"
     },
     "reddit_post_title": {
       "selector": "a[slot='title']",
@@ -509,99 +510,96 @@
       "description": "Reddit: Post timestamp"
     },
     "reddit_upvote_button": {
-      "selector": "TODO",
+      "selector": "button[upvote]",
       "fallbackSelectors": [
-        "button[aria-label*='upvote' i]",
-        "button[icon='upvote']"
+        "button:has(faceplate-screen-reader-content:contains('Upvote'))",
+        "button[aria-label*='upvote' i]"
       ],
       "classId": 111,
-      "description": "Reddit: Upvote button - TODO: Run reddit_find_buttons.js to find selector"
+      "description": "Reddit: Upvote button"
     },
     "reddit_downvote_button": {
-      "selector": "TODO",
+      "selector": "button[downvote]",
       "fallbackSelectors": [
-        "button[aria-label*='downvote' i]",
-        "button[icon='downvote']"
+        "button:has(faceplate-screen-reader-content:contains('Downvote'))",
+        "button[aria-label*='downvote' i]"
       ],
       "classId": 112,
-      "description": "Reddit: Downvote button - TODO: Run reddit_find_buttons.js to find selector"
+      "description": "Reddit: Downvote button"
     },
     "reddit_comment_button": {
-      "selector": "TODO",
+      "selector": "button[data-post-click-location='comments-button']",
       "fallbackSelectors": [
-        "button[aria-label*='comment' i]",
-        "a[aria-label*='comment' i]",
+        "button[name='comments-action-button']",
+        "button:has(.icon-comment)",
         "a[href*='/comments/']"
       ],
       "classId": 113,
-      "description": "Reddit: Comment button/link - TODO: Run reddit_find_buttons.js to find selector"
+      "description": "Reddit: Comment button"
     },
     "reddit_comment_count": {
-      "selector": "TODO",
+      "selector": "button[data-post-click-location='comments-button'] faceplate-number",
       "fallbackSelectors": [
-        "span[id*='comment-count']",
-        "faceplate-number"
+        "button[name='comments-action-button'] faceplate-number",
+        "span[id*='comment-count']"
       ],
       "classId": 114,
-      "description": "Reddit: Comment count number - TODO: Run reddit_find_buttons.js to find selector"
+      "description": "Reddit: Comment count number"
     },
     "reddit_share_button": {
-      "selector": "TODO",
+      "selector": "shreddit-post-share-button",
       "fallbackSelectors": [
-        "button[aria-label*='share' i]",
-        "button[icon='share']"
+        "[data-post-click-location='share']",
+        "button[aria-label*='share' i]"
       ],
       "classId": 115,
-      "description": "Reddit: Share button - TODO: Run reddit_find_buttons.js to find selector"
+      "description": "Reddit: Share button (custom element)"
     },
     "reddit_save_button": {
-      "selector": "TODO",
+      "selector": "TODO_NEED_TO_FIND",
       "fallbackSelectors": [
         "button[aria-label*='save' i]",
         "button[icon='bookmark']",
         "button[icon='save']"
       ],
       "classId": 116,
-      "description": "Reddit: Save button - TODO: Run reddit_find_buttons.js to find selector"
+      "description": "Reddit: Save button - NOTE: Not visible in provided HTML, may be in overflow menu"
     },
     "reddit_award_button": {
-      "selector": "TODO",
+      "selector": "award-button",
       "fallbackSelectors": [
-        "button[aria-label*='award' i]",
-        "button[icon='gift']"
+        "[thing-id^='t3_']",
+        "button[aria-label*='award' i]"
       ],
       "classId": 117,
-      "description": "Reddit: Award/Gift button - TODO: Run reddit_find_buttons.js to find selector"
+      "description": "Reddit: Award/Gift button (custom element)"
     },
     "reddit_more_options": {
-      "selector": "TODO",
+      "selector": "shreddit-post-overflow-menu",
       "fallbackSelectors": [
         "button[aria-label*='more' i]",
-        "button[icon='overflow']",
-        "button[icon='overflow-horizontal']"
+        "button[icon='overflow']"
       ],
       "classId": 118,
-      "description": "Reddit: More options menu - TODO: Run reddit_find_buttons.js to find selector"
+      "description": "Reddit: More options overflow menu (custom element)"
     },
     "reddit_comment_textarea": {
-      "selector": "TODO",
+      "selector": "shreddit-composer textarea",
       "fallbackSelectors": [
-        "shreddit-composer textarea",
         "textarea[placeholder*='comment' i]",
         "faceplate-form textarea"
       ],
       "classId": 119,
-      "description": "Reddit: Comment input textarea - TODO: Click 'Add comment', then run reddit_find_buttons.js"
+      "description": "Reddit: Comment input textarea - NOTE: Only appears after clicking 'Add a comment'"
     },
     "reddit_reaction_panel": {
-      "selector": "TODO",
+      "selector": "div[data-testid='action-row']",
       "fallbackSelectors": [
-        "shreddit-post faceplate-batch",
-        "div[slot='actionRow']",
-        "div:has(> button[aria-label*='upvote'])"
+        "[aria-label='Actions available for this post']",
+        "div.shreddit-post-container:has(button[upvote])"
       ],
       "classId": 120,
-      "description": "Reddit: Action bar container - TODO: Run reddit_find_buttons.js to find selector"
+      "description": "Reddit: Action bar container with all interaction buttons"
     }
   }
 }
