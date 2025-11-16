@@ -180,6 +180,31 @@ function isElementVisible(element) {
  *   scroll('up', 35) → Scrolls up 35px (WhatsApp)
  */
 function scroll(direction, amount = 35) {
+  // LinkedIn uses a custom scroll container
+  if (window.location.hostname.includes('linkedin.com')) {
+    // Find LinkedIn's main feed container
+    const feedContainer = document.querySelector('main') || document.querySelector('[role="main"]');
+
+    if (feedContainer) {
+      const previousScroll = feedContainer.scrollTop;
+
+      if (direction === "down") {
+        feedContainer.scrollBy(0, amount);
+      } else if (direction === "up") {
+        feedContainer.scrollBy(0, -amount);
+      }
+
+      const newScroll = feedContainer.scrollTop;
+
+      return {
+        scrolled: newScroll !== previousScroll,
+        position: newScroll,
+        delta: newScroll - previousScroll,
+      };
+    }
+  }
+
+  // Default: scroll main window (for Twitter, Instagram, etc.)
   const previousScrollY = window.scrollY;
 
   if (direction === "down") {
