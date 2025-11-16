@@ -512,8 +512,8 @@
     "reddit_upvote_button": {
       "selector": "button[upvote]",
       "fallbackSelectors": [
-        "button:has(faceplate-screen-reader-content:contains('Upvote'))",
-        "button[aria-label*='upvote' i]"
+        "button[aria-label*='Upvote']",
+        "shreddit-post button[aria-label*='upvote' i]"
       ],
       "classId": 111,
       "description": "Reddit: Upvote button"
@@ -521,8 +521,8 @@
     "reddit_downvote_button": {
       "selector": "button[downvote]",
       "fallbackSelectors": [
-        "button:has(faceplate-screen-reader-content:contains('Downvote'))",
-        "button[aria-label*='downvote' i]"
+        "button[aria-label*='Downvote']",
+        "shreddit-post button[aria-label*='downvote' i]"
       ],
       "classId": 112,
       "description": "Reddit: Downvote button"
